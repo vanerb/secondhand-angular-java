@@ -1,0 +1,205 @@
+<mat-drawer-container [hasBackdrop]="drawerMode === 'over'">
+  <!-- Drawer lateral -->
+  <mat-drawer
+    [mode]="drawerMode"
+    [opened]="isOpen"
+    (closedStart)="onDrawerClosed()"
+    #drawer
+    position="start"
+    style="display: flex; flex-direction: column; max-width: 100px; text-align: center"
+  >
+    <div
+      [style.height]="isLogged ? 'calc(100vh - 218px)' : 'calc(100vh - 189px)'"
+      style="
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+      "
+    >
+      <div
+        (click)="gotTo('/events')"
+        class="menu-item"
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          margin-top: 1.25rem;
+
+          cursor: pointer;
+        "
+      >
+        <i class="bi bi-calendar" style="font-size: 1.5rem"></i>
+        <span style="margin-top: 8px">Events</span>
+      </div>
+
+      <div
+        *ngIf="this.user"
+        (click)="gotTo('/chats')"
+        class="menu-item"
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          margin-top: 1.25rem;
+
+          cursor: pointer;
+        "
+      >
+        <i class="bi bi-chat" style="font-size: 1.5rem"></i>
+        <span style="margin-top: 8px">Chats</span>
+      </div>
+
+      <div
+        (click)="gotTo('/posts')"
+        class="menu-item"
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          margin-top: 1.25rem;
+          cursor: pointer;
+        "
+      >
+        <i class="bi bi-heart" style="font-size: 1.5rem"></i>
+        <span style="margin-top: 8px">Posts</span>
+      </div>
+
+      <div
+        (click)="gotTo('/contact')"
+        class="menu-item"
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          margin-top: 1.25rem;
+          cursor: pointer;
+        "
+      >
+        <i class="bi bi-person-exclamation" style="font-size: 1.5rem"></i>
+        <span style="margin-top: 8px">Contact</span>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div
+      *ngIf="isLogged"
+      (click)="gotTo('/profile')"
+      class="menu-item"
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        cursor: pointer;
+      "
+    >
+      <div
+        style="
+          width: 48px;
+          height: 48px;
+          overflow: hidden;
+          border-radius: 50%;
+          border: 1px solid transparent;
+        "
+      >
+        <img
+          *ngIf="user.image?.url"
+          [src]="'http://localhost:8080' + user.image?.url"
+          alt="No Image"
+          style="width: 100%; height: 100%; object-fit: cover; object-position: center"
+        />
+
+        <img
+          *ngIf="!user.image?.url"
+          src="http://localhost:8080/uploads/No_Image_Available.jpg"
+          alt="No Image"
+          style="width: 100%; height: 100%; object-fit: cover; object-position: center"
+        />
+      </div>
+
+      <span style="margin-top: 8px">My Profile</span>
+    </div>
+
+    <!-- LOGOUT -->
+    <div
+      *ngIf="isLogged"
+      (click)="closeSession()"
+      class="menu-item"
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        cursor: pointer;
+      "
+    >
+      <i class="bi bi-box-arrow-right" style="font-size: 1.5rem"></i>
+      <span style="margin-top: 8px">Logout</span>
+    </div>
+
+    <!-- LOGIN -->
+    <div
+      *ngIf="!isLogged"
+      (click)="gotTo('/login')"
+      class="menu-item"
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1.25rem;
+        cursor: pointer;
+      "
+    >
+      <i class="bi bi-person" style="font-size: 1.5rem"></i>
+      <span style="margin-top: 8px">Login</span>
+    </div>
+
+    <!-- REGISTER -->
+    <div
+      *ngIf="!isLogged"
+      (click)="gotTo('/register')"
+      class="menu-item"
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1.25rem;
+        cursor: pointer;
+      "
+    >
+      <i class="bi bi-person-add" style="font-size: 1.5rem"></i>
+      <span style="margin-top: 8px">Register</span>
+    </div>
+  </mat-drawer>
+
+  <!-- Contenido principal -->
+  <mat-drawer-content>
+    <mat-toolbar
+      color="primary"
+      style="display: flex; align-items: center; padding-left: 16px; padding-right: 16px"
+    >
+      <button mat-button (click)="open()" style="font-size: 1.5rem">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <span style="margin-left: 20px">SecondHand</span>
+
+      <span style="flex: 1"></span>
+    </mat-toolbar>
+
+    <div class="main-content">
+      <ng-content></ng-content>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>
