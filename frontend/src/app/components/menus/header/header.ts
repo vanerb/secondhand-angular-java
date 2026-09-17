@@ -21,7 +21,7 @@ export class Header {
   isOpen: boolean = false;
   isLogged: boolean = false;
   drawerMode: 'side' | 'over' = 'side';
-  user!: User;
+  user!: any;
 
   constructor(
     private readonly authService: AuthService,
