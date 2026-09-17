@@ -22,7 +22,7 @@
 /backend/*.war
 /backend/*.ear
 
-/backend/uploads/*
+/backend/uploads/
 
 # Maven
 /backend/.mvn/timing.properties
