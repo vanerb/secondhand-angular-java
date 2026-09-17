@@ -2,7 +2,7 @@ package com.secondhand.backend.controller;
 
 import com.secondhand.backend.dto.AuthResponse;
 import com.secondhand.backend.dto.LoginRequest;
-import com.secondhand.backend.dto.RegisterRequest;
+import com.secondhand.backend.entity.User;
 import com.secondhand.backend.service.AuthService;
 
 import org.springframework.http.MediaType;
@@ -23,33 +23,40 @@ public class AuthController {
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AuthResponse> register(
-        @RequestParam String name,
-        @RequestParam String cogname,
-        @RequestParam String type,
-        @RequestParam String username,
-        @RequestParam String email,
-        @RequestParam String password,
-        @RequestParam(required = false) MultipartFile image
-) {
-    return ResponseEntity.ok(
-        authService.register(
-            name,
-            cogname,
-            type,
-            username,
-            email,
-            password,
-            image
-        )
-    );
-}
+            @RequestParam String name,
+            @RequestParam String cogname,
+            @RequestParam String type,
+            @RequestParam String username,
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam(required = false) MultipartFile image) {
+        return ResponseEntity.ok(
+                authService.register(
+                        name,
+                        cogname,
+                        type,
+                        username,
+                        email,
+                        password,
+                        image));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-            @RequestBody LoginRequest request
-    ) {
+            @RequestBody LoginRequest request) {
         return ResponseEntity.ok(
-                authService.login(request)
-        );
+                authService.login(request));
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<User> getUserByToken(
+            @RequestHeader("Authorization") String authorization) {
+
+        String token = authorization.substring(7);
+
+        User user = authService.getUserByToken(token);
+
+        return ResponseEntity.ok(user);
+    }
+
 }

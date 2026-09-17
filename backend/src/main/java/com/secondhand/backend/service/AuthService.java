@@ -23,8 +23,7 @@ public class AuthService {
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
-            ImageService imageService
-    ) {
+            ImageService imageService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -38,8 +37,7 @@ public class AuthService {
             String username,
             String email,
             String password,
-            MultipartFile image
-    ) {
+            MultipartFile image) {
 
         // Comprobar si el email ya existe
         if (userRepository.existsByEmail(email)) {
@@ -56,7 +54,7 @@ public class AuthService {
 
         user.setName(name);
         user.setCogname(cogname);
-        if(type == null || type.isEmpty()){
+        if (type == null || type.isEmpty()) {
             user.setType("USER");
         } else {
             user.setType(type);
@@ -66,8 +64,7 @@ public class AuthService {
 
         // Encriptar contraseña
         user.setPassword(
-                passwordEncoder.encode(password)
-        );
+                passwordEncoder.encode(password));
 
         // Guardar usuario para obtener el ID
         userRepository.save(user);
@@ -81,13 +78,11 @@ public class AuthService {
                         image,
                         "USER",
                         user.getId(),
-                        true
-                );
+                        true);
 
                 // Guardamos también la URL en User
                 user.setProfileImage(
-                        savedImage.getUrl()
-                );
+                        savedImage.getUrl());
 
                 userRepository.save(user);
 
@@ -95,15 +90,13 @@ public class AuthService {
 
                 throw new RuntimeException(
                         "No se pudo guardar la imagen de perfil",
-                        e
-                );
+                        e);
             }
         }
 
         // Generar JWT
         String token = jwtService.generateToken(
-                user.getEmail()
-        );
+                user.getEmail());
 
         return new AuthResponse(token);
     }
@@ -112,25 +105,29 @@ public class AuthService {
 
         User user = userRepository
                 .findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Email o contraseña incorrectos"
-                        )
-                );
+                .orElseThrow(() -> new RuntimeException(
+                        "Email o contraseña incorrectos"));
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
-                user.getPassword()
-        )) {
+                user.getPassword())) {
             throw new RuntimeException(
-                    "Email o contraseña incorrectos"
-            );
+                    "Email o contraseña incorrectos");
         }
 
         String token = jwtService.generateToken(
-                user.getEmail()
-        );
+                user.getEmail());
 
         return new AuthResponse(token);
+    }
+
+    public User getUserByToken(String token) {
+
+        String email = jwtService.extractEmail(token);
+
+        return userRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new RuntimeException(
+                        "Usuario no encontrado"));
     }
 }
