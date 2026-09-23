@@ -1,6 +1,6 @@
 package com.secondhand.backend.dto;
 
-public class LoginRequest {
+public class LoginDTO {
     private String email;
     private String password;
 

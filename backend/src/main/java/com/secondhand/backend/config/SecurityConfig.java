@@ -76,6 +76,11 @@ public class SecurityConfig {
                     "/uploads/**"
                 ).permitAll()
 
+                // WEBSOCKET / SOCKJS
+                .requestMatchers(
+                    "/ws/**"
+                ).permitAll()
+
                 // Resto protegido
                 .anyRequest().authenticated()
             )

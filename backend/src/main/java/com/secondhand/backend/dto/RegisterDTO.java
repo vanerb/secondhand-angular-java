@@ -1,6 +1,6 @@
 package com.secondhand.backend.dto;
 
-public class RegisterRequest {
+public class RegisterDTO {
     private String username;
     private String name;
     private String cogname;

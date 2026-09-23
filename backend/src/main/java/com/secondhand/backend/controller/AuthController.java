@@ -1,7 +1,7 @@
 package com.secondhand.backend.controller;
 
-import com.secondhand.backend.dto.AuthResponse;
-import com.secondhand.backend.dto.LoginRequest;
+import com.secondhand.backend.dto.AuthDTO;
+import com.secondhand.backend.dto.LoginDTO;
 import com.secondhand.backend.entity.User;
 import com.secondhand.backend.service.AuthService;
 
@@ -22,7 +22,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AuthResponse> register(
+    public ResponseEntity<AuthDTO> register(
             @RequestParam String name,
             @RequestParam String cogname,
             @RequestParam String type,
@@ -42,8 +42,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
-            @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthDTO> login(
+            @RequestBody LoginDTO request) {
         return ResponseEntity.ok(
                 authService.login(request));
     }

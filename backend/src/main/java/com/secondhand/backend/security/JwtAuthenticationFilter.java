@@ -23,6 +23,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getRequestURI();
+
+        // No aplicar JWT al WebSocket
+        return path.startsWith("/ws");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -32,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader =
                 request.getHeader("Authorization");
 
-        // Si no hay token, simplemente continuar
+        // Si no hay token, continuar
         if (authHeader == null ||
             !authHeader.startsWith("Bearer ")) {
 
@@ -60,8 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            // Token inválido: no autenticamos,
-            // pero dejamos continuar la petición
             SecurityContextHolder.clearContext();
         }
 

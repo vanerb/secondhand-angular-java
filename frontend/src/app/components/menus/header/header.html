@@ -79,14 +79,14 @@
         "
       >
         <img
-          *ngIf="user.profileImage"
+          *ngIf="user?.profileImage"
           [src]="'http://localhost:8080' + user.profileImage"
           alt="No Image"
           style="width: 100%; height: 100%; object-fit: cover; object-position: center"
         />
 
         <img
-          *ngIf="!user.profileImage"
+          *ngIf="!user?.profileImage"
           src="http://localhost:8080/uploads/No_Image_Available.jpg"
           alt="No Image"
           style="width: 100%; height: 100%; object-fit: cover; object-position: center"

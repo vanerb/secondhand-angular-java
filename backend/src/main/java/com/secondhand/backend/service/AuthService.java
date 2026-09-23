@@ -1,7 +1,7 @@
 package com.secondhand.backend.service;
 
-import com.secondhand.backend.dto.AuthResponse;
-import com.secondhand.backend.dto.LoginRequest;
+import com.secondhand.backend.dto.AuthDTO;
+import com.secondhand.backend.dto.LoginDTO;
 import com.secondhand.backend.entity.Image;
 import com.secondhand.backend.entity.User;
 import com.secondhand.backend.repository.UserRepository;
@@ -30,7 +30,7 @@ public class AuthService {
         this.imageService = imageService;
     }
 
-    public AuthResponse register(
+    public AuthDTO register(
             String name,
             String cogname,
             String type,
@@ -98,10 +98,10 @@ public class AuthService {
         String token = jwtService.generateToken(
                 user.getEmail());
 
-        return new AuthResponse(token);
+        return new AuthDTO(token);
     }
 
-    public AuthResponse login(LoginRequest request) {
+    public AuthDTO login(LoginDTO request) {
 
         User user = userRepository
                 .findByEmail(request.getEmail())
@@ -118,7 +118,7 @@ public class AuthService {
         String token = jwtService.generateToken(
                 user.getEmail());
 
-        return new AuthResponse(token);
+        return new AuthDTO(token);
     }
 
     public User getUserByToken(String token) {

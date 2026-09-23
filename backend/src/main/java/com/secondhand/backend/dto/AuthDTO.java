@@ -1,9 +1,9 @@
 package com.secondhand.backend.dto;
 
-public class AuthResponse {
+public class AuthDTO {
     private String token;
 
-    public AuthResponse(String token) {
+    public AuthDTO(String token) {
         this.token = token;
     }
 

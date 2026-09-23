@@ -1,3 +1,311 @@
 <app-container>
-    
+  <div
+    style="
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    "
+  >
+    <div
+      style="
+        width: 98%;
+        height: 98%;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        display: flex;
+        overflow: hidden;
+      "
+    >
+      <!-- ====================================== -->
+      <!-- CONVERSACIONES -->
+      <!-- ====================================== -->
+
+      <div
+        style="
+          width: 300px;
+          height: 100%;
+          flex-shrink: 0;
+          background-color: white;
+          border-radius: 10px;
+          overflow: hidden;
+        "
+      >
+        <mat-list
+          style="
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+          "
+        >
+          <mat-list-item
+            *ngFor="let conversation of conversations"
+            (click)="openConversation(conversation)"
+            style="
+              cursor: pointer;
+              height: 75px;
+            "
+          >
+            <div
+              style="
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+              "
+            >
+              <img
+                [src]="
+                  getOtherUser(conversation).profileImage
+                    ? getUserImage(
+                        getOtherUser(conversation).profileImage
+                      )
+                    : 'assets/default-user.png'
+                "
+                style="
+                  width: 50px;
+                  height: 50px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                  flex-shrink: 0;
+                "
+              />
+
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  flex: 1;
+                  min-width: 0;
+                "
+              >
+                <span
+                  style="
+                    font-weight: 600;
+                    font-size: 16px;
+                  "
+                >
+                  {{ getOtherUser(conversation).username }}
+                </span>
+
+                <span
+                  style="
+                    color: #777;
+                    font-size: 14px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  "
+                >
+                  {{ getOtherUser(conversation).name }}
+                  {{ getOtherUser(conversation).cogname }}
+                </span>
+              </div>
+            </div>
+          </mat-list-item>
+
+          <mat-divider></mat-divider>
+        </mat-list>
+      </div>
+
+      <!-- ====================================== -->
+      <!-- CHAT -->
+      <!-- ====================================== -->
+
+      <div
+        style="
+          flex: 1;
+          min-width: 0;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          padding-left: 10px;
+          box-sizing: border-box;
+        "
+      >
+
+        <!-- ====================================== -->
+        <!-- CABECERA -->
+        <!-- ====================================== -->
+
+        <div
+          style="
+            width: 100%;
+            height: 60px;
+            flex-shrink: 0;
+            background-color: white;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            box-sizing: border-box;
+          "
+        >
+          <ng-container *ngIf="selectedConversation">
+
+            <img
+              [src]="
+                getOtherUser(selectedConversation).profileImage
+                  ? getUserImage(
+                      getOtherUser(selectedConversation).profileImage
+                    )
+                  : 'assets/default-user.png'
+              "
+              style="
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-right: 10px;
+              "
+            />
+
+            <strong>
+              {{ getOtherUser(selectedConversation).username }}
+            </strong>
+
+          </ng-container>
+
+          <span
+            *ngIf="!selectedConversation"
+            style="color: #777;"
+          >
+            Selecciona una conversación
+          </span>
+        </div>
+
+        <!-- ====================================== -->
+        <!-- MENSAJES -->
+        <!-- ====================================== -->
+
+        <div
+          style="
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            overflow-y: auto;
+            background-color: #e9e9e9;
+            padding: 15px;
+            box-sizing: border-box;
+          "
+        >
+
+          <!-- PRUEBA -->
+          <div
+            style="
+              font-size: 12px;
+              color: #777;
+              margin-bottom: 10px;
+            "
+          >
+            Mensajes cargados: {{ messages.length }}
+          </div>
+
+          <!-- MENSAJES -->
+
+          <div
+            *ngFor="let message of messages"
+            style="
+              width: 100%;
+              display: flex;
+              margin-bottom: 10px;
+            "
+            [style.justify-content]="
+              message.sender.id === userId
+                ? 'flex-end'
+                : 'flex-start'
+            "
+          >
+
+            <div
+              [style.background-color]="
+                message.sender.id === userId
+                  ? '#395296'
+                  : '#ffffff'
+              "
+              [style.color]="
+                message.sender.id === userId
+                  ? '#ffffff'
+                  : '#000000'
+              "
+              style="
+                padding: 10px 14px;
+                border-radius: 15px;
+                max-width: 70%;
+                min-width: 20px;
+                word-break: break-word;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+              "
+            >
+              {{ message.content }}
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ====================================== -->
+        <!-- INPUT -->
+        <!-- ====================================== -->
+
+        <div
+          style="
+            width: 100%;
+            height: 70px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 0 0 10px 10px;
+          "
+        >
+
+          <div
+            style="
+              flex: 1;
+              display: flex;
+              align-items: center;
+              background: #f5f5f5;
+              border-radius: 25px;
+              padding: 4px 15px;
+              box-sizing: border-box;
+              border: 1px solid #ddd;
+            "
+          >
+
+            <input
+              [(ngModel)]="messageText"
+              (keydown.enter)="enviarMensaje()"
+              placeholder="Escribe un mensaje..."
+              style="
+                flex: 1;
+                border: none;
+                outline: none;
+                background: transparent;
+                font-size: 15px;
+                padding: 10px 5px;
+              "
+            />
+
+          </div>
+
+          <button
+            matButton="filled"
+            type="button"
+            (click)="enviarMensaje()"
+            style="margin-left: 10px;"
+          >
+            <i class="bi bi-send"></i>
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 </app-container>
