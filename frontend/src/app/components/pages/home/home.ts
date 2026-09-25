@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-
+import { ProductCard } from './product-card/product-card';
+import { ChipCategory } from './chip-category/chip-category';
 interface Product {
   id: number;
   name: string;
@@ -15,7 +16,7 @@ interface Product {
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [ProductCard, ChipCategory],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -54,18 +55,6 @@ export class Home {
 
   onSearch(event: Event): void {
     this.query = (event.target as HTMLInputElement).value;
-  }
-
-  selectCategory(category: string): void {
-    this.activeCategory = category;
-  }
-
-  toggleFavorite(product: Product): void {
-    product.favorite = !product.favorite;
-  }
-
-  toggleInterest(product: Product): void {
-    product.interested = !product.interested;
   }
 
   clearFilters(): void {

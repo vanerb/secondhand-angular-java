@@ -1,1 +1,8 @@
-<p>chip-category works!</p>
+<button
+  class="category-chip"
+  [class.selected]="activeCategory === category.name"
+  (click)="selectCategory(category.name)"
+  [attr.aria-pressed]="activeCategory === category.name"
+>
+  <i class="bi {{ category.icon }}" aria-hidden="true"></i><span>{{ category.name }}</span>
+</button>

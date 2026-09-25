@@ -1,30 +1,84 @@
 <mat-drawer-container class="app-shell" [hasBackdrop]="drawerMode === 'over'">
-  <mat-drawer class="side-drawer" [mode]="drawerMode" [opened]="isOpen" (closedStart)="onDrawerClosed()" #drawer position="start">
-    <a class="drawer-brand" (click)="navigate('/home')"><span class="brand-mark"><i class="bi bi-recycle" aria-hidden="true"></i></span><span>second<span class="brand-light">hand</span><small>BUENAS COSAS, OTRA VIDA</small></span></a>
+  <mat-drawer
+    class="side-drawer"
+    [mode]="drawerMode"
+    [opened]="isOpen"
+    (closedStart)="onDrawerClosed()"
+    #drawer
+    position="start"
+  >
+    <a class="drawer-brand" (click)="navigate('/home')"
+      ><span class="brand-mark"><i class="bi bi-recycle" aria-hidden="true"></i></span
+      ><span
+        >second<span class="brand-light">hand</span><small>BUENAS COSAS, OTRA VIDA</small></span
+      ></a
+    >
     <div class="drawer-label">MENÚ</div>
     <nav class="drawer-nav" aria-label="Navegación principal">
-      <button class="menu-item" (click)="navigate('/home')"><i class="bi bi-compass" aria-hidden="true"></i><span>Descubrir</span></button>
-      <button *ngIf="isLogged" class="menu-item" (click)="navigate('/chats')"><i class="bi bi-chat-dots" aria-hidden="true"></i><span>Mensajes</span><span class="menu-arrow">›</span></button>
-      <button *ngIf="isLogged" class="menu-item" (click)="navigate('/profile')"><i class="bi bi-person-circle" aria-hidden="true"></i><span>Mi perfil</span><span class="menu-arrow">›</span></button>
+      <button class="menu-item" (click)="navigate('/home')">
+        <i class="bi bi-compass" aria-hidden="true"></i><span>Descubrir</span>
+      </button>
+      <button *ngIf="isLogged" class="menu-item" (click)="navigate('/chats')">
+        <i class="bi bi-chat-dots" aria-hidden="true"></i><span>Mensajes</span
+        ><span class="menu-arrow">›</span>
+      </button>
+
+      <button *ngIf="isLogged" class="menu-item" (click)="navigate('/favorites')">
+        <i class="bi bi-heart" aria-hidden="true"></i><span>Favoritos</span
+        ><span class="menu-arrow">›</span>
+      </button>
+      <button *ngIf="isLogged" class="menu-item" (click)="navigate('/profile')">
+        <i class="bi bi-person-circle" aria-hidden="true"></i><span>Mi perfil</span
+        ><span class="menu-arrow">›</span>
+      </button>
     </nav>
     <div class="drawer-bottom">
-      <div class="community-card"><i class="bi bi-heart" aria-hidden="true"></i><strong>Las cosas buenas<br />merecen otra vida.</strong><span>Compra, vende y vuelve a disfrutar.</span></div>
-      <button *ngIf="isLogged" class="menu-item logout-item" (click)="closeSession()"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>Cerrar sesión</span></button>
-      <button *ngIf="!isLogged" class="menu-item" (click)="navigate('/login')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i><span>Iniciar sesión</span></button>
+      <div class="community-card">
+        <i class="bi bi-heart" aria-hidden="true"></i
+        ><strong>Las cosas buenas<br />merecen otra vida.</strong
+        ><span>Compra, vende y vuelve a disfrutar.</span>
+      </div>
+      <button *ngIf="isLogged" class="menu-item logout-item" (click)="closeSession()">
+        <i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>Cerrar sesión</span>
+      </button>
+      <button *ngIf="!isLogged" class="menu-item" (click)="navigate('/login')">
+        <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i><span>Iniciar sesión</span>
+      </button>
     </div>
   </mat-drawer>
 
   <mat-drawer-content class="shell-content">
     <header class="topbar">
-      <button mat-button class="menu-toggle" (click)="open()" aria-label="Abrir menú"><i class="bi bi-list" aria-hidden="true"></i></button>
-      <a class="topbar-brand" (click)="navigate('/home')"><span class="brand-mark"><i class="bi bi-recycle" aria-hidden="true"></i></span><span>second<span class="brand-light">hand</span></span></a>
+      <button mat-button class="menu-toggle" (click)="open()" aria-label="Abrir menú">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+      <a class="topbar-brand" (click)="navigate('/home')"
+        ><span class="brand-mark"><i class="bi bi-recycle" aria-hidden="true"></i></span
+        ><span>second<span class="brand-light">hand</span></span></a
+      >
       <span class="topbar-tagline">OBJETOS CON HISTORIA, PERSONAS CON ESTILO</span>
       <span class="topbar-spacer"></span>
       <button *ngIf="!isLogged" class="login-link" (click)="navigate('/login')">Entrar</button>
-      <button *ngIf="!isLogged" class="sell-button" (click)="navigate('/register')">Vender algo <i class="bi bi-arrow-up-right" aria-hidden="true"></i></button>
-      <button *ngIf="isLogged" class="account-button" (click)="navigate('/profile')"><span class="account-avatar"><img *ngIf="user?.profileImage" [src]="'http://localhost:8080' + user.profileImage" alt="" /><i *ngIf="!user?.profileImage" class="bi bi-person" aria-hidden="true"></i></span><span>Mi cuenta</span></button>
+      <button *ngIf="!isLogged" class="sell-button" (click)="navigate('/register')">
+        Vender algo <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+      </button>
+      <button *ngIf="isLogged" class="account-button" (click)="navigate('/profile')">
+        <span class="account-avatar"
+          ><img
+            *ngIf="user?.profileImage"
+            [src]="'http://localhost:8080' + user.profileImage"
+            alt="" /><i
+            *ngIf="!user?.profileImage"
+            class="bi bi-person"
+            aria-hidden="true"
+          ></i></span
+        ><span>Mi cuenta</span>
+      </button>
     </header>
     <div class="main-content"><ng-content></ng-content></div>
-    <footer class="site-footer"><span>secondhand <i class="bi bi-recycle" aria-hidden="true"></i></span><span>Un pequeño cambio, una nueva historia.</span><span>© 2026</span></footer>
+    <footer class="site-footer">
+      <span>secondhand <i class="bi bi-recycle" aria-hidden="true"></i></span
+      ><span>Un pequeño cambio, una nueva historia.</span><span>© 2026</span>
+    </footer>
   </mat-drawer-content>
 </mat-drawer-container>
