@@ -59,4 +59,16 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AuthDTO> update(
+            @RequestHeader("Authorization") String authorization,
+            @RequestParam String name,
+            @RequestParam String cogname,
+            @RequestParam String username,
+            @RequestParam String email,
+            @RequestParam(required = false) MultipartFile image) throws java.io.IOException {
+        String token = authorization.substring(7);
+        return ResponseEntity.ok(authService.update(token, name, cogname, username, email, image));
+    }
+
 }

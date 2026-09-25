@@ -1,1 +1,36 @@
-<app-container></app-container>
+<app-container>
+  <main class="profile-page">
+    <header class="profile-heading"><div><span class="eyebrow">TU ESPACIO EN SECONDHAND</span><h1>Mi cuenta</h1><p>Cuida tu perfil y mantén tus datos al día.</p></div><a href="/home"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a descubrir</a></header>
+    @if (isLoading) {
+      <section class="profile-loading"><span class="loading-orbit"></span><span>Cargando tu perfil…</span></section>
+    } @else if (user) {
+      <div class="profile-layout">
+        <aside class="profile-summary">
+          <div class="profile-cover"><span class="cover-leaf leaf-one"></span><span class="cover-leaf leaf-two"></span></div>
+          <div class="summary-avatar-wrap"><img [src]="previewImage" alt="Foto de perfil" class="summary-avatar" /><label class="change-avatar" aria-label="Cambiar foto de perfil"><i class="bi bi-camera" aria-hidden="true"></i><input type="file" accept="image/*" (change)="onImageChange($event)" /></label></div>
+          <strong class="summary-name">{{ form.value.name }} {{ form.value.cogname }}</strong><span class="summary-handle">&#64;{{ form.value.username }}</span>
+          <div class="member-note"><i class="bi bi-recycle" aria-hidden="true"></i><span>Parte de una comunidad que da nuevas historias a las cosas.</span></div>
+          <div class="summary-tip"><i class="bi bi-lightbulb" aria-hidden="true"></i><span>Un buen perfil ayuda a que otras personas compren y vendan con confianza.</span></div>
+        </aside>
+
+        <section class="profile-editor">
+          <div class="editor-title"><div><span class="eyebrow">INFORMACIÓN PERSONAL</span><h2>Edita tus datos</h2></div><span class="privacy-mark"><i class="bi bi-lock" aria-hidden="true"></i> Solo tú puedes verlos</span></div>
+          <p class="editor-intro">Actualiza tu información de contacto y cómo apareces ante la comunidad.</p>
+          <form [formGroup]="form" (ngSubmit)="saveProfile()">
+            <div class="profile-form-grid">
+              <mat-form-field appearance="outline"><mat-label>Nombre</mat-label><input matInput formControlName="name" autocomplete="given-name" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Apellidos</mat-label><input matInput formControlName="cogname" autocomplete="family-name" /></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Nombre de usuario</mat-label><input matInput formControlName="username" autocomplete="username" /><mat-hint>Así te encontrará la comunidad.</mat-hint></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Correo electrónico</mat-label><input matInput formControlName="email" type="email" autocomplete="email" /></mat-form-field>
+            </div>
+            @if (successMessage) { <p class="form-message success-message"><i class="bi bi-check-circle" aria-hidden="true"></i>{{ successMessage }}</p> }
+            @if (errorMessage) { <p class="form-message error-message"><i class="bi bi-exclamation-circle" aria-hidden="true"></i>{{ errorMessage }}</p> }
+            <div class="form-actions"><span><i class="bi bi-shield-check" aria-hidden="true"></i> Tus datos están protegidos.</span><button type="submit" [disabled]="isSaving || form.invalid"><i class="bi" [class.bi-check2]="!isSaving" [class.bi-arrow-repeat]="isSaving" aria-hidden="true"></i>{{ isSaving ? 'Guardando…' : 'Guardar cambios' }}</button></div>
+          </form>
+        </section>
+      </div>
+    } @else {
+      <section class="profile-error"><i class="bi bi-person-exclamation" aria-hidden="true"></i><h2>No pudimos abrir tu cuenta</h2><p>{{ errorMessage }}</p><a href="/login">Inicia sesión de nuevo</a></section>
+    }
+  </main>
+</app-container>

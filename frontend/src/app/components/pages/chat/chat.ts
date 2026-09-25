@@ -1,32 +1,18 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Container } from '../../general/container/container';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../../services/auth-service';
 import { ChatWebSocketService } from '../../../services/chat-web-socket-service';
 import { Subscription } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { HttpClient } from '@angular/common/http';
-
-import { getImage, sleep } from '../../../services/utilities-service';
+import { getImage } from '../../../services/utilities-service';
 import { ChatService } from '../../../services/chat-service';
 
 @Component({
   selector: 'app-chat',
   imports: [
     Container,
-    MatInputModule,
-    MatFormFieldModule,
-    CommonModule,
-    MatButtonModule,
     FormsModule,
-    MatDividerModule,
-    MatListModule,
   ],
   templateUrl: './chat.html',
   styleUrl: './chat.css',
@@ -37,6 +23,7 @@ export class Chat implements OnInit, OnDestroy {
   conversations: any[] = [];
 
   messageText = '';
+  conversationQuery = '';
 
   selectedConversation: any = null;
 
@@ -47,7 +34,6 @@ export class Chat implements OnInit, OnDestroy {
   constructor(
     private chatWebSocketService: ChatWebSocketService,
     private authService: AuthService,
-    private http: HttpClient,
     private chatService: ChatService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -84,6 +70,15 @@ export class Chat implements OnInit, OnDestroy {
         },
       });
     }
+  }
+
+  get filteredConversations(): any[] {
+    const query = this.conversationQuery.trim().toLocaleLowerCase('es');
+    if (!query) return this.conversations;
+    return this.conversations.filter((conversation) => {
+      const user = this.getOtherUser(conversation);
+      return `${user.username} ${user.name} ${user.cogname}`.toLocaleLowerCase('es').includes(query);
+    });
   }
 
   // ==========================================
@@ -136,6 +131,10 @@ export class Chat implements OnInit, OnDestroy {
         console.error('Error cargando mensajes:', error);
       },
     });
+  }
+
+  closeConversation(): void {
+    this.selectedConversation = null;
   }
 
   // ==========================================

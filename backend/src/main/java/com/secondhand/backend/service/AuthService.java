@@ -10,6 +10,7 @@ import com.secondhand.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 @Service
 public class AuthService {
@@ -129,5 +130,37 @@ public class AuthService {
                 .findByEmail(email)
                 .orElseThrow(() -> new RuntimeException(
                         "Usuario no encontrado"));
+    }
+
+    public AuthDTO update(
+            String token,
+            String name,
+            String cogname,
+            String username,
+            String email,
+            MultipartFile image) throws IOException {
+
+        String currentEmail = jwtService.extractEmail(token);
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+            throw new RuntimeException("El email ya está registrado");
+        }
+        if (!username.equals(user.getUsername()) && userRepository.existsByUsername(username)) {
+            throw new RuntimeException("El nombre de usuario ya existe");
+        }
+
+        user.setName(name);
+        user.setCogname(cogname);
+        user.setUsername(username);
+        user.setEmail(email);
+
+        if (image != null && !image.isEmpty()) {
+            user.setProfileImage(imageService.upload(image, "USER", user.getId(), true).getUrl());
+        }
+
+        userRepository.save(user);
+        return new AuthDTO(jwtService.generateToken(user.getEmail()));
     }
 }

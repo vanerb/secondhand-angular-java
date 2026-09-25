@@ -1,19 +1,15 @@
-import { Component } from '@angular/core';
-import { NgClass, NgIf } from '@angular/common';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButton } from '@angular/material/button';
 import { AuthService } from '../../../services/auth-service';
 import { firstValueFrom } from 'rxjs';
-import { ImagesService } from '../../../services/images-service';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { User } from '../../../interfaces/user';
 
 @Component({
   selector: 'app-header',
-  imports: [MatToolbarModule, MatIconModule, MatSidenavModule, MatButton, NgIf, NgClass],
+  imports: [MatSidenavModule, MatButton, NgIf],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
@@ -27,7 +23,7 @@ export class Header {
     private readonly authService: AuthService,
     private router: Router,
     private breakpointObserver: BreakpointObserver,
-    private imagesService: ImagesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
@@ -47,14 +43,16 @@ export class Header {
 
         if (userObservable) {
           this.user = (await firstValueFrom(userObservable)) || null;
+          this.cdr.detectChanges(); // Forzar la detección de cambios después de obtener el usuario
         }
       }
     } else {
     }
   }
 
-  gotTo(url: string) {
+  navigate(url: string) {
     this.router.navigate([url]);
+    if (this.drawerMode === 'over') this.isOpen = false;
   }
 
   open() {
