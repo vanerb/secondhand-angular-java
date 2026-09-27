@@ -43,7 +43,7 @@ Asegúrate de tener instalado:
 ## 📥 Clonar el repositorio
 
 ```bash
-git clone [https://github.com/vanerb/SecondHand-Angular-Java.git]
+git clone https://github.com/vanerb/SecondHand-Angular-Java.git
 cd SecondHand-Angular-Java
 ```
 
