@@ -1,7 +1,6 @@
 package com.secondhand.backend.dto;
 
 import com.secondhand.backend.entity.Conversation;
-
 import java.time.LocalDateTime;
 
 public class ConversationDTO {
@@ -11,6 +10,10 @@ public class ConversationDTO {
     private UserChatDTO user1;
 
     private UserChatDTO user2;
+
+    private Long productId;
+
+    private String productName;
 
     private LocalDateTime createdAt;
 
@@ -29,6 +32,10 @@ public class ConversationDTO {
                 conversation.getUser2()
         );
 
+        this.productId = conversation.getProduct().getId();
+
+        this.productName = conversation.getProduct().getName();
+
         this.createdAt = conversation.getCreatedAt();
     }
 
@@ -42,6 +49,14 @@ public class ConversationDTO {
 
     public UserChatDTO getUser2() {
         return user2;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public String getProductName() {
+        return productName;
     }
 
     public LocalDateTime getCreatedAt() {

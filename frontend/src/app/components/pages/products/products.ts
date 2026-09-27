@@ -78,30 +78,51 @@ export class Products implements OnInit {
     this.cdr.detectChanges();
   }
 
+  loadChatStatus() {
+    this.chatService.getConversations(this.user.id).subscribe({
+      next: (conversations) => {
+        this.products = this.products.map((product) => ({
+          ...product,
+
+          isChat: conversations.some(
+            (conversation) =>
+              ((conversation.user1?.id === this.user.id &&
+                conversation.user2?.id === product.userId) ||
+                (conversation.user1?.id === product.userId &&
+                  conversation.user2?.id === this.user.id)) &&
+              conversation.productId === product.id,
+          ),
+        }));
+
+        this.cdr.detectChanges();
+      },
+
+      error: (error) => {
+        console.error('Error obteniendo conversaciones:', error);
+      },
+    });
+  }
+
   updateLayaout() {
-    if (this.user) {
-      this.productService.getProductsAuth().subscribe({
-        next: (response) => {
-          console.log(response);
-          this.products = response.content ?? response;
-          console.log(this.products);
-        },
-        error: (error) => {
-          console.error('Error al obtener productos:', error);
-        },
-      });
-    } else {
-      this.productService.getProducts().subscribe({
-        next: (response) => {
-          console.log(response);
-          this.products = response.content ?? response;
-          console.log(this.products);
-        },
-        error: (error) => {
-          console.error('Error al obtener productos:', error);
-        },
-      });
-    }
+    const request = this.user
+      ? this.productService.getProductsAuth()
+      : this.productService.getProducts();
+
+    request.subscribe({
+      next: (response) => {
+        this.products = response.content ?? response;
+
+        console.log('PRODUCTOS:', this.products);
+
+        if (this.user) {
+          this.loadChatStatus();
+        }
+      },
+
+      error: (error) => {
+        console.error('Error al obtener productos:', error);
+      },
+    });
   }
 
   get filteredProducts(): Product[] {
@@ -139,11 +160,8 @@ export class Products implements OnInit {
       case 'update_favorite':
         this.updateFavorite(action.item);
         break;
-
-      case 'add_interest':
-        this.createChat(action.item);
-        break;
-      case 'remove_interest':
+      case 'update_interest':
+        this.updateInterest(action.item);
         break;
     }
   }
@@ -164,6 +182,7 @@ export class Products implements OnInit {
             console.log('Producto creado:', product);
 
             this.products.unshift(product);
+            this.cdr.detectChanges();
           },
           error: (error) => {
             console.error('Error al crear producto:', error);
@@ -176,30 +195,50 @@ export class Products implements OnInit {
   }
 
   updateFavorite(product: any) {
-    console.log('HOLA', product);
     this.favoriteService.toggleFavorite(product).subscribe({
       next: () => {
-        this.cdr.detectChanges();
+        const index = this.products.findIndex((p: any) => p.id === product.id);
 
-        console.log('Producto añadido a favoritos');
+        if (index !== -1) {
+          this.products[index] = {
+            ...this.products[index],
+            favorite: !this.products[index].favorite,
+          };
+
+          this.products = [...this.products];
+
+          this.cdr.detectChanges();
+        }
       },
+
       error: (error) => {
         console.error('Error al añadir a favoritos:', error);
       },
     });
   }
 
-  createChat(product: any) {
+  updateInterest(product: any) {
     const user1Id = product.userId;
+    const user2Id = this.user.id;
 
-    // Aquí tienes que poner el ID del usuario
-    // actualmente logueado.
-    const user2Id = 1;
+    this.chatService.toggleConversation(user2Id, user1Id, product.id).subscribe({
+      next: (result) => {
+        console.log('Conversación:', result);
 
-    this.chatService.getOrCreateConversation(user2Id, user1Id).subscribe({
-      next: (conversation) => {
-        console.log('Conversación creada:', conversation);
+        const index = this.products.findIndex((p: any) => p.id === product.id);
+
+        if (index !== -1) {
+          this.products[index] = {
+            ...this.products[index],
+            isChat: result.action === 'created',
+          };
+
+          this.products = [...this.products];
+
+          this.cdr.detectChanges();
+        }
       },
+
       error: (error) => {
         console.error('Error al crear conversación:', error);
       },
@@ -228,6 +267,8 @@ export class Products implements OnInit {
             if (index !== -1) {
               this.products[index] = product;
             }
+
+            this.cdr.detectChanges();
           },
           error: (error) => {
             console.error('Error al crear producto:', error);
@@ -247,6 +288,7 @@ export class Products implements OnInit {
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
         this.products = this.products.filter((p) => p.id !== product.id);
+        this.cdr.detectChanges();
 
         console.log('Producto eliminado');
       },

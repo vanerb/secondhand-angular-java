@@ -32,7 +32,6 @@ export class Home {
   constructor(private modalService: ModalService) {}
 
 
-
   onSearch(event: Event): void {
     this.query = (event.target as HTMLInputElement).value;
   }

@@ -19,15 +19,20 @@ public class Conversation {
     @JoinColumn(name = "user2_id", nullable = false)
     private User user2;
 
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     public Conversation() {
     }
 
-    public Conversation(User user1, User user2) {
+    public Conversation(User user1, User user2, Product product) {
         this.user1 = user1;
         this.user2 = user2;
+        this.product = product;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -49,6 +54,14 @@ public class Conversation {
 
     public void setUser2(User user2) {
         this.user2 = user2;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public LocalDateTime getCreatedAt() {

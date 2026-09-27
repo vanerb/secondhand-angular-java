@@ -8,6 +8,10 @@ import { Container } from '../../general/container/container';
 import { RouterLink } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { getImage, sleep } from '../../../services/utilities-service';
+import { firstValueFrom } from 'rxjs';
+import { ChatService } from '../../../services/chat-service';
+import { ModalService } from '../../../services/modal-service';
+import { CreateProduct } from '../products/create-product/create-product';
 
 @Component({
   selector: 'app-favorites',
@@ -16,23 +20,55 @@ import { getImage, sleep } from '../../../services/utilities-service';
   styleUrl: './favorites.css',
 })
 export class Favorites implements OnInit {
-  favoriteProducts: Product[] = [];
-  user: any = null;
+  favoriteProducts: any[] = [];
+  user!: any;
 
   constructor(
     private favoriteService: FavoriteService,
     private productService: ProductService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
+    private chatService: ChatService,
+    private modalService: ModalService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.user = this.authService.getUserByToken();
+    if (this.authService.getToken()) {
+      const user$ = this.authService.getUserByToken();
+      if (user$) {
+        this.user = await firstValueFrom(user$);
+      }
+    }
     this.loadFavorites();
 
     await sleep(1000);
 
     this.cdr.detectChanges();
+  }
+
+  loadChatStatus() {
+    this.chatService.getConversations(this.user.id).subscribe({
+      next: (conversations) => {
+        this.favoriteProducts = this.favoriteProducts.map((product) => ({
+          ...product,
+
+          isChat: conversations.some(
+            (conversation) =>
+              ((conversation.user1?.id === this.user.id &&
+                conversation.user2?.id === product.userId) ||
+                (conversation.user1?.id === product.userId &&
+                  conversation.user2?.id === this.user.id)) &&
+              conversation.productId === product.id,
+          ),
+        }));
+
+        this.cdr.detectChanges();
+      },
+
+      error: (error) => {
+        console.error('Error obteniendo conversaciones:', error);
+      },
+    });
   }
 
   loadFavorites(): void {
@@ -55,17 +91,56 @@ export class Favorites implements OnInit {
 
           description: favorite.description,
         }));
+
+        // Primero cargamos los productos y después sus chats
+        if (this.user) {
+          this.loadChatStatus();
+        }
+
+        this.cdr.detectChanges();
       },
+
       error: (error) => {
         console.error('Error cargando favoritos:', error);
         this.favoriteProducts = [];
       },
     });
-
-    this.cdr.detectChanges();
   }
 
-  action(event: any): void {
-    console.log('Acción:', event);
+  action(action: any) {
+    console.log(action);
+    switch (action.name) {
+      case 'update_interest':
+        this.updateInterest(action.item);
+        break;
+    }
+  }
+
+  updateInterest(product: any) {
+    const user1Id = product.userId;
+    const user2Id = this.user.id;
+
+    this.chatService.toggleConversation(user2Id, user1Id, product.id).subscribe({
+      next: (result) => {
+        console.log('Conversación:', result);
+
+        const index = this.favoriteProducts.findIndex((p: any) => p.id === product.id);
+
+        if (index !== -1) {
+          this.favoriteProducts[index] = {
+            ...this.favoriteProducts[index],
+            isChat: result.action === 'created',
+          };
+
+          this.favoriteProducts = [...this.favoriteProducts];
+
+          this.cdr.detectChanges();
+        }
+      },
+
+      error: (error) => {
+        console.error('Error al crear conversación:', error);
+      },
+    });
   }
 }

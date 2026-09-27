@@ -22,32 +22,36 @@ public class ChatController {
     @PostMapping("/conversation")
     public ConversationDTO createConversation(
             @RequestParam Long user1Id,
-            @RequestParam Long user2Id
-    ) {
+            @RequestParam Long user2Id,
+            @RequestParam Long productId) {
 
         return chatService.getOrCreateConversation(
                 user1Id,
-                user2Id
+                user2Id,
+                productId
         );
     }
 
     @GetMapping("/conversations/{userId}")
     public List<ConversationDTO> getConversations(
-            @PathVariable Long userId
-    ) {
+            @PathVariable Long userId) {
 
-        return chatService.getUserConversations(
-                userId
-        );
+        return chatService.getUserConversations(userId);
     }
 
     @GetMapping("/conversation/{conversationId}/messages")
     public List<MessageDTO> getMessages(
-            @PathVariable Long conversationId
-    ) {
+            @PathVariable Long conversationId) {
 
         return chatService.getMessages(
                 conversationId
         );
+    }
+
+    @DeleteMapping("/conversation/{conversationId}")
+    public void deleteConversation(
+            @PathVariable Long conversationId) {
+
+        chatService.deleteConversation(conversationId);
     }
 }

@@ -13,4 +13,7 @@ public interface MessageRepository
     List<Message> findByConversationOrderByCreatedAtAsc(
             Conversation conversation
     );
+    
+void deleteByConversation(Conversation conversation);
+
 }

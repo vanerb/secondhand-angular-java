@@ -1,6 +1,7 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
-import { getImage } from '../../../../services/utilities-service';
-import {NgForOf, NgIf} from '@angular/common';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { getImage, sleep } from '../../../../services/utilities-service';
+import { NgForOf, NgIf } from '@angular/common';
+import { ChatService } from '../../../../services/chat-service';
 
 @Component({
   selector: 'app-product-card',
@@ -11,12 +12,14 @@ import {NgForOf, NgIf} from '@angular/common';
 export class ProductCard {
   @Input() product: any;
   @Input() index: number = 0;
-  @Input() user: any
-  @Input() view: string = 'pro'
+  @Input() user: any;
+  @Input() view: string = 'pro';
 
   actionsOpen = false;
 
   @Output() actions = new EventEmitter();
+
+  constructor() {}
 
   toggleActions(event: Event): void {
     event.stopPropagation();
@@ -39,8 +42,6 @@ export class ProductCard {
       name: 'update',
       item: product,
     });
-
-    console.log('Editar producto:', product);
   }
 
   deleteProduct(product: any): void {
@@ -50,8 +51,6 @@ export class ProductCard {
       name: 'delete',
       item: product,
     });
-
-    console.log('Eliminar producto:', product);
   }
 
   toggleFavorite(product: any): void {
@@ -59,22 +58,13 @@ export class ProductCard {
       name: 'update_favorite',
       item: product,
     });
-    product.favorite = !product.favorite;
   }
 
   toggleInterest(product: any): void {
-    product.interested = !product.interested;
-    if ((product.favorite = true)) {
-      this.actions.emit({
-        name: 'add_interest',
-        item: product,
-      });
-    } else {
-      this.actions.emit({
-        name: 'remove_interest',
-        item: product,
-      });
-    }
+    this.actions.emit({
+      name: 'update_interest',
+      item: product,
+    });
   }
 
   getNewImage(name: string) {

@@ -8,7 +8,8 @@
     />
 
     <!-- Favorito -->
-    <button *ngIf="user && view !== 'fav'"
+    <button
+      *ngIf="user && view !== 'fav'"
       class="favorite-button"
       [class.is-favorite]="product.favorite"
       (click)="toggleFavorite(product)"
@@ -24,7 +25,7 @@
     </button>
 
     <!-- Menú del producto -->
-    <div class="product-actions" *ngIf="user && view !== 'fav'">
+    <div class="product-actions" *ngIf="user && view !== 'fav' && product.userId === user.id">
       <button
         class="actions-button"
         type="button"
@@ -69,19 +70,21 @@
       </span>
     </div>
 
-    <button *ngIf="user"
+    <div *ngIf="product.isChat" class="interest-info"><i class="bi bi-check2"></i> Te interesa</div>
+
+    <button
       class="interest-button"
-      [class.is-interested]="product.interested"
+      [class.is-interested]="product.isChat"
       (click)="toggleInterest(product)"
-      [attr.aria-pressed]="product.interested"
+      [attr.aria-pressed]="product.isChat"
     >
       <i
         class="bi"
-        [class.bi-chat-heart]="!product.interested"
-        [class.bi-check2]="product.interested"
+        [class.bi-chat-heart]="!product.isChat"
+        [class.bi-x-lg]="product.isChat"
         aria-hidden="true"
       ></i>
-      {{ product.interested ? 'Te interesa' : 'Me interesa' }}
+      {{ product.isChat ? 'Ya no me interesa' : 'Me interesa' }}
     </button>
   </div>
 </article>
