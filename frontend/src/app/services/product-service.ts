@@ -88,7 +88,10 @@ export class ProductService {
   }
 
   getProduct(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+     const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.authService.getToken()}`,
+    });
+    return this.http.get<Product>(`${this.apiUrl}/${id}`, {headers});
   }
 
   createProduct(formData: FormData): Observable<Product> {
