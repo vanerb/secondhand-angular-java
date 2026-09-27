@@ -1,0 +1,221 @@
+<app-container>
+  <main class="product-page">
+    <header class="product-heading">
+      <div>
+        <span class="eyebrow">VENDE EN SECONDHAND</span>
+        <h1>Crear producto</h1>
+        <p>Publica algo que ya no necesitas y dale una nueva historia.</p>
+      </div>
+
+      <div (click)="closeModal()" style="cursor: pointer">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        Cerrar
+      </div>
+    </header>
+
+    <section class="product-layout">
+      <!-- RESUMEN -->
+      <aside class="product-summary">
+        <div class="summary-icon">
+          <i class="bi bi-box-seam" aria-hidden="true"></i>
+        </div>
+
+        <span class="summary-eyebrow">NUEVA PUBLICACIÓN</span>
+
+        <h2>Tu producto merece una segunda oportunidad.</h2>
+
+        <p>
+          Añade información clara sobre lo que vendes para que otras personas puedan encontrarlo
+          fácilmente.
+        </p>
+
+        <div class="summary-tip">
+          <i class="bi bi-lightbulb" aria-hidden="true"></i>
+          <span>
+            Una buena descripción y un estado bien indicado generan confianza entre compradores y
+            vendedores.
+          </span>
+        </div>
+
+        <div class="summary-note">
+          <i class="bi bi-recycle" aria-hidden="true"></i>
+          <span> Forma parte de una comunidad que da nuevas historias a las cosas. </span>
+        </div>
+      </aside>
+
+      <!-- FORMULARIO -->
+      <section class="product-editor">
+        <div class="editor-title">
+          <div>
+            <span class="eyebrow">INFORMACIÓN DEL PRODUCTO</span>
+            <h2>Cuéntanos qué vendes</h2>
+          </div>
+
+          <span class="privacy-mark">
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
+            Publicación segura
+          </span>
+        </div>
+
+        <p class="editor-intro">Completa los datos del producto para crear tu publicación.</p>
+
+        <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+          <div class="product-form-grid">
+            <!-- Nombre -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre del producto</mat-label>
+              <input matInput formControlName="name" placeholder="Ej. Nintendo Switch OLED" />
+            </mat-form-field>
+
+            <!-- Precio -->
+            <mat-form-field appearance="outline">
+              <mat-label>Precio</mat-label>
+              <input matInput type="number" formControlName="price" placeholder="0.00" min="0" />
+              <span matTextSuffix>€</span>
+            </mat-form-field>
+
+            <!-- Categoría -->
+            <mat-form-field appearance="outline">
+              <mat-label>Categoría</mat-label>
+
+              <mat-select formControlName="category">
+                <mat-option value="ELECTRONICS"> Electrónica </mat-option>
+
+                <mat-option value="COMPUTERS"> Informática </mat-option>
+
+                <mat-option value="VIDEO_GAMES"> Videojuegos </mat-option>
+
+                <mat-option value="MOBILE"> Móviles </mat-option>
+
+                <mat-option value="CLOTHING"> Ropa </mat-option>
+
+                <mat-option value="HOME"> Hogar </mat-option>
+
+                <mat-option value="SPORTS"> Deporte </mat-option>
+
+                <mat-option value="BOOKS"> Libros </mat-option>
+
+                <mat-option value="OTHER"> Otros </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Condición -->
+            <mat-form-field appearance="outline">
+              <mat-label>Estado del producto</mat-label>
+
+              <mat-select formControlName="condition">
+                <mat-option value="NEW"> Nuevo </mat-option>
+
+                <mat-option value="LIKE_NEW"> Como nuevo </mat-option>
+
+                <mat-option value="GOOD"> Buen estado </mat-option>
+
+                <mat-option value="USED"> Usado </mat-option>
+
+                <mat-option value="VERY_USED"> Muy usado </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Disponibilidad -->
+            <mat-form-field appearance="outline">
+              <mat-label>Disponibilidad</mat-label>
+
+              <mat-select formControlName="availability">
+                <mat-option value="AVAILABLE"> Disponible </mat-option>
+
+                <mat-option value="RESERVED"> Reservado </mat-option>
+
+                <mat-option value="SOLD"> Vendido </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Imágenes -->
+            <div class="full-width image-upload-section">
+              <div class="image-upload-heading">
+                <div>
+                  <label>Imágenes del producto</label>
+                  <p>Añade varias imágenes para mostrar mejor tu producto.</p>
+                </div>
+
+                <span>{{ selectedImages.length }}/8</span>
+              </div>
+
+              <div class="image-upload-area">
+                <label class="image-upload-button" [class.disabled]="selectedImages.length >= 8">
+                  <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+
+                  <strong>Añadir imágenes</strong>
+
+                  <span> PNG, JPG o WEBP · Máximo 8 imágenes </span>
+
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    multiple
+                    [disabled]="selectedImages.length >= 8"
+                    (change)="onImagesSelected($event)"
+                  />
+                </label>
+              </div>
+
+              @if (selectedImages.length > 0) {
+                <div class="image-preview-grid">
+                  @for (image of selectedImages; track image.id; let i = $index) {
+                    <div class="image-preview" [class.main-image]="i === 0">
+                      <img [src]="image.preview" [alt]="'Imagen del producto ' + (i + 1)" />
+
+                      @if (i === 0) {
+                        <span class="main-image-badge">
+                          <i class="bi bi-star-fill"></i>
+                          Principal
+                        </span>
+                      }
+
+                      <button
+                        type="button"
+                        class="remove-image"
+                        (click)="removeImage(i)"
+                        aria-label="Eliminar imagen"
+                      >
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <p class="image-help">
+                  <i class="bi bi-info-circle"></i>
+                  La primera imagen será la imagen principal del producto.
+                </p>
+              }
+            </div>
+
+            <!-- Descripción -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Descripción</mat-label>
+
+              <textarea
+                matInput
+                formControlName="description"
+                rows="5"
+                placeholder="Describe el producto, su estado, características, accesorios incluidos..."
+              ></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <span>
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
+              Puedes modificar la publicación más adelante.
+            </span>
+
+            <button type="submit" [disabled]="productForm.invalid">
+              <i class="bi bi-plus-lg" aria-hidden="true"></i>
+              Publicar producto
+            </button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+</app-container>

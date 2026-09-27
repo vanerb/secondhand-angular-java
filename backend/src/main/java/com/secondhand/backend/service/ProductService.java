@@ -25,296 +25,387 @@ import java.util.List;
 @Service
 public class ProductService {
 
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
-    private final FavoriteRepository favoriteRepository;
-    private final ImageService imageService;
-    private final JwtService jwtService;
+        private final ProductRepository productRepository;
+        private final UserRepository userRepository;
+        private final FavoriteRepository favoriteRepository;
+        private final ImageService imageService;
+        private final JwtService jwtService;
 
-    public ProductService(
-            ProductRepository productRepository,
-            UserRepository userRepository,
-            FavoriteRepository favoriteRepository,
-            ImageService imageService,
-            JwtService jwtService
-    ) {
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.favoriteRepository = favoriteRepository;
-        this.imageService = imageService;
-        this.jwtService = jwtService;
-    }
-
-    public ProductDTO createProduct(
-            String token,
-            String name,
-            String category,
-            BigDecimal price,
-            Condition condition,
-            Availability availability,
-            List<MultipartFile> images
-    ) throws IOException {
-
-        User user = getUserFromToken(token);
-
-        Product product = new Product();
-
-        product.setName(name);
-        product.setCategory(category);
-        product.setPrice(price);
-        product.setCondition(condition);
-
-        if (availability == null) {
-            product.setAvailability(
-                    Availability.AVAILABLE
-            );
-        } else {
-            product.setAvailability(availability);
+        public ProductService(
+                        ProductRepository productRepository,
+                        UserRepository userRepository,
+                        FavoriteRepository favoriteRepository,
+                        ImageService imageService,
+                        JwtService jwtService) {
+                this.productRepository = productRepository;
+                this.userRepository = userRepository;
+                this.favoriteRepository = favoriteRepository;
+                this.imageService = imageService;
+                this.jwtService = jwtService;
         }
 
-        product.setUser(user);
+        // =========================================================
+        // CREAR PRODUCTO
+        // =========================================================
 
-        product = productRepository.save(product);
+        public ProductDTO createProduct(
+                        String token,
+                        String name,
+                        String category,
+                        BigDecimal price,
+                        Condition condition,
+                        Availability availability,
+                        List<MultipartFile> images,
+                        String description) throws IOException {
 
-        if (images != null && !images.isEmpty()) {
+                User user = getUserFromToken(token);
 
-            boolean firstImage = true;
+                Product product = new Product();
 
-            for (MultipartFile image : images) {
+                product.setName(name);
+                product.setCategory(category);
+                product.setPrice(price);
+                product.setCondition(condition);
+                product.setDescription(description);
 
-                if (image != null && !image.isEmpty()) {
-
-                    imageService.upload(
-                            image,
-                            "PRODUCT",
-                            product.getId(),
-                            firstImage
-                    );
-
-                    firstImage = false;
+                if (availability == null) {
+                        product.setAvailability(
+                                        Availability.AVAILABLE);
+                } else {
+                        product.setAvailability(availability);
                 }
-            }
-        }
 
-        return convertToDTO(product, user);
-    }
+                product.setUser(user);
 
-    public Page<ProductDTO> getProducts(
-            String token,
-            String name,
-            String category,
-            Double minPrice,
-            Double maxPrice,
-            Condition condition,
-            Availability availability,
-            Long userId,
-            Pageable pageable
-    ) {
+                product = productRepository.save(product);
 
-        User currentUser = getUserFromToken(token);
+                if (images != null && !images.isEmpty()) {
 
-        Specification<Product> specification =
-                Specification.where(
-                        ProductSpecification.hasName(name)
-                )
-                .and(
-                        ProductSpecification.hasCategory(category)
-                )
-                .and(
-                        ProductSpecification.hasMinPrice(minPrice)
-                )
-                .and(
-                        ProductSpecification.hasMaxPrice(maxPrice)
-                )
-                .and(
-                        ProductSpecification.hasCondition(condition)
-                )
-                .and(
-                        ProductSpecification.hasAvailability(availability)
-                )
-                .and(
-                        ProductSpecification.hasUserId(userId)
-                );
+                        boolean firstImage = true;
 
-        return productRepository
-                .findAll(specification, pageable)
-                .map(product ->
-                        convertToDTO(product, currentUser)
-                );
-    }
+                        for (MultipartFile image : images) {
 
-    public ProductDTO getProductById(
-            String token,
-            Long productId
-    ) {
+                                if (image != null && !image.isEmpty()) {
 
-        User currentUser = getUserFromToken(token);
+                                        imageService.upload(
+                                                        image,
+                                                        "PRODUCT",
+                                                        product.getId(),
+                                                        firstImage);
 
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Product not found"
-                        )
-                );
-
-        return convertToDTO(
-                product,
-                currentUser
-        );
-    }
-
-    public ProductDTO updateProduct(
-            String token,
-            Long productId,
-            String name,
-            String category,
-            BigDecimal price,
-            Condition condition,
-            Availability availability,
-            List<MultipartFile> images
-    ) throws IOException {
-
-        User user = getUserFromToken(token);
-
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Product not found"
-                        )
-                );
-
-        checkOwnership(product, user);
-
-        product.setName(name);
-        product.setCategory(category);
-        product.setPrice(price);
-        product.setCondition(condition);
-        product.setAvailability(availability);
-
-        productRepository.save(product);
-
-        /*
-         * If new images were sent, replace the old ones.
-         */
-        if (images != null && !images.isEmpty()) {
-
-            imageService.deleteByFromId(
-                    "PRODUCT",
-                    product.getId()
-            );
-
-            boolean firstImage = true;
-
-            for (MultipartFile image : images) {
-
-                if (image != null && !image.isEmpty()) {
-
-                    imageService.upload(
-                            image,
-                            "PRODUCT",
-                            product.getId(),
-                            firstImage
-                    );
-
-                    firstImage = false;
+                                        firstImage = false;
+                                }
+                        }
                 }
-            }
+
+                return convertToDTO(product, user);
         }
 
-        return convertToDTO(
-                product,
-                user
-        );
-    }
+        // =========================================================
+        // OBTENER PRODUCTOS
+        //
+        // Puede utilizarse:
+        //
+        // 1. Sin token -> usuario visitante
+        // 2. Con token -> usuario logueado
+        // =========================================================
 
-    public void deleteProduct(
-            String token,
-            Long productId
-    ) {
+        public Page<ProductDTO> getProducts(
+                        String token,
+                        String name,
+                        String category,
+                        Double minPrice,
+                        Double maxPrice,
+                        Condition condition,
+                        Availability availability,
+                        Long userId,
+                        Pageable pageable,
+                        String description) {
 
-        User user = getUserFromToken(token);
+                User currentUser = getOptionalUserFromToken(token);
 
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Product not found"
-                        )
-                );
+                Specification<Product> specification = Specification.where(
+                                ProductSpecification.hasName(name))
+                                .and(
+                                                ProductSpecification.hasCategory(category))
+                                .and(
+                                                ProductSpecification.hasMinPrice(minPrice))
+                                .and(
+                                                ProductSpecification.hasMaxPrice(maxPrice))
+                                .and(
+                                                ProductSpecification.hasCondition(condition))
+                                .and(
+                                                ProductSpecification.hasAvailability(availability))
+                                .and(
+                                                ProductSpecification.hasUserId(userId))
+                                .and(
+                                                ProductSpecification.hasDescription(description));
 
-        checkOwnership(product, user);
+                User finalCurrentUser = currentUser;
 
-        favoriteRepository.deleteByProduct(product);
-
-        imageService.deleteByFromId(
-                "PRODUCT",
-                product.getId()
-        );
-
-        productRepository.delete(product);
-    }
-
-    private User getUserFromToken(String token) {
-
-        String email = jwtService.extractEmail(token);
-
-        return userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        )
-                );
-    }
-
-    private void checkOwnership(
-            Product product,
-            User user
-    ) {
-
-        if (!product.getUser().getId().equals(user.getId())) {
-
-            throw new RuntimeException(
-                    "You do not have permission to modify this product"
-            );
+                return productRepository
+                                .findAll(specification, pageable)
+                                .map(product -> convertToDTO(
+                                                product,
+                                                finalCurrentUser));
         }
-    }
 
-    private ProductDTO convertToDTO(
-            Product product,
-            User currentUser
-    ) {
+        // =========================================================
+        // OBTENER PRODUCTO POR ID
+        //
+        // También puede utilizarse sin token.
+        // =========================================================
 
-        List<Image> productImages =
-                imageService.getImages(
-                        "PRODUCT",
-                        product.getId()
-                );
+        public ProductDTO getProductById(
+                        String token,
+                        Long productId) {
 
-        List<String> imageUrls =
-                productImages.stream()
-                        .map(Image::getUrl)
-                        .toList();
+                User currentUser = getOptionalUserFromToken(token);
 
-        boolean favorite =
-                favoriteRepository.existsByUserAndProduct(
-                        currentUser,
-                        product
-                );
+                Product product = productRepository
+                                .findById(productId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Product not found"));
 
-        return new ProductDTO(
-                product.getId(),
-                product.getName(),
-                product.getCategory(),
-                product.getPrice(),
-                product.getCondition(),
-                product.getAvailability(),
-                product.getUser().getId(),
-                product.getUser().getUsername(),
-                imageUrls,
-                favorite
-        );
-    }
+                return convertToDTO(
+                                product,
+                                currentUser);
+        }
+
+        // =========================================================
+        // ACTUALIZAR PRODUCTO
+        // =========================================================
+        public ProductDTO updateProduct(
+                        String token,
+                        Long productId,
+                        String name,
+                        String category,
+                        BigDecimal price,
+                        Condition condition,
+                        Availability availability,
+                        List<MultipartFile> images,
+                        List<String> existingImages,
+                        String description) throws IOException {
+
+                User user = getUserFromToken(token);
+
+                Product product = productRepository
+                                .findById(productId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Product not found"));
+
+                checkOwnership(product, user);
+
+                // =========================================================
+                // ACTUALIZAR DATOS DEL PRODUCTO
+                // =========================================================
+
+                product.setName(name);
+                product.setCategory(category);
+                product.setPrice(price);
+                product.setCondition(condition);
+                product.setAvailability(availability);
+                product.setDescription(description);
+
+                productRepository.save(product);
+
+                // =========================================================
+                // ACTUALIZAR IMÁGENES
+                // =========================================================
+
+                List<Image> currentImages = imageService.getImages(
+                                "PRODUCT",
+                                product.getId());
+
+                /*
+                 * Si no se recibe existingImages significa que
+                 * no se quiere conservar ninguna imagen antigua.
+                 */
+                List<String> imagesToKeep = existingImages != null
+                                ? existingImages
+                                : List.of();
+
+                // =========================================================
+                // ELIMINAR IMÁGENES ANTIGUAS QUE YA NO EXISTEN
+                // =========================================================
+
+                for (Image image : currentImages) {
+
+                        if (!imagesToKeep.contains(image.getUrl())) {
+
+                                imageService.delete(image.getId());
+                        }
+                }
+
+                // =========================================================
+                // AÑADIR IMÁGENES NUEVAS
+                // =========================================================
+
+                if (images != null && !images.isEmpty()) {
+
+                        /*
+                         * Comprobamos si ya existen imágenes.
+                         * Si no existe ninguna, la primera nueva será la portada.
+                         */
+                        boolean hasCover = imageService
+                                        .getCoverImage(
+                                                        "PRODUCT",
+                                                        product.getId()) != null;
+
+                        for (MultipartFile image : images) {
+
+                                if (image != null && !image.isEmpty()) {
+
+                                        imageService.upload(
+                                                        image,
+                                                        "PRODUCT",
+                                                        product.getId(),
+                                                        !hasCover);
+
+                                        hasCover = true;
+                                }
+                        }
+                }
+
+                return convertToDTO(
+                                product,
+                                user);
+        }
+        // =========================================================
+        // ELIMINAR PRODUCTO
+        // =========================================================
+
+        public void deleteProduct(
+                        String token,
+                        Long productId) {
+
+                User user = getUserFromToken(token);
+
+                Product product = productRepository
+                                .findById(productId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Product not found"));
+
+                checkOwnership(product, user);
+
+                favoriteRepository.deleteByProduct(product);
+
+                imageService.deleteByFromId(
+                                "PRODUCT",
+                                product.getId());
+
+                productRepository.delete(product);
+        }
+
+        // =========================================================
+        // OBTENER USUARIO DESDE TOKEN
+        //
+        // Este método es obligatorio para operaciones
+        // que requieren autenticación.
+        // =========================================================
+
+        private User getUserFromToken(String token) {
+
+                if (token == null || token.isBlank()) {
+                        throw new RuntimeException(
+                                        "Authentication required");
+                }
+
+                String email = jwtService.extractEmail(token);
+
+                return userRepository
+                                .findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "User not found"));
+        }
+
+        // =========================================================
+        // OBTENER USUARIO OPCIONAL
+        //
+        // Para GET públicos.
+        //
+        // Sin token -> null
+        // Con token -> User
+        // =========================================================
+
+        private User getOptionalUserFromToken(String token) {
+
+                if (token == null || token.isBlank()) {
+                        return null;
+                }
+
+                try {
+
+                        String email = jwtService.extractEmail(token);
+
+                        return userRepository
+                                        .findByEmail(email)
+                                        .orElse(null);
+
+                } catch (Exception e) {
+
+                        return null;
+                }
+        }
+
+        // =========================================================
+        // COMPROBAR PROPIETARIO
+        // =========================================================
+
+        private void checkOwnership(
+                        Product product,
+                        User user) {
+
+                if (!product.getUser().getId().equals(user.getId())) {
+
+                        throw new RuntimeException(
+                                        "You do not have permission to modify this product");
+                }
+        }
+
+        // =========================================================
+        // CONVERTIR PRODUCT -> DTO
+        // =========================================================
+
+        private ProductDTO convertToDTO(
+                        Product product,
+                        User currentUser) {
+
+                List<Image> productImages = imageService.getImages(
+                                "PRODUCT",
+                                product.getId());
+
+                List<String> imageUrls = productImages.stream()
+                                .map(Image::getUrl)
+                                .toList();
+
+                boolean favorite = false;
+
+                /*
+                 * Si hay usuario logueado comprobamos
+                 * si el producto está en favoritos.
+                 *
+                 * Si es visitante:
+                 * favorite = false
+                 */
+                if (currentUser != null) {
+
+                        favorite = favoriteRepository.existsByUserAndProduct(
+                                        currentUser,
+                                        product);
+                }
+
+                return new ProductDTO(
+                                product.getId(),
+                                product.getName(),
+                                product.getCategory(),
+                                product.getPrice(),
+                                product.getCondition(),
+                                product.getAvailability(),
+                                product.getUser().getId(),
+                                product.getUser().getUsername(),
+                                imageUrls,
+                                favorite,
+                                product.getDescription());
+        }
 }

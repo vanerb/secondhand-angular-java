@@ -25,37 +25,26 @@ public class ProductController {
     private final ProductService productService;
 
     public ProductController(
-            ProductService productService
-    ) {
+            ProductService productService) {
         this.productService = productService;
     }
 
-    @PostMapping(
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductDTO> createProduct(
 
-            @RequestHeader("Authorization")
-            String authorization,
+            @RequestHeader("Authorization") String authorization,
 
             @RequestParam String name,
-
             @RequestParam String category,
-
             @RequestParam BigDecimal price,
-
             @RequestParam Condition condition,
-
-            @RequestParam(required = false)
-            Availability availability,
-
-            @RequestParam(required = false)
-            List<MultipartFile> images
+            @RequestParam(required = false) Availability availability,
+            @RequestParam(required = false) List<MultipartFile> images,
+            @RequestParam String description
 
     ) throws IOException {
 
-        String token =
-                authorization.substring(7);
+        String token = authorization.substring(7);
 
         return ResponseEntity.ok(
                 productService.createProduct(
@@ -65,44 +54,71 @@ public class ProductController {
                         price,
                         condition,
                         availability,
-                        images
+                        images,
+                        description
                 )
         );
     }
 
+    // =========================================================
+    // PRODUCTOS PÚBLICOS - SIN TOKEN
+    // GET /api/products
+    // =========================================================
+
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> getProducts(
 
-            @RequestHeader("Authorization")
-            String authorization,
-
-            @RequestParam(required = false)
-            String name,
-
-            @RequestParam(required = false)
-            String category,
-
-            @RequestParam(required = false)
-            Double minPrice,
-
-            @RequestParam(required = false)
-            Double maxPrice,
-
-            @RequestParam(required = false)
-            Condition condition,
-
-            @RequestParam(required = false)
-            Availability availability,
-
-            @RequestParam(required = false)
-            Long userId,
-
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Condition condition,
+            @RequestParam(required = false) Availability availability,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String description,
             Pageable pageable
 
     ) {
 
-        String token =
-                authorization.substring(7);
+        return ResponseEntity.ok(
+                productService.getProducts(
+                        null,
+                        name,
+                        category,
+                        minPrice,
+                        maxPrice,
+                        condition,
+                        availability,
+                        userId,
+                        pageable,
+                        description
+                )
+        );
+    }
+
+    // =========================================================
+    // PRODUCTOS AUTENTICADOS - CON TOKEN
+    // GET /api/products/auth
+    // =========================================================
+
+    @GetMapping("/auth")
+    public ResponseEntity<Page<ProductDTO>> getProductsAuthenticated(
+
+            @RequestHeader("Authorization") String authorization,
+
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Condition condition,
+            @RequestParam(required = false) Availability availability,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String description,
+            Pageable pageable
+
+    ) {
+
+        String token = authorization.substring(7);
 
         return ResponseEntity.ok(
                 productService.getProducts(
@@ -114,7 +130,8 @@ public class ProductController {
                         condition,
                         availability,
                         userId,
-                        pageable
+                        pageable,
+                        description
                 )
         );
     }
@@ -122,15 +139,13 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(
 
-            @RequestHeader("Authorization")
-            String authorization,
+            @RequestHeader("Authorization") String authorization,
 
             @PathVariable Long id
 
     ) {
 
-        String token =
-                authorization.substring(7);
+        String token = authorization.substring(7);
 
         return ResponseEntity.ok(
                 productService.getProductById(
@@ -140,61 +155,57 @@ public class ProductController {
         );
     }
 
-    @PutMapping(
-            value = "/{id}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<ProductDTO> updateProduct(
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<ProductDTO> updateProduct(
 
-            @RequestHeader("Authorization")
-            String authorization,
+        @RequestHeader("Authorization") String authorization,
 
-            @PathVariable Long id,
+        @PathVariable Long id,
 
-            @RequestParam String name,
+        @RequestParam String name,
+        @RequestParam String category,
+        @RequestParam BigDecimal price,
+        @RequestParam Condition condition,
+        @RequestParam Availability availability,
 
-            @RequestParam String category,
+        // Imágenes nuevas
+        @RequestParam(required = false) List<MultipartFile> images,
 
-            @RequestParam BigDecimal price,
+        // Imágenes antiguas que se mantienen
+        @RequestParam(required = false) List<String> existingImages,
 
-            @RequestParam Condition condition,
+        @RequestParam String description
 
-            @RequestParam Availability availability,
+) throws IOException {
 
-            @RequestParam(required = false)
-            List<MultipartFile> images
+    String token = authorization.substring(7);
 
-    ) throws IOException {
-
-        String token =
-                authorization.substring(7);
-
-        return ResponseEntity.ok(
-                productService.updateProduct(
-                        token,
-                        id,
-                        name,
-                        category,
-                        price,
-                        condition,
-                        availability,
-                        images
-                )
-        );
-    }
+    return ResponseEntity.ok(
+            productService.updateProduct(
+                    token,
+                    id,
+                    name,
+                    category,
+                    price,
+                    condition,
+                    availability,
+                    images,
+                    existingImages,
+                    description
+            )
+    );
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(
 
-            @RequestHeader("Authorization")
-            String authorization,
+            @RequestHeader("Authorization") String authorization,
 
             @PathVariable Long id
 
     ) {
 
-        String token =
-                authorization.substring(7);
+        String token = authorization.substring(7);
 
         productService.deleteProduct(
                 token,

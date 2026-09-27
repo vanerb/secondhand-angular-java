@@ -1,140 +1,136 @@
 package com.secondhand.backend.service;
 
 import com.secondhand.backend.entity.Favorite;
+import com.secondhand.backend.entity.Image;
 import com.secondhand.backend.entity.Product;
 import com.secondhand.backend.entity.User;
 import com.secondhand.backend.repository.FavoriteRepository;
+import com.secondhand.backend.repository.ImageRepository;
 import com.secondhand.backend.repository.ProductRepository;
 import com.secondhand.backend.repository.UserRepository;
 import com.secondhand.backend.security.JwtService;
+import com.secondhand.backend.repository.ImageRepository;
+import com.secondhand.backend.dto.ProductFavoriteDTO;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class FavoriteService {
 
-    private final FavoriteRepository favoriteRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
+        private final FavoriteRepository favoriteRepository;
+        private final ProductRepository productRepository;
+        private final UserRepository userRepository;
+        private final ImageRepository imageRepository;
+        private final JwtService jwtService;
 
-    public FavoriteService(
-            FavoriteRepository favoriteRepository,
-            ProductRepository productRepository,
-            UserRepository userRepository,
-            JwtService jwtService
-    ) {
-        this.favoriteRepository = favoriteRepository;
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-    }
-
-    public void addFavorite(
-            String token,
-            Long productId
-    ) {
-
-        User user = getUserFromToken(token);
-
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Product not found"
-                        )
-                );
-
-        boolean alreadyFavorite =
-                favoriteRepository
-                        .existsByUserAndProduct(
-                                user,
-                                product
-                        );
-
-        if (alreadyFavorite) {
-            return;
+        public FavoriteService(
+                        FavoriteRepository favoriteRepository,
+                        ProductRepository productRepository,
+                        UserRepository userRepository,
+                        ImageRepository imageRepository,
+                        JwtService jwtService) {
+                this.favoriteRepository = favoriteRepository;
+                this.productRepository = productRepository;
+                this.userRepository = userRepository;
+                this.imageRepository = imageRepository;
+                this.jwtService = jwtService;
         }
 
-        Favorite favorite = new Favorite();
+        public void addFavorite(
+                        String token,
+                        Long productId) {
 
-        favorite.setUser(user);
-        favorite.setProduct(product);
+                User user = getUserFromToken(token);
 
-        favoriteRepository.save(favorite);
-    }
+                Product product = productRepository
+                                .findById(productId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Product not found"));
 
-    public void removeFavorite(
-            String token,
-            Long productId
-    ) {
+                boolean alreadyFavorite = favoriteRepository
+                                .existsByUserAndProduct(
+                                                user,
+                                                product);
 
-        User user = getUserFromToken(token);
+                if (alreadyFavorite) {
+                        return;
+                }
 
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Product not found"
-                        )
-                );
+                Favorite favorite = new Favorite();
 
-        favoriteRepository.deleteByUserAndProduct(
-                user,
-                product
-        );
-    }
+                favorite.setUser(user);
+                favorite.setProduct(product);
 
-    public List<Product> getFavorites(
-            String token
-    ) {
+                favoriteRepository.save(favorite);
+        }
 
-        User user = getUserFromToken(token);
+        @Transactional
+        public void removeFavorite(
+                        String token,
+                        Long productId) {
 
-        return favoriteRepository
-                .findByUser(user)
-                .stream()
-                .map(Favorite::getProduct)
-                .toList();
-    }
+                User user = getUserFromToken(token);
 
-    public boolean isFavorite(
-            String token,
-            Long productId
-    ) {
+                Product product = productRepository
+                                .findById(productId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Product not found"));
 
-        User user = getUserFromToken(token);
+                favoriteRepository.deleteByUserAndProduct(
+                                user,
+                                product);
+        }
 
-        Product product = productRepository
-                .findById(productId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Product not found"
-                        )
-                );
+        public List<ProductFavoriteDTO> getFavorites(String token) {
 
-        return favoriteRepository
-                .existsByUserAndProduct(
-                        user,
-                        product
-                );
-    }
+                User user = getUserFromToken(token);
 
-    private User getUserFromToken(
-            String token
-    ) {
+                return favoriteRepository
+                                .findByUser(user)
+                                .stream()
+                                .map(Favorite::getProduct)
+                                .map(product -> {
 
-        String email =
-                jwtService.extractEmail(token);
+                                        List<Image> images = imageRepository
+                                                        .findByFromTypeAndFromId(
+                                                                        "PRODUCT",
+                                                                        product.getId());
 
-        return userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "User not found"
-                        )
-                );
-    }
+                                        return new ProductFavoriteDTO(
+                                                        product,
+                                                        images);
+                                })
+                                .toList();
+        }
+
+        public boolean isFavorite(
+                        String token,
+                        Long productId) {
+
+                User user = getUserFromToken(token);
+
+                Product product = productRepository
+                                .findById(productId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Product not found"));
+
+                return favoriteRepository
+                                .existsByUserAndProduct(
+                                                user,
+                                                product);
+        }
+
+        private User getUserFromToken(
+                        String token) {
+
+                String email = jwtService.extractEmail(token);
+
+                return userRepository
+                                .findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "User not found"));
+        }
 }

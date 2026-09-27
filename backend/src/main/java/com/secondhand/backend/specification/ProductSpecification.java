@@ -124,4 +124,19 @@ public class ProductSpecification {
             );
         };
     }
+
+     public static Specification<Product> hasDescription(String description) {
+
+        return (root, query, criteriaBuilder) -> {
+
+            if (description == null || description.isBlank()) {
+                return null;
+            }
+
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("description")),
+                    "%" + description.toLowerCase() + "%"
+            );
+        };
+    }
 }

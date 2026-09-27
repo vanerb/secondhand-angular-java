@@ -71,6 +71,12 @@ public class SecurityConfig {
                     "/api/auth/**"
                 ).permitAll()
 
+                // CATÁLOGO PÚBLICO
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/products"
+                ).permitAll()
+
                 // Imágenes públicas
                 .requestMatchers(
                     "/uploads/**"

@@ -33,6 +33,9 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private String description;
+
     public Product() {
     }
 
@@ -42,14 +45,15 @@ public class Product {
             BigDecimal price,
             Condition condition,
             Availability availability,
-            User user
-    ) {
+            User user,
+            String description) {
         this.name = name;
         this.category = category;
         this.price = price;
         this.condition = condition;
         this.availability = availability;
         this.user = user;
+        this.description = description;
     }
 
     public Long getId() {
@@ -103,4 +107,13 @@ public class Product {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
 }

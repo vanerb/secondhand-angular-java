@@ -1,5 +1,6 @@
 package com.secondhand.backend.controller;
 
+import com.secondhand.backend.dto.ProductFavoriteDTO;
 import com.secondhand.backend.entity.Product;
 import com.secondhand.backend.service.FavoriteService;
 
@@ -13,90 +14,71 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class FavoriteController {
 
-    private final FavoriteService favoriteService;
+        private final FavoriteService favoriteService;
 
-    public FavoriteController(
-            FavoriteService favoriteService
-    ) {
-        this.favoriteService = favoriteService;
-    }
+        public FavoriteController(
+                        FavoriteService favoriteService) {
+                this.favoriteService = favoriteService;
+        }
 
-    @PostMapping("/{productId}")
-    public ResponseEntity<Void> addFavorite(
+        @PostMapping("/{productId}")
+        public ResponseEntity<Void> addFavorite(
 
-            @RequestHeader("Authorization")
-            String authorization,
+                        @RequestHeader("Authorization") String authorization,
 
-            @PathVariable Long productId
+                        @PathVariable Long productId
 
-    ) {
+        ) {
 
-        String token =
-                authorization.substring(7);
+                String token = authorization.substring(7);
 
-        favoriteService.addFavorite(
-                token,
-                productId
-        );
+                favoriteService.addFavorite(
+                                token,
+                                productId);
 
-        return ResponseEntity.ok().build();
-    }
+                return ResponseEntity.ok().build();
+        }
 
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> removeFavorite(
+        @DeleteMapping("/{productId}")
+        public ResponseEntity<Void> removeFavorite(
 
-            @RequestHeader("Authorization")
-            String authorization,
+                        @RequestHeader("Authorization") String authorization,
 
-            @PathVariable Long productId
+                        @PathVariable Long productId
 
-    ) {
+        ) {
 
-        String token =
-                authorization.substring(7);
+                String token = authorization.substring(7);
 
-        favoriteService.removeFavorite(
-                token,
-                productId
-        );
+                favoriteService.removeFavorite(
+                                token,
+                                productId);
 
-        return ResponseEntity.noContent().build();
-    }
+                return ResponseEntity.noContent().build();
+        }
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getFavorites(
+        @GetMapping
+        public List<ProductFavoriteDTO> getFavorites(
+                        @RequestHeader("Authorization") String token) {
 
-            @RequestHeader("Authorization")
-            String authorization
+                return favoriteService.getFavorites(
+                                token.replace("Bearer ", ""));
+        }
 
-    ) {
+        @GetMapping("/{productId}/exists")
+        public ResponseEntity<Boolean> isFavorite(
 
-        String token =
-                authorization.substring(7);
+                        @RequestHeader("Authorization") String authorization,
 
-        return ResponseEntity.ok(
-                favoriteService.getFavorites(token)
-        );
-    }
+                        @PathVariable Long productId
 
-    @GetMapping("/{productId}/exists")
-    public ResponseEntity<Boolean> isFavorite(
+        ) {
 
-            @RequestHeader("Authorization")
-            String authorization,
+                String token = authorization.substring(7);
 
-            @PathVariable Long productId
-
-    ) {
-
-        String token =
-                authorization.substring(7);
-
-        return ResponseEntity.ok(
-                favoriteService.isFavorite(
-                        token,
-                        productId
-                )
-        );
-    }
+                return ResponseEntity.ok(
+                                favoriteService.isFavorite(
+                                                token,
+                                                productId));
+        }
 }

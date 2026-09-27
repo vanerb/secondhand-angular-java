@@ -1,1 +1,46 @@
-<p>favorites works!</p>
+
+
+
+<app-container>
+  <section class="discovery" id="favoritos" aria-labelledby="favorites-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">TUS ARTÍCULOS GUARDADOS</span>
+        <h2 id="favorites-title">Mis favoritos</h2>
+      </div>
+
+      <span class="listing-count"> {{ favoriteProducts.length }} artículos </span>
+    </div>
+
+    <div class="product-grid">
+      @for (product of favoriteProducts; track product.id; let index = $index) {
+        <app-product-card
+          [product]="product"
+          [index]="index"
+          [user]="user"
+          (actions)="action($event)"
+          [view]="'fav'"
+        ></app-product-card>
+      } @empty {
+        <div class="empty-state">
+          <i class="bi bi-heart" aria-hidden="true"></i>
+
+          <h3>Aún no tienes favoritos</h3>
+
+          <p>Guarda los artículos que más te gusten y aparecerán aquí.</p>
+
+          <button [routerLink]="['/home']">Explorar artículos</button>
+        </div>
+      }
+    </div>
+
+    <div class="more-row">
+      <span>¿Buscas algo especial?</span>
+
+      <a href="/home">
+        Descubre más artículos
+        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </section>
+</app-container> 

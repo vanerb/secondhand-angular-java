@@ -18,6 +18,10 @@
       <button class="menu-item" (click)="navigate('/home')">
         <i class="bi bi-compass" aria-hidden="true"></i><span>Descubrir</span>
       </button>
+      <button *ngIf="isLogged" class="menu-item" (click)="navigate('/products')">
+        <i class="bi bi-box-seam" aria-hidden="true"></i><span>Productos</span
+        ><span class="menu-arrow">›</span>
+      </button>
       <button *ngIf="isLogged" class="menu-item" (click)="navigate('/chats')">
         <i class="bi bi-chat-dots" aria-hidden="true"></i><span>Mensajes</span
         ><span class="menu-arrow">›</span>

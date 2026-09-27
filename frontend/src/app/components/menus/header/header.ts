@@ -6,6 +6,7 @@ import { MatButton } from '@angular/material/button';
 import { AuthService } from '../../../services/auth-service';
 import { firstValueFrom } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { sleep } from '../../../services/utilities-service';
 
 @Component({
   selector: 'app-header',
@@ -23,7 +24,7 @@ export class Header {
     private readonly authService: AuthService,
     private router: Router,
     private breakpointObserver: BreakpointObserver,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -65,6 +66,10 @@ export class Header {
 
   async closeSession() {
     await this.authService.logout();
+
+    this.cdr.detectChanges();
+    await this.router.navigate(['login']);
+    await sleep(500);
     window.location.reload();
     this.isOpen = false;
   }

@@ -1,0 +1,153 @@
+:host {
+  display: block;
+}
+
+.favorites {
+  padding: 48px 0 80px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #6d806f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-heading h1 {
+  margin: 0;
+  color: #263c2e;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.section-description {
+  max-width: 600px;
+  margin: 10px 0 0;
+  color: #718074;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.listing-count {
+  flex-shrink: 0;
+  color: #718074;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* GRID */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* EMPTY */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  padding: 48px 24px;
+  border: 1px dashed #d5ded7;
+  border-radius: 24px;
+  background: #fafcf9;
+  text-align: center;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  background: #edf3ee;
+  color: #344d3d;
+  font-size: 1.8rem;
+}
+
+.empty-state h2 {
+  margin: 0 0 10px;
+  color: #263c2e;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  max-width: 430px;
+  margin: 0 0 24px;
+  color: #718074;
+  line-height: 1.6;
+}
+
+.explore-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: #344d3d;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.explore-button:hover {
+  background: #263c2e;
+  transform: translateY(-2px);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .favorites {
+    padding: 32px 0 60px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .empty-state {
+    min-height: 350px;
+  }
+}

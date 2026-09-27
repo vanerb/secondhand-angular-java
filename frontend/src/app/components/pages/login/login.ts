@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -6,6 +6,7 @@ import { Container } from "../../general/container/container";
 import {MatButtonModule} from '@angular/material/button';
 import { AuthService } from '../../../services/auth-service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,7 @@ export class Login {
 
   form: FormGroup;
 
-  constructor(private readonly authService: AuthService, private fb: FormBuilder) {
+  constructor(private readonly authService: AuthService, private fb: FormBuilder,   private router: Router, private cdr: ChangeDetectorRef) {
     this.form = this.fb.group({
       email: [''],
       password: ['']
@@ -31,7 +32,9 @@ export class Login {
         if (response && response.token) {
           this.authService.setType(response.type);
           localStorage.setItem('token', response.token);
+          this.cdr.detectChanges();
           window.location.reload();
+          
         } else {
           console.error('Invalid response from login API');
         }
@@ -40,5 +43,7 @@ export class Login {
         console.error('Login failed:', error);
       }
     });
+
+     this.router.navigate(['/home']);
   }
 }

@@ -28,6 +28,8 @@ public class ProductDTO {
 
     private boolean favorite;
 
+    private String description;
+
     public ProductDTO() {
     }
 
@@ -41,8 +43,8 @@ public class ProductDTO {
             Long userId,
             String username,
             List<String> images,
-            boolean favorite
-    ) {
+            boolean favorite,
+            String description) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -53,6 +55,7 @@ public class ProductDTO {
         this.username = username;
         this.images = images;
         this.favorite = favorite;
+        this.description = description;
     }
 
     public Long getId() {
@@ -134,4 +137,13 @@ public class ProductDTO {
     public void setFavorite(boolean favorite) {
         this.favorite = favorite;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 }

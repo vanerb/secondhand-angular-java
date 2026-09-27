@@ -18,4 +18,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
             String fromType,
             Long fromId
     );
+
 }

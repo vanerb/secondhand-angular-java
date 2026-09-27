@@ -1,0 +1,87 @@
+<article class="product-card" [style.--card-index]="index">
+  <div class="product-image-wrap">
+    <img
+      class="product-image"
+      [src]="getNewImage(product.images[0])"
+      [alt]="product.name"
+      loading="lazy"
+    />
+
+    <!-- Favorito -->
+    <button *ngIf="user && view !== 'fav'"
+      class="favorite-button"
+      [class.is-favorite]="product.favorite"
+      (click)="toggleFavorite(product)"
+      [attr.aria-label]="product.favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+      [attr.aria-pressed]="product.favorite"
+    >
+      <i
+        class="bi"
+        [class.bi-heart]="!product.favorite"
+        [class.bi-heart-fill]="product.favorite"
+        aria-hidden="true"
+      ></i>
+    </button>
+
+    <!-- Menú del producto -->
+    <div class="product-actions" *ngIf="user && view !== 'fav'">
+      <button
+        class="actions-button"
+        type="button"
+        aria-label="Opciones del producto"
+        (click)="toggleActions($event)"
+      >
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+
+      @if (actionsOpen) {
+        <div class="actions-menu">
+          <button type="button" class="action-item" (click)="editProduct(product)">
+            <i class="bi bi-pencil"></i>
+            <span>Editar</span>
+          </button>
+
+          <button type="button" class="action-item delete" (click)="deleteProduct(product)">
+            <i class="bi bi-trash"></i>
+            <span>Eliminar</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="product-info">
+    <div class="product-meta">
+      <span>{{ product.category }}</span>
+      <span class="condition">
+        <i class="bi bi-stars" aria-hidden="true"></i>
+        {{ product.condition }}
+      </span>
+    </div>
+
+    <h3>{{ product.name }}</h3>
+
+    <div class="product-bottom">
+      <strong class="product-price">{{ product.price }} €</strong>
+      <span class="seller">
+        <span class="seller-dot"></span>
+        {{ product.username }}
+      </span>
+    </div>
+
+    <button *ngIf="user"
+      class="interest-button"
+      [class.is-interested]="product.interested"
+      (click)="toggleInterest(product)"
+      [attr.aria-pressed]="product.interested"
+    >
+      <i
+        class="bi"
+        [class.bi-chat-heart]="!product.interested"
+        [class.bi-check2]="product.interested"
+        aria-hidden="true"
+      ></i>
+      {{ product.interested ? 'Te interesa' : 'Me interesa' }}
+    </button>
+  </div>
+</article>
