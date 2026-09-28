@@ -1,4 +1,5 @@
-# 🧩 Proyecto SecondHand Angular + Java (Spring Boot)
+# WIP (Work in Progress)
+# 🧩 Proyecto SecondHand Angular + Java (Spring Boot) 
 
 Este repositorio contiene una arquitectura básica para iniciar un proyecto con **Angular** en el frontend y **Java (Spring Boot)** en el backend. Incluye instrucciones para clonar, instalar dependencias y ejecutar ambos servidores.
 
