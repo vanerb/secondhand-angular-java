@@ -1,4 +1,4 @@
-<article class="product-card" [style.--card-index]="index()">
+<article class="product-card" [style.--card-index]="index()" (click)="view(product())">
   <div class="product-image-wrap">
     <img
       class="product-image"
@@ -16,7 +16,7 @@
         type="button"
         class="favorite-button"
         [class.is-favorite]="product().favorite"
-        (click)="toggleFavorite(product())"
+        (click)="toggleFavorite(product()); $event.stopPropagation()"
         [attr.aria-label]="product().favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
         [attr.aria-pressed]="product().favorite"
       >
@@ -40,20 +40,28 @@
           type="button"
           class="actions-button"
           aria-label="Opciones del producto"
-          (click)="toggleActions($event)"
+          (click)="toggleActions($event); $event.stopPropagation()"
         >
           <i class="bi bi-three-dots-vertical"></i>
         </button>
 
         @if (actionsOpen) {
           <div class="actions-menu">
-            <button type="button" class="action-item" (click)="editProduct(product())">
+            <button
+              type="button"
+              class="action-item"
+              (click)="editProduct(product()); $event.stopPropagation()"
+            >
               <i class="bi bi-pencil"></i>
 
               <span> Editar </span>
             </button>
 
-            <button type="button" class="action-item delete" (click)="deleteProduct(product())">
+            <button
+              type="button"
+              class="action-item delete"
+              (click)="deleteProduct(product()); $event.stopPropagation()"
+            >
               <i class="bi bi-trash"></i>
 
               <span> Eliminar </span>
@@ -105,7 +113,7 @@
           type="button"
           class="interest-button"
           [class.is-interested]="product().isChat"
-          (click)="toggleInterest(product())"
+          (click)="toggleInterest(product()); $event.stopPropagation()"
           [attr.aria-pressed]="product().isChat"
         >
           <i

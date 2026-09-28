@@ -17,6 +17,7 @@ import { ChipCategory } from '../../home/chip-category/chip-category';
 
 import { CommonModule } from '@angular/common';
 import { WarningModal } from '../../../general/warning-modal/warning-modal';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-view',
@@ -121,6 +122,7 @@ export class ProductView implements OnInit {
     private authService: AuthService,
     private favoriteService: FavoriteService,
     private chatService: ChatService,
+    private router: Router,
   ) {}
 
   // ==========================================
@@ -201,6 +203,10 @@ export class ProductView implements OnInit {
 
       case 'update_interest':
         this.updateInterest(action.item);
+        break;
+
+      case 'view':
+        this.viewProduct(action.item);
         break;
     }
   }
@@ -371,5 +377,9 @@ export class ProductView implements OnInit {
         });
       })
       .catch(() => this.modalService.close());
+  }
+
+  viewProduct(product: any) {
+    this.router.navigate(['/product', product.id]);
   }
 }

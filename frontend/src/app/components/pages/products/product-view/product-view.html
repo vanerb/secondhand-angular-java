@@ -1,4 +1,3 @@
-
 <!-- Botón añadir producto -->
 <button
   *ngIf="user() && !readOnly"
@@ -10,38 +9,21 @@
   <i class="bi bi-plus-lg"></i>
 </button>
 
-<section
-  class="discovery"
-  [class.cards-only]="cardsOnly"
-  aria-labelledby="discovery-title"
->
-
+<section class="discovery" [class.cards-only]="cardsOnly" aria-labelledby="discovery-title">
   <!-- CABECERA -->
   <div *ngIf="!cardsOnly" class="section-heading">
-
     <div>
-      <span class="eyebrow">
-        TU PRÓXIMO FAVORITO
-      </span>
+      <span class="eyebrow"> TU PRÓXIMO FAVORITO </span>
 
-      <h2 id="discovery-title">
-        Encuentra algo especial
-      </h2>
+      <h2 id="discovery-title">Encuentra algo especial</h2>
     </div>
 
-    <span class="listing-count">
-      {{ filteredProducts.length }} artículos
-    </span>
-
+    <span class="listing-count"> {{ filteredProducts.length }} artículos </span>
   </div>
 
   <!-- BÚSQUEDA -->
   <label *ngIf="!cardsOnly" class="search-box">
-
-    <i
-      class="bi bi-search"
-      aria-hidden="true"
-    ></i>
+    <i class="bi bi-search" aria-hidden="true"></i>
 
     <input
       type="search"
@@ -51,43 +33,23 @@
       (input)="onSearch($event)"
     />
 
-    <span class="search-hint">
-      Ideas: lámpara, bolso, vintage…
-    </span>
-
+    <span class="search-hint"> Ideas: lámpara, bolso, vintage… </span>
   </label>
 
   <!-- CATEGORÍAS -->
-  <div
-    *ngIf="!cardsOnly"
-    class="category-row"
-    aria-label="Filtrar por categoría"
-  >
-
-    @for (
-      category of categories;
-      track category.name
-    ) {
-
+  <div *ngIf="!cardsOnly" class="category-row" aria-label="Filtrar por categoría">
+    @for (category of categories; track category.name) {
       <app-chip-category
         [category]="category"
         [activeCategory]="activeCategory"
         (categorySelected)="activeCategory = $event"
       ></app-chip-category>
-
     }
-
   </div>
 
   <!-- CARDS -->
   <div class="product-grid">
-
-    @for (
-      product of filteredProducts;
-      track product.id;
-      let index = $index
-    ) {
-
+    @for (product of filteredProducts; track product.id; let index = $index) {
       <app-product-card
         [product]="product"
         [index]="index"
@@ -95,61 +57,27 @@
         [readOnly]="readOnly"
         (actions)="action($event)"
       ></app-product-card>
-
     } @empty {
+      <div *ngIf="!cardsOnly" class="empty-state">
+        <i class="bi bi-search-heart" aria-hidden="true"></i>
 
-      <div
-        *ngIf="!cardsOnly"
-        class="empty-state"
-      >
+        <h3>No encontramos ese tesoro</h3>
 
-        <i
-          class="bi bi-search-heart"
-          aria-hidden="true"
-        ></i>
+        <p>Prueba con otra búsqueda o explora todas las categorías.</p>
 
-        <h3>
-          No encontramos ese tesoro
-        </h3>
-
-        <p>
-          Prueba con otra búsqueda o explora todas
-          las categorías.
-        </p>
-
-        <button
-          type="button"
-          (click)="clearFilters()"
-        >
-          Ver todos los artículos
-        </button>
-
+        <button type="button" (click)="clearFilters()">Ver todos los artículos</button>
       </div>
-
     }
-
   </div>
 
   <!-- PIE -->
-  <div
-    *ngIf="!cardsOnly"
-    class="more-row"
-  >
-
-    <span>
-      ¿Tienes algo que merece otra historia?
-    </span>
+  <div *ngIf="!cardsOnly" class="more-row">
+    <span> ¿Tienes algo que merece otra historia? </span>
 
     <a href="/register">
       Ponlo a la venta
 
-      <i
-        class="bi bi-arrow-right"
-        aria-hidden="true"
-      ></i>
+      <i class="bi bi-arrow-right" aria-hidden="true"></i>
     </a>
-
   </div>
-
 </section>
-
