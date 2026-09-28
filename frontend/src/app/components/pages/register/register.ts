@@ -21,7 +21,7 @@ export class Register {
 
   constructor(
     private authService: AuthService,
-    private cd: ChangeDetectorRef,
+
     private fb: FormBuilder,
   ) {
     this.form = this.fb.group({
@@ -49,7 +49,7 @@ export class Register {
 
       reader.onload = () => {
         this.previewCoverImage = reader.result as string;
-        this.cd.detectChanges();
+     
       };
 
       reader.readAsDataURL(this.selectedImagesCover[0]);

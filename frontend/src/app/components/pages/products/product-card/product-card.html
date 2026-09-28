@@ -2,14 +2,15 @@
   <div class="product-image-wrap">
     <img
       class="product-image"
-      [src]="getNewImage(product.images[0])"
+      [src]="getNewImage(product.images?.[0])"
       [alt]="product.name"
       loading="lazy"
     />
 
     <!-- Favorito -->
     <button
-      *ngIf="user && view !== 'fav'"
+      *ngIf="user && !readOnly"
+      type="button"
       class="favorite-button"
       [class.is-favorite]="product.favorite"
       (click)="toggleFavorite(product)"
@@ -25,10 +26,10 @@
     </button>
 
     <!-- Menú del producto -->
-    <div class="product-actions" *ngIf="user && view !== 'fav' && product.userId === user.id">
+    <div class="product-actions" *ngIf="user && !readOnly && product.userId === user.id">
       <button
-        class="actions-button"
         type="button"
+        class="actions-button"
         aria-label="Opciones del producto"
         (click)="toggleActions($event)"
       >
@@ -54,6 +55,7 @@
   <div class="product-info">
     <div class="product-meta">
       <span>{{ product.category }}</span>
+
       <span class="condition">
         <i class="bi bi-stars" aria-hidden="true"></i>
         {{ product.condition }}
@@ -63,16 +65,18 @@
     <h3>{{ product.name }}</h3>
 
     <div class="product-bottom">
-      <strong class="product-price">{{ product.price }} €</strong>
+      <strong class="product-price"> {{ product.price }} € </strong>
+
       <span class="seller">
         <span class="seller-dot"></span>
         {{ product.username }}
       </span>
     </div>
 
-    <div *ngIf="product.isChat" class="interest-info"><i class="bi bi-check2"></i> Te interesa</div>
-
+    <!-- Interés -->
     <button
+      *ngIf="!readOnly"
+      type="button"
       class="interest-button"
       [class.is-interested]="product.isChat"
       (click)="toggleInterest(product)"
@@ -84,6 +88,7 @@
         [class.bi-x-lg]="product.isChat"
         aria-hidden="true"
       ></i>
+
       {{ product.isChat ? 'Ya no me interesa' : 'Me interesa' }}
     </button>
   </div>

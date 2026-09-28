@@ -1,100 +1,199 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { Container } from '../../general/container/container';
 import { AuthService } from '../../../services/auth-service';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { getImage } from '../../../services/utilities-service';
+import { ProductService } from '../../../services/product-service';
+import { FavoriteService } from '../../../services/favorite-service';
+import { CommonModule } from '@angular/common';
+import { getImage, sleep } from '../../../services/utilities-service';
+import { ProductCard } from '../products/product-card/product-card';
+import { ProductView } from '../products/product-view/product-view';
+import { ChatService } from '../../../services/chat-service';
 
 @Component({
   selector: 'app-profile',
-  imports: [Container, ReactiveFormsModule, MatFormFieldModule, MatInputModule],
+  imports: [Container, CommonModule, ProductCard, ProductView],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class Profile {
   user: any = null;
-  previewImage = getImage(null);
-  selectedImage: File | null = null;
+
+  products: any[] = [];
+
+  favorites: any[] = [];
+
+  activeTab: 'products' | 'favorites' = 'products';
+
   isLoading = true;
-  isSaving = false;
-  successMessage = '';
+
   errorMessage = '';
 
-  readonly form: FormGroup;
+  isOwnProfile = true;
+
+  profileImage = '';
+
+  userProductsCount = 0;
 
   constructor(
+    private readonly productService: ProductService,
+    private readonly favoriteService: FavoriteService,
     private readonly authService: AuthService,
-    private readonly formBuilder: FormBuilder,
-    private readonly cdr: ChangeDetectorRef
-  ) {
-    this.form = this.formBuilder.group({
-      name: ['', Validators.required],
-      cogname: ['', Validators.required],
-      username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-    });
+  
+    private readonly chatService: ChatService,
+  ) {}
+
+  async ngOnInit() {
+    this.loadProfile();
   }
 
-  ngOnInit(): void {
-    this.authService.getUserByToken()?.subscribe({
-      next: (user) => {
-        this.user = user;
-        this.previewImage = getImage(user.profileImage);
-        this.form.patchValue({
-          name: user.name,
-          cogname: user.cogname,
-          username: user.username,
-          email: user.email,
-        });
-        this.isLoading = false;
-        this.cdr.detectChanges(); // Forzar la detección de cambios después de obtener el usuario
-      },
-      error: () => {
-        this.errorMessage = 'No se pudieron cargar los datos de tu cuenta.';
-        this.isLoading = false;
-      },
-    });
-  }
+  async loadProfile(): Promise<void> {
+    this.isLoading = true;
 
-  onImageChange(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    this.selectedImage = file;
-    const reader = new FileReader();
-    reader.onload = () => (this.previewImage = reader.result as string);
-    reader.readAsDataURL(file);
-    this.cdr.detectChanges(); // Forzar la detección de cambios después de seleccionar la imagen
-  }
+    const user$ = this.authService.getUserByToken();
 
-  saveProfile(): void {
-    if (this.form.invalid || this.isSaving) {
-      this.form.markAllAsTouched();
+    if (!user$) {
+      this.errorMessage = 'No se ha podido obtener la información del usuario.';
+      this.isLoading = false;
       return;
     }
 
-    const values = this.form.getRawValue();
-    const formData = new FormData();
-    formData.append('name', values.name ?? '');
-    formData.append('cogname', values.cogname ?? '');
-    formData.append('username', values.username ?? '');
-    formData.append('email', values.email ?? '');
-    if (this.selectedImage) formData.append('image', this.selectedImage);
+    user$.subscribe({
+      next: (user: any) => {
+        console.log('USUARIO RECIBIDO:', user);
 
-    this.isSaving = true;
-    this.successMessage = '';
-    this.errorMessage = '';
-    this.authService.update(formData)?.subscribe({
-      next: (response) => {
-        if (response?.token) localStorage.setItem('token', response.token);
-        this.successMessage = 'Tu cuenta se ha actualizado correctamente.';
-        this.isSaving = false;
-        window.location.reload();
+        this.user = user;
+
+        // IMPORTANTE:
+        // En tu Header utilizas user.profileImage
+        this.profileImage = this.getUserImage(user);
+
+        this.isOwnProfile = true;
+
+        // Cargar productos y favoritos
+        this.loadProducts();
+
+        this.loadFavorites();
+
+        this.isLoading = false;
+
+      
       },
+
       error: (error) => {
-        this.errorMessage = error?.error?.message ?? 'No se pudieron guardar los cambios. Comprueba el email y el nombre de usuario.';
-        this.isSaving = false;
+        console.error('ERROR OBTENIENDO USUARIO:', error);
+
+        this.errorMessage = 'No se ha podido cargar la información del perfil.';
+
+        this.isLoading = false;
+
+       
       },
     });
+  }
+
+  async loadProducts() {
+     this.productService.getProductsAuth().subscribe({
+      next: async (products: any) => {
+        console.log('PRODUCTOS DEL USUARIO:', products);
+
+        this.products = Array.isArray(products) ? products : (products.content ?? []);
+
+        this.userProductsCount = this.products.length;
+
+       
+      },
+
+      error: (error) => {
+        console.error('ERROR CARGANDO PRODUCTOS:', error);
+
+        this.products = [];
+
+        this.userProductsCount = 0;
+      },
+    });
+  }
+
+  loadFavorites(): void {
+    this.favoriteService.getFavorites().subscribe({
+      next: (favorites: any[]) => {
+        console.log('FAVORITOS:', favorites);
+
+        this.favorites = favorites.map((favorite: any) => ({
+          id: favorite.id,
+          name: favorite.name,
+          category: favorite.category,
+          price: favorite.price,
+          condition: favorite.condition,
+          availability: favorite.availability,
+
+          userId: favorite.user?.id ?? null,
+          username: favorite.user?.username ?? '',
+
+          images: favorite.images?.map((image: any) => image.url) ?? [],
+
+          favorite: true,
+
+          description: favorite.description,
+        }));
+
+        // Primero cargamos los productos y después sus chats
+        if (this.user) {
+          this.loadChatStatus();
+        }
+
+        
+      },
+
+      error: (error) => {
+        console.error('ERROR CARGANDO FAVORITOS:', error);
+
+        this.favorites = [];
+      },
+    });
+  }
+
+  loadChatStatus() {
+    this.chatService.getConversations(this.user.id).subscribe({
+      next: (conversations) => {
+        this.favorites = this.favorites.map((product) => ({
+          ...product,
+
+          isChat: conversations.some(
+            (conversation) =>
+              ((conversation.user1?.id === this.user.id &&
+                conversation.user2?.id === product.userId) ||
+                (conversation.user1?.id === product.userId &&
+                  conversation.user2?.id === this.user.id)) &&
+              conversation.productId === product.id,
+          ),
+        }));
+
+    
+      },
+
+      error: (error) => {
+        console.error('Error obteniendo conversaciones:', error);
+      },
+    });
+  }
+
+  getUserImage(user: any): string {
+    console.log('IMAGEN USUARIO:', user?.profileImage);
+
+    if (!user?.profileImage) {
+      return 'assets/images/default-avatar.png';
+    }
+
+    // Si ya viene como URL completa
+    if (user.profileImage.startsWith('http')) {
+      return user.profileImage;
+    }
+
+    // Igual que haces en Header
+    return getImage(user.profileImage);
+  }
+
+  getNewImage(name: string) {
+    return getImage(name);
   }
 }

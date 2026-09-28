@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FavoriteService } from '../../../services/favorite-service';
 import { ProductService } from '../../../services/product-service';
 import { AuthService } from '../../../services/auth-service';
@@ -12,10 +12,11 @@ import { firstValueFrom } from 'rxjs';
 import { ChatService } from '../../../services/chat-service';
 import { ModalService } from '../../../services/modal-service';
 import { CreateProduct } from '../products/create-product/create-product';
+import { ProductView } from '../products/product-view/product-view';
 
 @Component({
   selector: 'app-favorites',
-  imports: [ProductCard, Container, RouterLink, JsonPipe],
+  imports: [ProductCard, Container, RouterLink, JsonPipe, ProductView],
   templateUrl: './favorites.html',
   styleUrl: './favorites.css',
 })
@@ -27,7 +28,7 @@ export class Favorites implements OnInit {
     private favoriteService: FavoriteService,
     private productService: ProductService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef,
+
     private chatService: ChatService,
     private modalService: ModalService,
   ) {}
@@ -39,11 +40,10 @@ export class Favorites implements OnInit {
         this.user = await firstValueFrom(user$);
       }
     }
+
     this.loadFavorites();
 
-    await sleep(1000);
-
-    this.cdr.detectChanges();
+ 
   }
 
   loadChatStatus() {
@@ -62,7 +62,7 @@ export class Favorites implements OnInit {
           ),
         }));
 
-        this.cdr.detectChanges();
+      
       },
 
       error: (error) => {
@@ -97,7 +97,7 @@ export class Favorites implements OnInit {
           this.loadChatStatus();
         }
 
-        this.cdr.detectChanges();
+      
       },
 
       error: (error) => {
@@ -134,7 +134,7 @@ export class Favorites implements OnInit {
 
           this.favoriteProducts = [...this.favoriteProducts];
 
-          this.cdr.detectChanges();
+         
         }
       },
 

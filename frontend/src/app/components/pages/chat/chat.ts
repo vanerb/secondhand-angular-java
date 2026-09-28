@@ -35,7 +35,7 @@ export class Chat implements OnInit, OnDestroy {
     private chatWebSocketService: ChatWebSocketService,
     private authService: AuthService,
     private chatService: ChatService,
-    private cdr: ChangeDetectorRef,
+   
   ) {}
 
   ngOnInit() {
@@ -48,7 +48,7 @@ export class Chat implements OnInit, OnDestroy {
 
       if (this.selectedConversation && message.conversationId === this.selectedConversation.id) {
         this.messages.push(message);
-        this.cdr.detectChanges();
+       
       }
     });
 
@@ -62,7 +62,7 @@ export class Chat implements OnInit, OnDestroy {
 
           this.loadConversations();
 
-          this.cdr.detectChanges();
+      
         },
 
         error: (error) => {
@@ -92,7 +92,7 @@ export class Chat implements OnInit, OnDestroy {
 
         this.conversations = data;
 
-        this.cdr.detectChanges();
+       
       },
 
       error: (error) => {
@@ -116,7 +116,7 @@ export class Chat implements OnInit, OnDestroy {
 
     this.messages = [];
 
-    this.cdr.detectChanges();
+  
 
     this.chatService.getMessages(conversation.id).subscribe({
       next: (messages) => {
@@ -124,7 +124,7 @@ export class Chat implements OnInit, OnDestroy {
 
         this.messages = messages;
 
-        this.cdr.detectChanges();
+        
       },
 
       error: (error) => {

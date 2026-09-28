@@ -1,4 +1,147 @@
 <app-container>
+  <main class="public-profile-page">
+    @if (isLoading) {
+      <section class="profile-loading">
+        <span class="loading-orbit"></span>
+        <span>Cargando perfil…</span>
+      </section>
+    } @else if (user) {
+      <!-- CABECERA DEL PERFIL -->
+      <section class="profile-card">
+        <div class="profile-cover">
+          <span class="cover-leaf leaf-one"></span>
+          <span class="cover-leaf leaf-two"></span>
+          <span class="cover-circle circle-one"></span>
+          <span class="cover-circle circle-two"></span>
+        </div>
+
+        <div class="profile-main">
+          <div class="profile-avatar-wrap">
+            <img [src]="profileImage" [alt]="'Foto de ' + user.username" class="profile-avatar" />
+          </div>
+
+          <div class="profile-info">
+            <div class="profile-name-row">
+              <div>
+                <h1>{{ user.name }} {{ user.cogname }}</h1>
+
+                <span class="profile-username"> &#64;{{ user.username }} </span>
+              </div>
+
+              @if (isOwnProfile) {
+                <a routerLink="/profile/edit" class="edit-profile-button">
+                  <i class="bi bi-pencil"></i>
+                  Editar perfil
+                </a>
+              }
+            </div>
+
+            <p class="profile-description">
+              Parte de la comunidad SecondHand. Dando nuevas historias a las cosas que ya existen.
+            </p>
+
+            <div class="profile-stats">
+              <div class="profile-stat">
+                <strong>{{ products.length || 0 }}</strong>
+                <span>productos</span>
+              </div>
+
+              <div class="profile-stat">
+                <strong>{{ favorites.length || 0 }}</strong>
+                <span>favoritos</span>
+              </div>
+
+              <div class="profile-stat">
+                <strong>{{ userProductsCount || 0 }}</strong>
+                <span>publicados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTENIDO -->
+      <section class="profile-content">
+        <!-- TABS -->
+        <nav class="profile-tabs">
+          <button
+            type="button"
+            [class.active]="activeTab === 'products'"
+            (click)="activeTab = 'products'"
+          >
+            <i class="bi bi-grid-3x3-gap"></i>
+            Productos
+          </button>
+
+          <button
+            type="button"
+            [class.active]="activeTab === 'favorites'"
+            (click)="activeTab = 'favorites'"
+          >
+            <i class="bi bi-heart"></i>
+            Favoritos
+          </button>
+        </nav>
+
+        <!-- PRODUCTOS -->
+        @if (activeTab === 'products') {
+          <section class="profile-section">
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">EN VENTA</span>
+                <h2>Productos de {{ user.username }}</h2>
+              </div>
+
+              <span class="section-count">
+                {{ products.length }}
+              </span>
+            </div>
+
+            <app-product-view
+              [products]="products"
+              [readOnly]="true"
+              [cardsOnly]="true"
+            ></app-product-view>
+          </section>
+        }
+
+        <!-- FAVORITOS -->
+        @if (activeTab === 'favorites') {
+          <section class="profile-section">
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">GUARDADOS</span>
+                <h2>Favoritos de {{ user.username }}</h2>
+              </div>
+
+              <span class="section-count">
+                {{ favorites.length }}
+              </span>
+            </div>
+
+            <app-product-view
+              [products]="favorites"
+              [readOnly]="true"
+              [cardsOnly]="true"
+            ></app-product-view>
+          </section>
+        }
+      </section>
+    } @else {
+      <section class="profile-error">
+        <i class="bi bi-person-exclamation"></i>
+
+        <h2>No pudimos abrir este perfil</h2>
+
+        <p>{{ errorMessage }}</p>
+
+        <a routerLink="/home"> Volver a descubrir </a>
+      </section>
+    }
+  </main>
+</app-container>
+
+<!-- <app-container>
   <main class="profile-page">
     <header class="profile-heading"><div><span class="eyebrow">TU ESPACIO EN SECONDHAND</span><h1>Mi cuenta</h1><p>Cuida tu perfil y mantén tus datos al día.</p></div><a href="/home"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a descubrir</a></header>
     @if (isLoading) {
@@ -34,3 +177,4 @@
     }
   </main>
 </app-container>
+ -->

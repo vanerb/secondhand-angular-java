@@ -18,7 +18,7 @@ export class Login {
 
   form: FormGroup;
 
-  constructor(private readonly authService: AuthService, private fb: FormBuilder,   private router: Router, private cdr: ChangeDetectorRef) {
+  constructor(private readonly authService: AuthService, private fb: FormBuilder,   private router: Router, ) {
     this.form = this.fb.group({
       email: [''],
       password: ['']
@@ -32,7 +32,7 @@ export class Login {
         if (response && response.token) {
           this.authService.setType(response.type);
           localStorage.setItem('token', response.token);
-          this.cdr.detectChanges();
+          
           window.location.reload();
           
         } else {

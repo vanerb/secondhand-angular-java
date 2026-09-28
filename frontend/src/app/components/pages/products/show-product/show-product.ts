@@ -42,7 +42,7 @@ export class ShowProduct implements OnInit {
     private productService: ProductService,
     private favoriteService: FavoriteService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+   
   ) {}
 
   ngOnInit(): void {
@@ -71,7 +71,7 @@ export class ShowProduct implements OnInit {
 
         this.loadFavoriteStatus();
 
-        this.cdr.detectChanges();
+       
       },
       error: (error) => {
         console.error('Error cargando producto:', error);
@@ -79,7 +79,7 @@ export class ShowProduct implements OnInit {
         this.loading = false;
         this.error = true;
 
-        this.cdr.detectChanges();
+      
       }
     });
   }
@@ -125,7 +125,7 @@ export class ShowProduct implements OnInit {
     this.favoriteService.isFavorite(this.product.id).subscribe({
       next: (result: boolean) => {
         this.isFavorite = result;
-        this.cdr.detectChanges();
+       
       },
       error: () => {
         this.isFavorite = false;
@@ -146,7 +146,7 @@ export class ShowProduct implements OnInit {
     this.favoriteService.toggleFavorite(this.product).subscribe({
       next: () => {
         this.isFavorite = !this.isFavorite;
-        this.cdr.detectChanges();
+      
       },
       error: (error) => {
         console.error('Error al cambiar favorito:', error);

@@ -13,7 +13,8 @@ export class ProductCard {
   @Input() product: any;
   @Input() index: number = 0;
   @Input() user: any;
-  @Input() view: string = 'pro';
+ 
+  @Input() readOnly = false;
 
   actionsOpen = false;
 

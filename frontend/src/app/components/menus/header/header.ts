@@ -24,7 +24,7 @@ export class Header {
     private readonly authService: AuthService,
     private router: Router,
     private breakpointObserver: BreakpointObserver,
-    private cdr: ChangeDetectorRef,
+
   ) {}
 
   async ngOnInit() {
@@ -44,7 +44,7 @@ export class Header {
 
         if (userObservable) {
           this.user = (await firstValueFrom(userObservable)) || null;
-          this.cdr.detectChanges(); // Forzar la detección de cambios después de obtener el usuario
+        
         }
       }
     } else {
@@ -66,8 +66,6 @@ export class Header {
 
   async closeSession() {
     await this.authService.logout();
-
-    this.cdr.detectChanges();
     await this.router.navigate(['login']);
     await sleep(500);
     window.location.reload();

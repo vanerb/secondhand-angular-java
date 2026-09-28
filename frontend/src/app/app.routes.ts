@@ -10,13 +10,26 @@ import { ShowProduct } from './components/pages/products/show-product/show-produ
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
+
   { path: 'home', component: Home },
+
   { path: 'favorites', component: Favorites },
+
   { path: 'products', component: Products },
-   { path: 'product/:id', component: ShowProduct },
+
+  { path: 'product/:id', component: ShowProduct },
+
   { path: 'chats', component: Chat },
+
+  // Perfil propio
   { path: 'profile', component: Profile },
+
+  // Perfil público
+  { path: 'profile/:username', component: Profile },
+
   { path: 'login', component: Login },
+
   { path: 'register', component: Register },
+
   { path: '**', redirectTo: 'home' },
 ];
