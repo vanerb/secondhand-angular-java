@@ -1,12 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, signal } from '@angular/core';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { Condition } from '../../../../enums/condition';
 import { Availability } from '../../../../enums/availability';
+
 import { Container } from '../../../general/container/container';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+
 import { getImage } from '../../../../services/utilities-service';
 
 @Component({
@@ -23,11 +28,13 @@ import { getImage } from '../../../../services/utilities-service';
   styleUrl: './update-product.css',
 })
 export class UpdateProduct implements OnInit {
+
   @Input() item: any;
+
   productForm: FormGroup;
 
   conditions = Object.values(Condition);
-  isSaving: boolean = false;
+
   availabilities = Object.values(Availability);
 
   categories = [
@@ -42,13 +49,17 @@ export class UpdateProduct implements OnInit {
     'OTHER',
   ];
 
-  existingImages: string[] = [];
+  isSaving = signal(false);
 
-  selectedImages: {
-    id: number;
-    file: File;
-    preview: string;
-  }[] = [];
+  existingImages = signal<string[]>([]);
+
+  selectedImages = signal<
+    {
+      id: number;
+      file: File;
+      preview: string;
+    }[]
+  >([]);
 
   confirm!: (result?: any) => void;
 
@@ -64,7 +75,12 @@ export class UpdateProduct implements OnInit {
       availability: [Availability.AVAILABLE, Validators.required],
     });
   }
+
   ngOnInit(): void {
+    if (!this.item) {
+      return;
+    }
+
     this.productForm.patchValue({
       name: this.item.name,
       description: this.item.description,
@@ -74,7 +90,7 @@ export class UpdateProduct implements OnInit {
       availability: this.item.availability,
     });
 
-    this.existingImages = this.item.images ?? [];
+    this.existingImages.set(this.item.images ?? []);
   }
 
   updateProduct(): void {
@@ -83,39 +99,35 @@ export class UpdateProduct implements OnInit {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
+
+    const product = this.productForm.value;
 
     const formData = new FormData();
 
-    formData.append('name', this.productForm.value.name);
-    formData.append('category', this.productForm.value.category);
-    formData.append('price', this.productForm.value.price.toString());
-    formData.append('condition', this.productForm.value.condition);
-    formData.append('description', this.productForm.value.description);
-    formData.append('availability', this.productForm.value.availability);
+    formData.append('name', product.name);
+    formData.append('category', product.category);
+    formData.append('price', product.price.toString());
+    formData.append('condition', product.condition);
+    formData.append('description', product.description);
+    formData.append('availability', product.availability);
 
-    // =========================================================
-    // IMÁGENES ANTIGUAS QUE SE CONSERVAN
-    // =========================================================
-
-    for (const image of this.existingImages) {
+    // Imágenes existentes que se conservan
+    for (const image of this.existingImages()) {
       formData.append('existingImages', image);
     }
 
-    // =========================================================
-    // IMÁGENES NUEVAS
-    // =========================================================
-
-    for (const image of this.selectedImages) {
+    // Imágenes nuevas
+    for (const image of this.selectedImages()) {
       formData.append('images', image.file);
     }
 
     this.confirm(formData);
 
-    this.isSaving = false;
+    this.isSaving.set(false);
   }
 
-  closeModal() {
+  closeModal(): void {
     this.close();
   }
 
@@ -126,40 +138,49 @@ export class UpdateProduct implements OnInit {
       return;
     }
 
-    const currentImages = this.existingImages.length + this.selectedImages.length;
+    const currentImages =
+      this.existingImages().length +
+      this.selectedImages().length;
 
     const availableSlots = 8 - currentImages;
 
     const files = Array.from(input.files).slice(0, availableSlots);
 
-    files.forEach((file) => {
-      const preview = URL.createObjectURL(file);
+    const newImages = files.map((file) => ({
+      id: Date.now() + Math.random(),
+      file,
+      preview: URL.createObjectURL(file),
+    }));
 
-      this.selectedImages.push({
-        id: Date.now() + Math.random(),
-        file,
-        preview,
-      });
-    });
+    this.selectedImages.update(images => [
+      ...images,
+      ...newImages,
+    ]);
 
     input.value = '';
   }
 
   removeImage(index: number): void {
-    const image = this.selectedImages[index];
+    const image = this.selectedImages()[index];
+
+    if (!image) {
+      return;
+    }
 
     URL.revokeObjectURL(image.preview);
 
-    this.selectedImages.splice(index, 1);
+    this.selectedImages.update(images =>
+      images.filter((_, i) => i !== index)
+    );
   }
 
- removeExistingImage(image: string): void {
-  this.existingImages = this.existingImages.filter(
-    (item) => item !== image
-  );
-}
+  removeExistingImage(image: string): void {
+    this.existingImages.update(images =>
+      images.filter(item => item !== image)
+    );
+  }
 
-  getNewImage(name: string) {
+  getNewImage(name: string): string {
     return getImage(name);
   }
 }

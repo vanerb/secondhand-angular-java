@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -14,61 +14,89 @@ import { sleep } from '../../../services/utilities-service';
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class Header {
-  isOpen: boolean = false;
-  isLogged: boolean = false;
-  drawerMode: 'side' | 'over' = 'side';
-  user!: any;
+export class Header implements OnInit {
+
+  isOpen = signal(false);
+
+  isLogged = signal(false);
+
+  drawerMode = signal<'side' | 'over'>('side');
+
+  user = signal<any | null>(null);
 
   constructor(
     private readonly authService: AuthService,
-    private router: Router,
-    private breakpointObserver: BreakpointObserver,
-
+    private readonly router: Router,
+    private readonly breakpointObserver: BreakpointObserver,
   ) {}
 
-  async ngOnInit() {
-    this.isLogged = this.authService.isLoggedIn();
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe((result) => {
-      if (result.matches) {
-        this.drawerMode = 'over';
-        this.isOpen = false; // se cierra al cambiar a móvil
-      } else {
-        this.drawerMode = 'side';
-      }
-    });
+  async ngOnInit(): Promise<void> {
+
+    this.isLogged.set(
+      this.authService.isLoggedIn()
+    );
+
+    this.breakpointObserver
+      .observe([Breakpoints.Handset])
+      .subscribe(result => {
+
+        if (result.matches) {
+
+          this.drawerMode.set('over');
+          this.isOpen.set(false);
+
+        } else {
+
+          this.drawerMode.set('side');
+
+        }
+
+      });
 
     if (this.authService.getToken()) {
-      if (this.authService.getToken()) {
-        const userObservable = this.authService.getUserByToken();
 
-        if (userObservable) {
-          this.user = (await firstValueFrom(userObservable)) || null;
-        
-        }
+      const userObservable =
+        this.authService.getUserByToken();
+
+      if (userObservable) {
+
+        const user =
+          (await firstValueFrom(userObservable)) || null;
+
+        this.user.set(user);
+
       }
-    } else {
+
     }
   }
 
-  navigate(url: string) {
+  navigate(url: string): void {
+
     this.router.navigate([url]);
-    if (this.drawerMode === 'over') this.isOpen = false;
+
+    if (this.drawerMode() === 'over') {
+      this.isOpen.set(false);
+    }
   }
 
-  open() {
-    this.isOpen = !this.isOpen;
+  open(): void {
+    this.isOpen.update(value => !value);
   }
 
-  onDrawerClosed() {
-    this.isOpen = false;
+  onDrawerClosed(): void {
+    this.isOpen.set(false);
   }
 
-  async closeSession() {
+  async closeSession(): Promise<void> {
+
     await this.authService.logout();
+
     await this.router.navigate(['login']);
+
     await sleep(500);
+
     window.location.reload();
-    this.isOpen = false;
+
+    this.isOpen.set(false);
   }
 }

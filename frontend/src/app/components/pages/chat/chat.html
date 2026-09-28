@@ -1,48 +1,471 @@
 <app-container>
+
   <main class="chat-page">
-    <div class="chat-heading"><div><span class="eyebrow">TU ESPACIO PERSONAL</span><h1>Mensajes</h1><p>Habla con la comunidad y encuentra tu próximo tesoro.</p></div><span class="inbox-count"><i class="bi bi-chat-dots" aria-hidden="true"></i> {{ conversations.length }} conversaciones</span></div>
-    <section class="chat-panel" [class.conversation-open]="selectedConversation">
-      <aside class="conversation-sidebar" aria-label="Tus conversaciones">
-        <div class="conversation-heading"><div><h2>Bandeja de entrada</h2><span>{{ conversations.length }} conversaciones</span></div><i class="bi bi-pencil-square" aria-hidden="true"></i></div>
-        <label class="conversation-search"><i class="bi bi-search" aria-hidden="true"></i><input [(ngModel)]="conversationQuery" placeholder="Buscar conversación" aria-label="Buscar conversación" /></label>
-        <div class="conversation-list">
-          @for (conversation of filteredConversations; track conversation.id) {
-            <button class="conversation-item" [class.active]="selectedConversation?.id === conversation.id" (click)="openConversation(conversation)">
-              <span class="conversation-avatar"><img [src]="getUserImage(getOtherUser(conversation).profileImage)" [alt]="'Foto de ' + getOtherUser(conversation).username" /></span>
-              <span class="conversation-copy"><strong>{{ getOtherUser(conversation).username }}</strong><span>{{ getOtherUser(conversation).name }} {{ getOtherUser(conversation).cogname }}</span></span>
-              <i class="bi bi-chevron-right conversation-chevron" aria-hidden="true"></i>
-            </button>
-          } @empty {
-            <div class="conversation-empty"><i class="bi bi-chat-square-text" aria-hidden="true"></i><strong>{{ conversations.length ? 'Sin resultados' : 'Tu bandeja está tranquila' }}</strong><span>{{ conversations.length ? 'Prueba con otro nombre.' : 'Cuando contactes con alguien, tu conversación aparecerá aquí.' }}</span></div>
-          }
+
+    <div class="chat-heading">
+
+      <div>
+
+        <span class="eyebrow">
+          TU ESPACIO PERSONAL
+        </span>
+
+        <h1>
+          Mensajes
+        </h1>
+
+        <p>
+          Habla con la comunidad y encuentra tu próximo tesoro.
+        </p>
+
+      </div>
+
+      <span class="inbox-count">
+
+        <i
+          class="bi bi-chat-dots"
+          aria-hidden="true"
+        ></i>
+
+        {{ conversations().length }}
+        conversaciones
+
+      </span>
+
+    </div>
+
+
+    <section
+      class="chat-panel"
+      [class.conversation-open]="selectedConversation()"
+    >
+
+      <!-- ==========================================
+           SIDEBAR
+      =========================================== -->
+
+      <aside
+        class="conversation-sidebar"
+        aria-label="Tus conversaciones"
+      >
+
+        <div class="conversation-heading">
+
+          <div>
+
+            <h2>
+              Bandeja de entrada
+            </h2>
+
+            <span>
+              {{ conversations().length }}
+              conversaciones
+            </span>
+
+          </div>
+
+          <i
+            class="bi bi-pencil-square"
+            aria-hidden="true"
+          ></i>
+
         </div>
-        <a class="discover-link" href="/home"><i class="bi bi-compass" aria-hidden="true"></i> Seguir descubriendo</a>
+
+
+        <label class="conversation-search">
+
+          <i
+            class="bi bi-search"
+            aria-hidden="true"
+          ></i>
+
+          <input
+            [(ngModel)]="conversationQuery"
+            placeholder="Buscar conversación"
+            aria-label="Buscar conversación"
+          />
+
+        </label>
+
+
+        <div class="conversation-list">
+
+          @for (
+            conversation of filteredConversations;
+            track conversation.id
+          ) {
+
+            <button
+              class="conversation-item"
+              [class.active]="
+                selectedConversation()?.id === conversation.id
+              "
+              (click)="openConversation(conversation)"
+            >
+
+              <span class="conversation-avatar">
+
+                <img
+                  [src]="
+                    getUserImage(
+                      getOtherUser(conversation).profileImage
+                    )
+                  "
+                  [alt]="
+                    'Foto de ' +
+                    getOtherUser(conversation).username
+                  "
+                />
+
+              </span>
+
+
+              <span class="conversation-copy">
+
+                <strong>
+                  {{ getOtherUser(conversation).username }}
+                </strong>
+
+                <span>
+                  {{ getOtherUser(conversation).name }}
+                  {{ getOtherUser(conversation).cogname }}
+                </span>
+
+              </span>
+
+
+              <i
+                class="bi bi-chevron-right conversation-chevron"
+                aria-hidden="true"
+              ></i>
+
+            </button>
+
+          } @empty {
+
+            <div class="conversation-empty">
+
+              <i
+                class="bi bi-chat-square-text"
+                aria-hidden="true"
+              ></i>
+
+              <strong>
+                {{
+                  conversations().length
+                    ? 'Sin resultados'
+                    : 'Tu bandeja está tranquila'
+                }}
+              </strong>
+
+              <span>
+                {{
+                  conversations().length
+                    ? 'Prueba con otro nombre.'
+                    : 'Cuando contactes con alguien, tu conversación aparecerá aquí.'
+                }}
+              </span>
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <a
+          class="discover-link"
+          href="/home"
+        >
+
+          <i
+            class="bi bi-compass"
+            aria-hidden="true"
+          ></i>
+
+          Seguir descubriendo
+
+        </a>
+
       </aside>
 
-      <section class="message-panel" aria-label="Conversación">
-        @if (selectedConversation) {
+
+      <!-- ==========================================
+           PANEL DE MENSAJES
+      =========================================== -->
+
+      <section
+        class="message-panel"
+        aria-label="Conversación"
+      >
+
+        @if (selectedConversation()) {
+
           <header class="message-header">
-            <button class="back-to-inbox" (click)="closeConversation()" aria-label="Volver a conversaciones"><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
-            <span class="message-avatar"><img [src]="getUserImage(getOtherUser(selectedConversation).profileImage)" [alt]="'Foto de ' + getOtherUser(selectedConversation).username" /></span>
-            <span class="message-person"><strong>{{ getOtherUser(selectedConversation).username }}</strong><span><i></i> En la comunidad</span></span>
-            <button class="message-menu" aria-label="Más opciones"><i class="bi bi-three-dots" aria-hidden="true"></i></button>
+
+            <button
+              class="back-to-inbox"
+              (click)="closeConversation()"
+              aria-label="Volver a conversaciones"
+            >
+
+              <i
+                class="bi bi-arrow-left"
+                aria-hidden="true"
+              ></i>
+
+            </button>
+
+
+            <span class="message-avatar">
+
+              <img
+                [src]="
+                  getUserImage(
+                    getOtherUser(
+                      selectedConversation()
+                    ).profileImage
+                  )
+                "
+                [alt]="
+                  'Foto de ' +
+                  getOtherUser(
+                    selectedConversation()
+                  ).username
+                "
+              />
+
+            </span>
+
+
+            <span class="message-person">
+
+              <strong>
+                {{
+                  getOtherUser(
+                    selectedConversation()
+                  ).username
+                }}
+              </strong>
+
+              <span>
+                <i></i>
+                En la comunidad
+              </span>
+
+            </span>
+
+
+            <button
+              class="message-menu"
+              aria-label="Más opciones"
+            >
+
+              <i
+                class="bi bi-three-dots"
+                aria-hidden="true"
+              ></i>
+
+            </button>
+
           </header>
-          <div class="messages-area" #messagesArea>
-            <div class="message-date"><span>Esta conversación</span></div>
-            @for (message of messages; track $index) {
-              <div class="message-row" [class.sent]="message.sender.id === userId">
-                <div class="message-bubble">{{ message.content }}</div>
+
+
+          <!-- ==========================================
+               MENSAJES
+          =========================================== -->
+
+          <div
+            class="messages-area"
+            #messagesArea
+          >
+
+            <div class="message-date">
+
+              <span>
+                Esta conversación
+              </span>
+
+            </div>
+
+
+            @for (
+              message of messages();
+              track $index
+            ) {
+
+              <div
+                class="message-row"
+                [class.sent]="
+                  message.sender.id === userId()
+                "
+              >
+
+                <div class="message-bubble">
+
+                  {{ message.content }}
+
+                </div>
+
               </div>
+
             } @empty {
-              <div class="message-empty"><span class="message-empty-icon"><i class="bi bi-chat-heart" aria-hidden="true"></i></span><strong>¡Hola! Empieza la conversación</strong><span>Cuéntale a {{ getOtherUser(selectedConversation).username }} qué te interesa.</span></div>
+
+              <div class="message-empty">
+
+                <span class="message-empty-icon">
+
+                  <i
+                    class="bi bi-chat-heart"
+                    aria-hidden="true"
+                  ></i>
+
+                </span>
+
+                <strong>
+                  ¡Hola! Empieza la conversación
+                </strong>
+
+                <span>
+
+                  Cuéntale a
+                  {{
+                    getOtherUser(
+                      selectedConversation()
+                    ).username
+                  }}
+                  qué te interesa.
+
+                </span>
+
+              </div>
+
             }
+
           </div>
-          <form class="composer" (ngSubmit)="enviarMensaje()"><label class="composer-input"><input [(ngModel)]="messageText" name="message" placeholder="Escribe un mensaje…" autocomplete="off" aria-label="Escribe un mensaje" /><button type="button" class="emoji-button" aria-label="Añadir emoji"><i class="bi bi-emoji-smile" aria-hidden="true"></i></button></label><button class="send-button" type="submit" [disabled]="!messageText.trim()" aria-label="Enviar mensaje"><i class="bi bi-arrow-up" aria-hidden="true"></i></button></form>
-          <div class="chat-footnote"><i class="bi bi-shield-check" aria-hidden="true"></i> Mantén tus conversaciones respetuosas y seguras.</div>
+
+
+          <!-- ==========================================
+               COMPOSER
+          =========================================== -->
+
+          <form
+            class="composer"
+            (ngSubmit)="enviarMensaje()"
+          >
+
+            <label class="composer-input">
+
+              <input
+                [(ngModel)]="messageText"
+                name="message"
+                placeholder="Escribe un mensaje…"
+                autocomplete="off"
+                aria-label="Escribe un mensaje"
+              />
+
+
+              <button
+                type="button"
+                class="emoji-button"
+                aria-label="Añadir emoji"
+              >
+
+                <i
+                  class="bi bi-emoji-smile"
+                  aria-hidden="true"
+                ></i>
+
+              </button>
+
+            </label>
+
+
+            <button
+              class="send-button"
+              type="submit"
+              [disabled]="!messageText.trim()"
+              aria-label="Enviar mensaje"
+            >
+
+              <i
+                class="bi bi-arrow-up"
+                aria-hidden="true"
+              ></i>
+
+            </button>
+
+          </form>
+
+
+          <div class="chat-footnote">
+
+            <i
+              class="bi bi-shield-check"
+              aria-hidden="true"
+            ></i>
+
+            Mantén tus conversaciones respetuosas y seguras.
+
+          </div>
+
+
         } @else {
-          <div class="chat-welcome"><span class="welcome-chat-icon"><i class="bi bi-chat-heart" aria-hidden="true"></i></span><span class="eyebrow">CONEXIONES CON HISTORIA</span><h2>Las buenas cosas<br /><em>empiezan hablando.</em></h2><p>Elige una conversación para continuar o descubre artículos que te interesen.</p><a href="/home">Explorar artículos <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+
+          <!-- ==========================================
+               SIN CONVERSACIÓN SELECCIONADA
+          =========================================== -->
+
+          <div class="chat-welcome">
+
+            <span class="welcome-chat-icon">
+
+              <i
+                class="bi bi-chat-heart"
+                aria-hidden="true"
+              ></i>
+
+            </span>
+
+            <span class="eyebrow">
+              CONEXIONES CON HISTORIA
+            </span>
+
+            <h2>
+
+              Las buenas cosas
+              <br />
+
+              <em>
+                empiezan hablando.
+              </em>
+
+            </h2>
+
+            <p>
+              Elige una conversación para continuar
+              o descubre artículos que te interesen.
+            </p>
+
+            <a href="/home">
+
+              Explorar artículos
+
+              <i
+                class="bi bi-arrow-right"
+                aria-hidden="true"
+              ></i>
+
+            </a>
+
+          </div>
+
         }
+
       </section>
+
     </section>
+
   </main>
+
 </app-container>

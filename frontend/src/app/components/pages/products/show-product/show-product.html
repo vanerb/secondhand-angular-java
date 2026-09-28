@@ -1,62 +1,95 @@
+```html
 <app-container>
+
   <!-- LOADING -->
-  @if (loading) {
+  @if (loading()) {
+
     <section class="loading-state">
       <div class="loading-spinner"></div>
       <p>Cargando producto...</p>
     </section>
+
   }
 
   <!-- ERROR -->
-  @else if (error || !product) {
+  @else if (error() || !product()) {
+
     <section class="error-state">
+
       <div class="error-icon">
         <i class="bi bi-box-seam"></i>
       </div>
 
       <h2>Producto no encontrado</h2>
 
-      <p>El producto que buscas ya no está disponible o no existe.</p>
+      <p>
+        El producto que buscas ya no está disponible o no existe.
+      </p>
 
-      <button type="button" class="primary-button" (click)="goBack()">
+      <button
+        type="button"
+        class="primary-button"
+        (click)="goBack()"
+      >
         <i class="bi bi-arrow-left"></i>
         Volver a productos
       </button>
+
     </section>
+
   }
 
   <!-- PRODUCTO -->
   @else {
+
     <section class="product-detail">
+
       <!-- VOLVER -->
-      <button type="button" class="back-button" (click)="goBack()">
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
         <i class="bi bi-arrow-left"></i>
         Volver a productos
       </button>
 
       <div class="product-layout">
-        <!-- ================================= -->
-        <!-- GALERÍA -->
-        <!-- ================================= -->
 
+        <!-- GALERÍA -->
         <div class="gallery">
+
           <!-- IMAGEN PRINCIPAL -->
           <div class="main-image-wrapper">
-            <img [src]="getNewImage(currentImage) " [alt]="product.name" class="main-image" />
+
+            <img
+              [src]="getNewImage(currentImage)"
+              [alt]="product()!.name"
+              class="main-image"
+            />
 
             <!-- FAVORITO -->
             <button
               type="button"
               class="favorite-button"
-              [class.active]="isFavorite"
+              [class.active]="isFavorite()"
               (click)="toggleFavorite()"
-              [attr.aria-label]="isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+              [attr.aria-label]="
+                isFavorite()
+                  ? 'Quitar de favoritos'
+                  : 'Añadir a favoritos'
+              "
             >
-              <i class="bi" [class.bi-heart]="!isFavorite" [class.bi-heart-fill]="isFavorite"></i>
+              <i
+                class="bi"
+                [class.bi-heart]="!isFavorite()"
+                [class.bi-heart-fill]="isFavorite()"
+              ></i>
             </button>
 
-            <!-- FLECHA IZQUIERDA -->
-            @if (product.images && product.images.length > 1) {
+            <!-- CARRUSEL -->
+            @if (product()!.images && product()!.images.length > 1) {
+
               <button
                 type="button"
                 class="carousel-button carousel-prev"
@@ -65,8 +98,6 @@
               >
                 <i class="bi bi-chevron-left"></i>
               </button>
-
-              <!-- FLECHA DERECHA -->
 
               <button
                 type="button"
@@ -77,102 +108,132 @@
                 <i class="bi bi-chevron-right"></i>
               </button>
 
-              <!-- CONTADOR -->
-
               <div class="image-counter">
-                {{ currentImageIndex + 1 }}
+                {{ currentImageIndex() + 1 }}
                 /
-                {{ product.images.length }}
+                {{ product()!.images.length }}
               </div>
+
             }
+
           </div>
 
           <!-- MINIATURAS -->
+          @if (product()!.images && product()!.images.length > 1) {
 
-          @if (product.images && product.images.length > 1) {
             <div class="thumbnail-row">
-              @for (image of product.images; track $index; let index = $index) {
+
+              @for (
+                image of product()!.images;
+                track $index;
+                let index = $index
+              ) {
+
                 <button
                   type="button"
                   class="thumbnail"
-                  [class.active]="currentImageIndex === index"
+                  [class.active]="currentImageIndex() === index"
                   (click)="selectImage(index)"
                   [attr.aria-label]="'Ver imagen ' + (index + 1)"
                 >
-                  <img [src]="getNewImage(image)" [alt]="product.name + ' imagen ' + (index + 1)" />
+                  <img
+                    [src]="getNewImage(image)"
+                    [alt]="
+                      product()!.name +
+                      ' imagen ' +
+                      (index + 1)
+                    "
+                  />
                 </button>
+
               }
+
             </div>
+
           }
+
         </div>
 
-        <!-- ================================= -->
         <!-- INFORMACIÓN -->
-        <!-- ================================= -->
-
         <div class="product-info">
+
           <div class="product-category">
-            {{ product.category }}
+            {{ product()!.category }}
           </div>
 
           <h1>
-            {{ product.name }}
+            {{ product()!.name }}
           </h1>
 
           <div class="price">
-            {{ product.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'es-ES' }}
+            {{
+              product()!.price
+                | currency: 'EUR' : 'symbol' : '1.2-2' : 'es-ES'
+            }}
           </div>
 
           <!-- ESTADOS -->
-
           <div class="status-row">
+
             <span class="status-pill condition">
               <i class="bi bi-stars"></i>
-              {{ getConditionLabel(product.condition) }}
+              {{ getConditionLabel(product()!.condition) }}
             </span>
 
             <span class="status-pill availability">
               <span class="availability-dot"></span>
-              {{ getAvailabilityLabel(product.availability) }}
+              {{ getAvailabilityLabel(product()!.availability) }}
             </span>
-          </div>
 
-          <!-- SEPARADOR -->
+          </div>
 
           <div class="divider"></div>
 
           <!-- DESCRIPCIÓN -->
-
           <div class="description-section">
+
             <h2>Sobre este artículo</h2>
 
             <p>
-              {{ product.description || 'El vendedor no ha añadido una descripción.' }}
+              {{
+                product()!.description ||
+                'El vendedor no ha añadido una descripción.'
+              }}
             </p>
+
           </div>
 
           <!-- VENDEDOR -->
-
           <div class="seller-card">
+
             <div class="seller-avatar">
               <i class="bi bi-person"></i>
             </div>
 
             <div class="seller-info">
-              <span class="seller-label"> VENDIDO POR </span>
+
+              <span class="seller-label">
+                VENDIDO POR
+              </span>
 
               <strong>
-                {{ product.username || 'Usuario' }}
+                {{ product()!.username || 'Usuario' }}
               </strong>
+
             </div>
 
             <i class="bi bi-chevron-right seller-arrow"></i>
+
           </div>
 
           <!-- ACCIONES -->
-
           <div class="actions">
-            <button type="button" class="contact-button" (click)="contactSeller()">
+
+            <button
+              type="button"
+              class="contact-button"
+              (click)="contactSeller()"
+            >
               <i class="bi bi-chat-heart"></i>
               Contactar con el vendedor
             </button>
@@ -180,38 +241,64 @@
             <button
               type="button"
               class="favorite-action"
-              [class.active]="isFavorite"
+              [class.active]="isFavorite()"
               (click)="toggleFavorite()"
             >
-              <i class="bi" [class.bi-heart]="!isFavorite" [class.bi-heart-fill]="isFavorite"></i>
 
-              {{ isFavorite ? 'En favoritos' : 'Añadir a favoritos' }}
+              <i
+                class="bi"
+                [class.bi-heart]="!isFavorite()"
+                [class.bi-heart-fill]="isFavorite()"
+              ></i>
+
+              {{
+                isFavorite()
+                  ? 'En favoritos'
+                  : 'Añadir a favoritos'
+              }}
+
             </button>
+
           </div>
 
           <!-- SEGURIDAD -->
-
           <div class="purchase-info">
+
             <div class="info-item">
+
               <i class="bi bi-shield-check"></i>
 
               <div>
                 <strong>Compra segura</strong>
-                <span>Habla con el vendedor antes de realizar la compra.</span>
+                <span>
+                  Habla con el vendedor antes de realizar la compra.
+                </span>
               </div>
+
             </div>
 
             <div class="info-item">
+
               <i class="bi bi-chat-dots"></i>
 
               <div>
                 <strong>Habla directamente</strong>
-                <span>Resuelve tus dudas directamente con el vendedor.</span>
+                <span>
+                  Resuelve tus dudas directamente con el vendedor.
+                </span>
               </div>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
+
     </section>
+
   }
+
 </app-container>
+```

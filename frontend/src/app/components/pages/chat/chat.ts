@@ -1,9 +1,8 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Container } from '../../general/container/container';
 import { AuthService } from '../../../services/auth-service';
 import { ChatWebSocketService } from '../../../services/chat-web-socket-service';
 import { Subscription } from 'rxjs';
-
 import { FormsModule } from '@angular/forms';
 import { getImage } from '../../../services/utilities-service';
 import { ChatService } from '../../../services/chat-service';
@@ -18,16 +17,18 @@ import { ChatService } from '../../../services/chat-service';
   styleUrl: './chat.css',
 })
 export class Chat implements OnInit, OnDestroy {
-  messages: any[] = [];
 
-  conversations: any[] = [];
+  messages = signal<any[]>([]);
+
+  conversations = signal<any[]>([]);
 
   messageText = '';
+
   conversationQuery = '';
 
-  selectedConversation: any = null;
+  selectedConversation = signal<any | null>(null);
 
-  userId!: number;
+  userId = signal<number | null>(null);
 
   private messageSubscription?: Subscription;
 
@@ -35,50 +36,106 @@ export class Chat implements OnInit, OnDestroy {
     private chatWebSocketService: ChatWebSocketService,
     private authService: AuthService,
     private chatService: ChatService,
-   
   ) {}
 
-  ngOnInit() {
-    // Conectar WebSocket
+  ngOnInit(): void {
+
+    // ==========================================
+    // WEBSOCKET
+    // ==========================================
+
     this.chatWebSocketService.connect();
 
-    // Escuchar mensajes
-    this.messageSubscription = this.chatWebSocketService.getMessages().subscribe((message) => {
-      console.log('📩 Mensaje recibido en Chat:', message);
+    this.messageSubscription =
+      this.chatWebSocketService.getMessages().subscribe((message) => {
 
-      if (this.selectedConversation && message.conversationId === this.selectedConversation.id) {
-        this.messages.push(message);
-       
-      }
-    });
+        console.log(
+          '📩 Mensaje recibido en Chat:',
+          message
+        );
 
-    const userObservable = this.authService.getUserByToken();
+        const conversation =
+          this.selectedConversation();
+
+        if (
+          conversation &&
+          message.conversationId === conversation.id
+        ) {
+          this.messages.update((messages) => [
+            ...messages,
+            message,
+          ]);
+        }
+      });
+
+    // ==========================================
+    // USUARIO
+    // ==========================================
+
+    const userObservable =
+      this.authService.getUserByToken();
+
     if (userObservable) {
-      userObservable.subscribe({
-        next: (user) => {
-          console.log('Usuario autenticado:', user);
 
-          this.userId = user.id;
+      userObservable.subscribe({
+
+        next: (user) => {
+
+          console.log(
+            'Usuario autenticado:',
+            user
+          );
+
+          this.userId.set(user.id);
 
           this.loadConversations();
-
-      
         },
 
         error: (error) => {
-          console.error('Error obteniendo usuario:', error);
+
+          console.error(
+            'Error obteniendo usuario:',
+            error
+          );
+
         },
+
       });
     }
   }
 
+  // ==========================================
+  // CONVERSACIONES FILTRADAS
+  // ==========================================
+
   get filteredConversations(): any[] {
-    const query = this.conversationQuery.trim().toLocaleLowerCase('es');
-    if (!query) return this.conversations;
-    return this.conversations.filter((conversation) => {
-      const user = this.getOtherUser(conversation);
-      return `${user.username} ${user.name} ${user.cogname}`.toLocaleLowerCase('es').includes(query);
-    });
+
+    const conversations =
+      this.conversations();
+
+    const query =
+      this.conversationQuery
+        .trim()
+        .toLocaleLowerCase('es');
+
+    if (!query) {
+      return conversations;
+    }
+
+    return conversations.filter(
+      (conversation) => {
+
+        const user =
+          this.getOtherUser(conversation);
+
+        return (
+          `${user.username} ${user.name} ${user.cogname}`
+            .toLocaleLowerCase('es')
+            .includes(query)
+        );
+
+      }
+    );
   }
 
   // ==========================================
@@ -86,23 +143,49 @@ export class Chat implements OnInit, OnDestroy {
   // ==========================================
 
   loadConversations(): void {
-    this.chatService.getConversations(this.userId).subscribe({
-      next: (data) => {
-        console.log('Conversaciones:', data);
 
-        this.conversations = data;
+    const currentUserId =
+      this.userId();
 
-       
-      },
+    if (currentUserId === null) {
+      return;
+    }
 
-      error: (error) => {
-        console.error('Error cargando conversaciones:', error);
-      },
-    });
+    this.chatService
+      .getConversations(currentUserId)
+      .subscribe({
+
+        next: (data) => {
+
+          console.log(
+            'Conversaciones:',
+            data
+          );
+
+          this.conversations.set(data);
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error cargando conversaciones:',
+            error
+          );
+
+        },
+
+      });
   }
 
   getOtherUser(conversation: any): any {
-    if (conversation.user1.id === this.userId) {
+
+    const currentUserId =
+      this.userId();
+
+    if (
+      conversation.user1?.id === currentUserId
+    ) {
       return conversation.user2;
     }
 
@@ -110,31 +193,50 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   openConversation(conversation: any): void {
-    this.selectedConversation = conversation;
 
-    console.log('Conversación seleccionada:', conversation);
+    this.selectedConversation.set(
+      conversation
+    );
 
-    this.messages = [];
+    console.log(
+      'Conversación seleccionada:',
+      conversation
+    );
 
-  
+    // Limpiamos los mensajes anteriores
+    this.messages.set([]);
 
-    this.chatService.getMessages(conversation.id).subscribe({
-      next: (messages) => {
-        console.log('Mensajes:', messages);
+    this.chatService
+      .getMessages(conversation.id)
+      .subscribe({
 
-        this.messages = messages;
+        next: (messages) => {
 
-        
-      },
+          console.log(
+            'Mensajes:',
+            messages
+          );
 
-      error: (error) => {
-        console.error('Error cargando mensajes:', error);
-      },
-    });
+          this.messages.set(messages);
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error cargando mensajes:',
+            error
+          );
+
+        },
+
+      });
   }
 
   closeConversation(): void {
-    this.selectedConversation = null;
+
+    this.selectedConversation.set(null);
+
   }
 
   // ==========================================
@@ -142,29 +244,46 @@ export class Chat implements OnInit, OnDestroy {
   // ==========================================
 
   enviarMensaje(): void {
-    const content = this.messageText.trim();
+
+    const content =
+      this.messageText.trim();
 
     if (!content) {
       return;
     }
 
-    if (!this.selectedConversation) {
+    const conversation =
+      this.selectedConversation();
+
+    const currentUserId =
+      this.userId();
+
+    if (
+      !conversation ||
+      currentUserId === null
+    ) {
       return;
     }
 
     this.chatWebSocketService.sendMessage(
-      this.selectedConversation.id,
-
-      this.userId,
-
+      conversation.id,
+      currentUserId,
       content,
     );
 
     this.messageText = '';
   }
 
-  getUserImage(profileImage: string | null | undefined): string {
+  // ==========================================
+  // IMAGEN
+  // ==========================================
+
+  getUserImage(
+    profileImage: string | null | undefined
+  ): string {
+
     return getImage(profileImage);
+
   }
 
   // ==========================================
@@ -172,8 +291,10 @@ export class Chat implements OnInit, OnDestroy {
   // ==========================================
 
   ngOnDestroy(): void {
+
     this.messageSubscription?.unsubscribe();
 
     this.chatWebSocketService.disconnect();
+
   }
 }

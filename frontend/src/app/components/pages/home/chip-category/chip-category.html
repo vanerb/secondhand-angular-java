@@ -1,8 +1,15 @@
 <button
   class="category-chip"
-  [class.selected]="activeCategory === category.name"
-  (click)="selectCategory(category.name)"
-  [attr.aria-pressed]="activeCategory === category.name"
+  [class.selected]="activeCategory() === category().name"
+  (click)="selectCategory(category().name)"
+  [attr.aria-pressed]="activeCategory() === category().name"
 >
-  <i class="bi {{ category.icon }}" aria-hidden="true"></i><span>{{ category.name }}</span>
+  <i
+    class="bi {{ category().icon }}"
+    aria-hidden="true"
+  ></i>
+
+  <span>
+    {{ category().name }}
+  </span>
 </button>

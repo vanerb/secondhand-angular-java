@@ -1,34 +1,259 @@
 <app-container>
+
   <main class="auth-layout register-layout">
-    <section class="auth-art register-art" aria-label="Prendas cuidadosamente seleccionadas">
-      <a class="auth-brand" href="/home"><i class="bi bi-recycle" aria-hidden="true"></i> secondhand</a>
-      <div class="auth-art-copy"><span>TODO EMPIEZA CON UN HALLAZGO</span><h2>Tu próximo capítulo<br />está por descubrir.</h2></div>
+
+    <section
+      class="auth-art register-art"
+      aria-label="Prendas cuidadosamente seleccionadas"
+    >
+
+      <a
+        class="auth-brand"
+        href="/home"
+      >
+        <i
+          class="bi bi-recycle"
+          aria-hidden="true"
+        ></i>
+
+        secondhand
+      </a>
+
+      <div class="auth-art-copy">
+
+        <span>
+          TODO EMPIEZA CON UN HALLAZGO
+        </span>
+
+        <h2>
+          Tu próximo capítulo<br />
+          está por descubrir.
+        </h2>
+
+      </div>
+
     </section>
+
+
     <section class="auth-card register-card">
-      <span class="eyebrow">HAZTE PARTE DEL CAMBIO</span>
-      <h1>Crea tu cuenta</h1>
-      <p class="auth-intro">Compra, vende y dale una nueva vida a tus favoritos.</p>
-      <form [formGroup]="form" (ngSubmit)="register()">
+
+      <span class="eyebrow">
+        HAZTE PARTE DEL CAMBIO
+      </span>
+
+      <h1>
+        Crea tu cuenta
+      </h1>
+
+      <p class="auth-intro">
+        Compra, vende y dale una nueva vida a tus favoritos.
+      </p>
+
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="register()"
+      >
+
         <div class="register-avatar">
-          <img [src]="previewCoverImage" alt="Vista previa de tu foto de perfil" />
-          <input type="file" accept="image/*" #fileInput hidden (change)="onImageChange($event)" />
-          <button type="button" class="avatar-edit" (click)="fileInput.click()" aria-label="Elegir foto de perfil"><i class="bi bi-camera" aria-hidden="true"></i></button>
-          <span>Añade una foto de perfil</span>
+
+          <img
+            [src]="previewCoverImage()"
+            alt="Vista previa de tu foto de perfil"
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            #fileInput
+            hidden
+            (change)="onImageChange($event)"
+          />
+
+          <button
+            type="button"
+            class="avatar-edit"
+            (click)="fileInput.click()"
+            aria-label="Elegir foto de perfil"
+          >
+
+            <i
+              class="bi bi-camera"
+              aria-hidden="true"
+            ></i>
+
+          </button>
+
+          <span>
+            Añade una foto de perfil
+          </span>
+
         </div>
+
+
         <div class="register-name-row">
-          <mat-form-field appearance="outline" class="auth-field"><mat-label>Nombre</mat-label><input formControlName="name" matInput autocomplete="given-name" /></mat-form-field>
-          <mat-form-field appearance="outline" class="auth-field"><mat-label>Apellidos</mat-label><input formControlName="cogname" matInput autocomplete="family-name" /></mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            class="auth-field"
+          >
+
+            <mat-label>
+              Nombre
+            </mat-label>
+
+            <input
+              formControlName="name"
+              matInput
+              autocomplete="given-name"
+            />
+
+          </mat-form-field>
+
+
+          <mat-form-field
+            appearance="outline"
+            class="auth-field"
+          >
+
+            <mat-label>
+              Apellidos
+            </mat-label>
+
+            <input
+              formControlName="cogname"
+              matInput
+              autocomplete="family-name"
+            />
+
+          </mat-form-field>
+
         </div>
-        <mat-form-field appearance="outline" class="auth-field"><mat-label>Nombre de usuario</mat-label><input formControlName="username" matInput autocomplete="username" /></mat-form-field>
-        <mat-form-field appearance="outline" class="auth-field"><mat-label>Email</mat-label><input formControlName="email" matInput type="email" autocomplete="email" /></mat-form-field>
+
+
+        <mat-form-field
+          appearance="outline"
+          class="auth-field"
+        >
+
+          <mat-label>
+            Nombre de usuario
+          </mat-label>
+
+          <input
+            formControlName="username"
+            matInput
+            autocomplete="username"
+          />
+
+        </mat-form-field>
+
+
+        <mat-form-field
+          appearance="outline"
+          class="auth-field"
+        >
+
+          <mat-label>
+            Email
+          </mat-label>
+
+          <input
+            formControlName="email"
+            matInput
+            type="email"
+            autocomplete="email"
+          />
+
+        </mat-form-field>
+
+
         <div class="register-name-row">
-          <mat-form-field appearance="outline" class="auth-field"><mat-label>Contraseña</mat-label><input formControlName="password" matInput type="password" autocomplete="new-password" /></mat-form-field>
-          <mat-form-field appearance="outline" class="auth-field"><mat-label>Repetir contraseña</mat-label><input formControlName="confirmPassword" matInput type="password" autocomplete="new-password" /></mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            class="auth-field"
+          >
+
+            <mat-label>
+              Contraseña
+            </mat-label>
+
+            <input
+              formControlName="password"
+              matInput
+              type="password"
+              autocomplete="new-password"
+            />
+
+          </mat-form-field>
+
+
+          <mat-form-field
+            appearance="outline"
+            class="auth-field"
+          >
+
+            <mat-label>
+              Repetir contraseña
+            </mat-label>
+
+            <input
+              formControlName="confirmPassword"
+              matInput
+              type="password"
+              autocomplete="new-password"
+            />
+
+          </mat-form-field>
+
         </div>
-        <button class="auth-submit" type="submit">Crear mi cuenta <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+
+
+        <button
+          class="auth-submit"
+          type="submit"
+        >
+
+          Crear mi cuenta
+
+          <i
+            class="bi bi-arrow-right"
+            aria-hidden="true"
+          ></i>
+
+        </button>
+
       </form>
-      <p class="auth-switch">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
-      <a class="auth-back" href="/home"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a descubrir</a>
+
+
+      <p class="auth-switch">
+
+        ¿Ya tienes cuenta?
+
+        <a href="/login">
+          Inicia sesión
+        </a>
+
+      </p>
+
+
+      <a
+        class="auth-back"
+        href="/home"
+      >
+
+        <i
+          class="bi bi-arrow-left"
+          aria-hidden="true"
+        ></i>
+
+        Volver a descubrir
+
+      </a>
+
     </section>
+
   </main>
+
 </app-container>

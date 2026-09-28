@@ -1,14 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgIf, NgFor, CurrencyPipe, DatePipe } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
+
 import { ProductService } from '../../../../services/product-service';
 import { FavoriteService } from '../../../../services/favorite-service';
 import { AuthService } from '../../../../services/auth-service';
 import { Product } from '../../../../interfaces/product';
 import { Container } from '../../../general/container/container';
 import { getImage } from '../../../../services/utilities-service';
-
-
 
 @Component({
   selector: 'app-product-detail',
@@ -26,13 +27,14 @@ import { getImage } from '../../../../services/utilities-service';
 })
 export class ShowProduct implements OnInit {
 
-  product: any | null = null;
+  // Estado reactivo
+  product = signal<any | null>(null);
 
-  loading = true;
-  error = false;
+  loading = signal(true);
+  error = signal(false);
 
-  currentImageIndex = 0;
-  isFavorite = false;
+  currentImageIndex = signal(0);
+  isFavorite = signal(false);
 
   user: any = null;
 
@@ -42,17 +44,23 @@ export class ShowProduct implements OnInit {
     private productService: ProductService,
     private favoriteService: FavoriteService,
     private authService: AuthService,
-   
   ) {}
 
-  ngOnInit(): void {
-    this.user = this.authService.getUserByToken();
+  async ngOnInit(): Promise<void> {
+
+    if (this.authService.getToken()) {
+      const user$ = this.authService.getUserByToken();
+
+      if (user$) {
+        this.user = await firstValueFrom(user$);
+      }
+    }
 
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id) {
-      this.error = true;
-      this.loading = false;
+      this.error.set(true);
+      this.loading.set(false);
       return;
     }
 
@@ -60,81 +68,102 @@ export class ShowProduct implements OnInit {
   }
 
   loadProduct(id: number): void {
-    this.loading = true;
+
+    this.loading.set(true);
 
     this.productService.getProduct(id).subscribe({
-      next: (product: Product) => {
-        this.product = product;
-        this.currentImageIndex = 0;
 
-        this.loading = false;
+      next: (product: Product) => {
+
+        this.product.set(product);
+
+        this.currentImageIndex.set(0);
+
+        this.loading.set(false);
 
         this.loadFavoriteStatus();
-
-       
       },
+
       error: (error) => {
+
         console.error('Error cargando producto:', error);
 
-        this.loading = false;
-        this.error = true;
-
-      
+        this.loading.set(false);
+        this.error.set(true);
       }
+
     });
   }
 
   get currentImage(): string {
-    if (!this.product?.images?.length) {
+
+    const product = this.product();
+
+    if (!product?.images?.length) {
       return '/assets/images/product-placeholder.jpg';
     }
 
-    return this.product.images[this.currentImageIndex];
+    return product.images[this.currentImageIndex()];
   }
 
   nextImage(): void {
-    if (!this.product?.images?.length) {
+
+    const product = this.product();
+
+    if (!product?.images?.length) {
       return;
     }
 
-    this.currentImageIndex =
-      (this.currentImageIndex + 1) % this.product.images.length;
+    this.currentImageIndex.update(
+      (index) => (index + 1) % product.images.length
+    );
   }
 
   previousImage(): void {
-    if (!this.product?.images?.length) {
+
+    const product = this.product();
+
+    if (!product?.images?.length) {
       return;
     }
 
-    this.currentImageIndex =
-      (this.currentImageIndex - 1 + this.product.images.length) %
-      this.product.images.length;
+    this.currentImageIndex.update(
+      (index) =>
+        (index - 1 + product.images.length) %
+        product.images.length
+    );
   }
 
   selectImage(index: number): void {
-    this.currentImageIndex = index;
+    this.currentImageIndex.set(index);
   }
 
   loadFavoriteStatus(): void {
-    if (!this.product || !this.user) {
+
+    const product = this.product();
+
+    if (!product || !this.user) {
       return;
     }
 
-    // Si ya tienes un método para comprobar favoritos,
-    // puedes sustituir esta llamada por él.
-    this.favoriteService.isFavorite(this.product.id).subscribe({
+    this.favoriteService.isFavorite(product.id).subscribe({
+
       next: (result: boolean) => {
-        this.isFavorite = result;
-       
+        this.isFavorite.set(result);
       },
+
       error: () => {
-        this.isFavorite = false;
+        this.isFavorite.set(false);
       }
+
     });
   }
 
   toggleFavorite(): void {
-    if (!this.product) {
+
+    const product = this.product();
+
+    if (!product) {
       return;
     }
 
@@ -143,19 +172,29 @@ export class ShowProduct implements OnInit {
       return;
     }
 
-    this.favoriteService.toggleFavorite(this.product).subscribe({
+    this.favoriteService.toggleFavorite(product).subscribe({
+
       next: () => {
-        this.isFavorite = !this.isFavorite;
-      
+        this.isFavorite.update(
+          (favorite) => !favorite
+        );
       },
+
       error: (error) => {
-        console.error('Error al cambiar favorito:', error);
+        console.error(
+          'Error al cambiar favorito:',
+          error
+        );
       }
+
     });
   }
 
   contactSeller(): void {
-    if (!this.product) {
+
+    const product = this.product();
+
+    if (!product) {
       return;
     }
 
@@ -164,26 +203,22 @@ export class ShowProduct implements OnInit {
       return;
     }
 
-    /*
-     * Aquí puedes conectar tu ChatService.
-     *
-     * Por ejemplo:
-     *
-     * this.chatService.createOrGetChat(
-     *   this.product.userId,
-     *   this.product.id
-     * ).subscribe(...)
-     */
-
-    console.log('Contactar con vendedor:', this.product);
+    console.log(
+      'Contactar con vendedor:',
+      product
+    );
   }
 
   goBack(): void {
     this.router.navigate(['/home']);
   }
 
-  getConditionLabel(condition: string | undefined): string {
+  getConditionLabel(
+    condition: string | undefined
+  ): string {
+
     switch (condition) {
+
       case 'NEW':
         return 'Nuevo';
 
@@ -201,8 +236,12 @@ export class ShowProduct implements OnInit {
     }
   }
 
-  getAvailabilityLabel(availability: string | undefined): string {
+  getAvailabilityLabel(
+    availability: string | undefined
+  ): string {
+
     switch (availability) {
+
       case 'AVAILABLE':
         return 'Disponible';
 
@@ -217,7 +256,8 @@ export class ShowProduct implements OnInit {
     }
   }
 
-  getNewImage(name: string){
-    return getImage(name)
+  getNewImage(name: string): string {
+    return getImage(name);
   }
 }
+

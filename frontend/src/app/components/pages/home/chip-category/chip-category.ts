@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-chip-category',
@@ -7,12 +7,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './chip-category.css',
 })
 export class ChipCategory {
-  @Input() category: any;
-  @Input() activeCategory: string = '';
-  @Output() categorySelected = new EventEmitter<string>();
+
+  category = input.required<any>();
+
+  activeCategory = input('');
+
+  categorySelected = output<string>();
 
   selectCategory(category: string): void {
-    this.activeCategory = category;
     this.categorySelected.emit(category);
-  } 
+  }
 }

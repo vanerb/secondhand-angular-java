@@ -1,23 +1,46 @@
 <app-container>
-  <section class="discovery" id="favoritos" aria-labelledby="favorites-title">
+  <section
+    class="discovery"
+    id="favoritos"
+    aria-labelledby="favorites-title"
+  >
+
     <div class="section-heading">
       <div>
-        <span class="eyebrow">TUS ARTÍCULOS GUARDADOS</span>
-        <h2 id="favorites-title">Mis favoritos</h2>
+        <span class="eyebrow">
+          TUS ARTÍCULOS GUARDADOS
+        </span>
+
+        <h2 id="favorites-title">
+          Mis favoritos
+        </h2>
       </div>
 
-      <span class="listing-count"> {{ favoriteProducts.length }} artículos </span>
+      <span class="listing-count">
+        {{ favoriteProducts().length }} artículos
+      </span>
     </div>
 
-    <app-product-view [products]="favoriteProducts" [cardsOnly]="true" [readOnly]="false" ></app-product-view>
+    <app-product-view
+      [products]="favoriteProducts()"
+      [cardsOnly]="true"
+      [readOnly]="false"
+    ></app-product-view>
 
     <div class="more-row">
-      <span>¿Buscas algo especial?</span>
+      <span>
+        ¿Buscas algo especial?
+      </span>
 
       <a href="/home">
         Descubre más artículos
-        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+
+        <i
+          class="bi bi-arrow-right"
+          aria-hidden="true"
+        ></i>
       </a>
     </div>
+
   </section>
 </app-container>

@@ -1,20 +1,84 @@
 <app-container>
   <main class="auth-layout">
-    <section class="auth-art login-art" aria-label="Espacio acogedor con objetos vintage">
-      <a class="auth-brand" href="/home"><i class="bi bi-recycle" aria-hidden="true"></i> secondhand</a>
-      <div class="auth-art-copy"><span>UN LUGAR PARA LO QUE IMPORTA</span><h2>Las mejores historias<br />no empiezan de cero.</h2></div>
+
+    <section
+      class="auth-art login-art"
+      aria-label="Espacio acogedor con objetos vintage"
+    >
+      <a class="auth-brand" href="/home">
+        <i class="bi bi-recycle" aria-hidden="true"></i>
+        secondhand
+      </a>
+
+      <div class="auth-art-copy">
+        <span>UN LUGAR PARA LO QUE IMPORTA</span>
+        <h2>
+          Las mejores historias<br />
+          no empiezan de cero.
+        </h2>
+      </div>
     </section>
+
     <section class="auth-card">
+
       <span class="eyebrow">QUÉ BUENO TENERTE DE VUELTA</span>
+
       <h1>Inicia sesión</h1>
-      <p class="auth-intro">Entra y descubre qué historias nuevas te esperan.</p>
+
+      <p class="auth-intro">
+        Entra y descubre qué historias nuevas te esperan.
+      </p>
+
       <form [formGroup]="form" (ngSubmit)="login()">
-        <mat-form-field appearance="outline" class="auth-field"><mat-label>Email</mat-label><input formControlName="email" matInput type="email" autocomplete="email" /></mat-form-field>
-        <mat-form-field appearance="outline" class="auth-field"><mat-label>Contraseña</mat-label><input formControlName="password" matInput type="password" autocomplete="current-password" /></mat-form-field>
-        <button class="auth-submit" type="submit">Entrar en mi cuenta <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+
+        <mat-form-field
+          appearance="outline"
+          class="auth-field"
+        >
+          <mat-label>Email</mat-label>
+
+          <input
+            formControlName="email"
+            matInput
+            type="email"
+            autocomplete="email"
+          />
+        </mat-form-field>
+
+        <mat-form-field
+          appearance="outline"
+          class="auth-field"
+        >
+          <mat-label>Contraseña</mat-label>
+
+          <input
+            formControlName="password"
+            matInput
+            type="password"
+            autocomplete="current-password"
+          />
+        </mat-form-field>
+
+        <button
+          class="auth-submit"
+          type="submit"
+        >
+          Entrar en mi cuenta
+          <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </button>
+
       </form>
-      <p class="auth-switch">¿Aún no tienes cuenta? <a href="/register">Únete a la comunidad</a></p>
-      <a class="auth-back" href="/home"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a descubrir</a>
+
+      <p class="auth-switch">
+        ¿Aún no tienes cuenta?
+        <a href="/register">Únete a la comunidad</a>
+      </p>
+
+      <a class="auth-back" href="/home">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        Volver a descubrir
+      </a>
+
     </section>
   </main>
 </app-container>

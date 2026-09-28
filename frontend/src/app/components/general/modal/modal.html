@@ -1,26 +1,33 @@
-<div
-  *ngIf="this.show"
-  style="
-    position: fixed;
-    inset: 0;
-    background-color: rgba(36, 27, 55, 0.45);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    pointer-events: auto;
-  "
->
+@if (show()) {
+
   <div
     style="
-      padding: 1rem;
-      border-radius: 20px;
-      z-index: 1000;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(36, 27, 55, 0.45);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
       pointer-events: auto;
     "
-    [ngStyle]="this.styles"
-    (click)="$event.stopPropagation()"
   >
-    <ng-template #modalContent></ng-template>
+
+    <div
+      style="
+        padding: 1rem;
+        border-radius: 20px;
+        z-index: 1000;
+        pointer-events: auto;
+      "
+      [ngStyle]="styles()"
+      (click)="$event.stopPropagation()"
+    >
+
+      <ng-template #modalContent></ng-template>
+
+    </div>
+
   </div>
-</div>
+
+}

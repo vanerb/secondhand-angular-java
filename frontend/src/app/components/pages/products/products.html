@@ -1,7 +1,7 @@
 @if (!isContainer) {
   <app-container>
-    <app-product-view [products]="products" ></app-product-view>
+    <app-product-view [products]="products()"></app-product-view>
   </app-container>
 } @else {
-  <app-product-view [products]="products"></app-product-view>
+  <app-product-view [products]="products()"></app-product-view>
 }

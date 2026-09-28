@@ -1,7 +1,12 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { getImage, sleep } from '../../../../services/utilities-service';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  input,
+  Output,
+} from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
-import { ChatService } from '../../../../services/chat-service';
+import { getImage } from '../../../../services/utilities-service';
 
 @Component({
   selector: 'app-product-card',
@@ -10,33 +15,42 @@ import { ChatService } from '../../../../services/chat-service';
   styleUrl: './product-card.css',
 })
 export class ProductCard {
-  @Input() product: any;
-  @Input() index: number = 0;
-  @Input() user: any;
- 
-  @Input() readOnly = false;
+
+  product = input.required<any>();
+
+  index = input(0);
+
+  user = input<any>(null);
+
+  readOnly = input(false);
 
   actionsOpen = false;
 
-  @Output() actions = new EventEmitter();
-
-  constructor() {}
+  @Output() actions = new EventEmitter<any>();
 
   toggleActions(event: Event): void {
+
     event.stopPropagation();
-    this.actionsOpen = !this.actionsOpen;
+
+    this.actionsOpen =
+      !this.actionsOpen;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
+
+    const target =
+      event.target as HTMLElement;
 
     if (!target.closest('.product-actions')) {
+
       this.actionsOpen = false;
+
     }
   }
 
   editProduct(product: any): void {
+
     this.actionsOpen = false;
 
     this.actions.emit({
@@ -46,6 +60,7 @@ export class ProductCard {
   }
 
   deleteProduct(product: any): void {
+
     this.actionsOpen = false;
 
     this.actions.emit({
@@ -55,6 +70,7 @@ export class ProductCard {
   }
 
   toggleFavorite(product: any): void {
+
     this.actions.emit({
       name: 'update_favorite',
       item: product,
@@ -62,13 +78,15 @@ export class ProductCard {
   }
 
   toggleInterest(product: any): void {
+
     this.actions.emit({
       name: 'update_interest',
       item: product,
     });
   }
 
-  getNewImage(name: string) {
+  getNewImage(name: string): string {
+
     return getImage(name);
   }
 }

@@ -1,5 +1,11 @@
-import { Component, Output } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, signal } from '@angular/core';
+
+import {
+  form,
+  FormField,
+  required,
+  min,
+} from '@angular/forms/signals';
 
 import { Condition } from '../../../../enums/condition';
 import { Availability } from '../../../../enums/availability';
@@ -11,23 +17,32 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
+interface ProductFormModel {
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  condition: string;
+  availability: string;
+}
+
 @Component({
   selector: 'app-create-product',
   imports: [
-    ReactiveFormsModule,
     Container,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    FormField,
   ],
   templateUrl: './create-product.html',
   styleUrl: './create-product.css',
 })
 export class CreateProduct {
-  productForm: FormGroup;
 
   conditions = Object.values(Condition);
+
   availabilities = Object.values(Availability);
 
   categories = [
@@ -42,29 +57,39 @@ export class CreateProduct {
     'OTHER',
   ];
 
-  selectedImages: {
-    id: number;
-    file: File;
-    preview: string;
-  }[] = [];
+  productModel = signal<ProductFormModel>({
+    name: '',
+    description: '',
+    price: 0,
+    category: '',
+    condition: '',
+    availability: Availability.AVAILABLE,
+  });
+
+  productForm = form(
+    this.productModel,
+    (schema) => {
+      required(schema.name);
+      required(schema.description);
+      required(schema.price);
+      min(schema.price, 0);
+      required(schema.category);
+      required(schema.condition);
+      required(schema.availability);
+    }
+  );
+
+  selectedImages = signal<
+    {
+      id: number;
+      file: File;
+      preview: string;
+    }[]
+  >([]);
 
   confirm!: (result?: any) => void;
 
   close!: () => void;
-
-  constructor(
-    private fb: FormBuilder,
-
-  ) {
-    this.productForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0)]],
-      category: ['', Validators.required],
-      condition: ['', Validators.required],
-      availability: [Availability.AVAILABLE, Validators.required],
-    });
-  }
 
   onImagesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -75,60 +100,61 @@ export class CreateProduct {
 
     const files = Array.from(input.files);
 
-    const availableSlots = 8 - this.selectedImages.length;
+    const availableSlots = 8 - this.selectedImages().length;
 
     files.slice(0, availableSlots).forEach((file) => {
       const preview = URL.createObjectURL(file);
 
-      this.selectedImages.push({
-        id: Date.now() + Math.random(),
-        file,
-        preview,
-      });
+      this.selectedImages.update(images => [
+        ...images,
+        {
+          id: Date.now() + Math.random(),
+          file,
+          preview,
+        },
+      ]);
     });
 
     input.value = '';
   }
 
   removeImage(index: number): void {
-    const image = this.selectedImages[index];
+    const image = this.selectedImages()[index];
 
-    URL.revokeObjectURL(image.preview);
-
-    this.selectedImages.splice(index, 1);
-  }
-
-  saveProduct(): void {
-    console.log(this.productForm.value)
-    if (this.productForm.invalid) {
-      this.productForm.markAllAsTouched();
-
+    if (!image) {
       return;
     }
 
-    const formData = new FormData();
+    URL.revokeObjectURL(image.preview);
 
-    formData.append('name', this.productForm.value.name);
+    this.selectedImages.update(images =>
+      images.filter((_, i) => i !== index)
+    );
+  }
 
-    formData.append('category', this.productForm.value.category);
-
-    formData.append('price', this.productForm.value.price.toString());
-
-    formData.append('condition', this.productForm.value.condition);
-
-    formData.append('description', this.productForm.value.description);
-
-    if (this.productForm.value.availability) {
-      formData.append('availability', this.productForm.value.availability);
+  saveProduct(): void {
+    if (this.productForm().invalid()) {
+      return;
     }
 
-    // Añadir las imágenes
-    for (const image of this.selectedImages) {
+    const product = this.productModel();
+
+    console.log(product);
+
+    const formData = new FormData();
+
+    formData.append('name', product.name);
+    formData.append('category', product.category);
+    formData.append('price', product.price.toString());
+    formData.append('condition', product.condition);
+    formData.append('description', product.description);
+    formData.append('availability', product.availability);
+
+    for (const image of this.selectedImages()) {
       formData.append('images', image.file);
     }
 
-    this.confirm(formData)
-    
+    this.confirm(formData);
   }
 
   closeModal(): void {

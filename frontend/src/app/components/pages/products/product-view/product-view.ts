@@ -1,26 +1,61 @@
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+
+import {
+  Component,
+  Input,
+  signal,
+} from '@angular/core';
+
 import { ModalService } from '../../../../services/modal-service';
 import { ProductService } from '../../../../services/product-service';
 import { AuthService } from '../../../../services/auth-service';
 import { FavoriteService } from '../../../../services/favorite-service';
 import { ChatService } from '../../../../services/chat-service';
+
 import { firstValueFrom } from 'rxjs';
-import { sleep } from '../../../../services/utilities-service';
+
 import { Product } from '../../../../interfaces/product';
+
 import { CreateProduct } from '../create-product/create-product';
 import { UpdateProduct } from '../update-product/update-product';
 import { ProductCard } from '../product-card/product-card';
 import { ChipCategory } from '../../home/chip-category/chip-category';
+
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-product-view',
-  imports: [ProductCard, ChipCategory, CommonModule],
+  imports: [
+    ProductCard,
+    ChipCategory,
+    CommonModule
+  ],
   templateUrl: './product-view.html',
   styleUrl: './product-view.css',
 })
 export class ProductView {
-  @Input() products: any[] = [];
+
+  /**
+   * Signal interno con el estado real de los productos.
+   *
+   * NO modificamos directamente el @Input.
+   */
+  private readonly productsState = signal<any[]>([]);
+
+  /**
+   * Mantenemos el mismo @Input para no romper
+   * los componentes que ya utilizan:
+   *
+   * [products]="..."
+   */
+  @Input()
+  set products(value: any[]) {
+    this.productsState.set(value ?? []);
+  }
+
+  get products(): any[] {
+    return this.productsState();
+  }
+
   @Input() readOnly = false;
   @Input() cardsOnly = false;
 
@@ -28,19 +63,59 @@ export class ProductView {
   activeCategory = 'Todo';
 
   readonly categories = [
-    { name: 'Todo', value: '', icon: 'bi-grid' },
-    { name: 'Electrónica', value: 'ELECTRONICS', icon: 'bi-headphones' },
-    { name: 'Informática', value: 'COMPUTERS', icon: 'bi-pc-display' },
-    { name: 'Videojuegos', value: 'VIDEO_GAMES', icon: 'bi-controller' },
-    { name: 'Móviles', value: 'MOBILE', icon: 'bi-phone' },
-    { name: 'Ropa', value: 'CLOTHING', icon: 'bi-bag' },
-    { name: 'Hogar', value: 'HOME', icon: 'bi-lamp' },
-    { name: 'Deporte', value: 'SPORTS', icon: 'bi-bicycle' },
-    { name: 'Libros', value: 'BOOKS', icon: 'bi-book' },
-    { name: 'Otros', value: 'OTHER', icon: 'bi-three-dots' },
+    {
+      name: 'Todo',
+      value: '',
+      icon: 'bi-grid'
+    },
+    {
+      name: 'Electrónica',
+      value: 'ELECTRONICS',
+      icon: 'bi-headphones'
+    },
+    {
+      name: 'Informática',
+      value: 'COMPUTERS',
+      icon: 'bi-pc-display'
+    },
+    {
+      name: 'Videojuegos',
+      value: 'VIDEO_GAMES',
+      icon: 'bi-controller'
+    },
+    {
+      name: 'Móviles',
+      value: 'MOBILE',
+      icon: 'bi-phone'
+    },
+    {
+      name: 'Ropa',
+      value: 'CLOTHING',
+      icon: 'bi-bag'
+    },
+    {
+      name: 'Hogar',
+      value: 'HOME',
+      icon: 'bi-lamp'
+    },
+    {
+      name: 'Deporte',
+      value: 'SPORTS',
+      icon: 'bi-bicycle'
+    },
+    {
+      name: 'Libros',
+      value: 'BOOKS',
+      icon: 'bi-book'
+    },
+    {
+      name: 'Otros',
+      value: 'OTHER',
+      icon: 'bi-three-dots'
+    },
   ];
 
-  user!: any;
+  user: any = null;
 
   constructor(
     private modalService: ModalService,
@@ -48,12 +123,14 @@ export class ProductView {
     private authService: AuthService,
     private favoriteService: FavoriteService,
     private chatService: ChatService,
-
   ) {}
 
   async ngOnInit(): Promise<void> {
+
     if (this.authService.getToken()) {
+
       const user$ = this.authService.getUserByToken();
+
       if (user$) {
         this.user = await firstValueFrom(user$);
       }
@@ -61,13 +138,18 @@ export class ProductView {
   }
 
   get filteredProducts(): Product[] {
-    const products = this.products ?? [];
 
-    const term = this.query.trim().toLocaleLowerCase('es');
+    const products = this.productsState();
+
+    const term = this.query
+      .trim()
+      .toLocaleLowerCase('es');
 
     return products.filter((product: any) => {
+
       const matchesCategory =
-        this.activeCategory === 'Todo' || product.category === this.activeCategory;
+        this.activeCategory === 'Todo' ||
+        product.category === this.activeCategory;
 
       const matchesQuery =
         !term ||
@@ -80,33 +162,43 @@ export class ProductView {
   }
 
   onSearch(event: Event): void {
-    this.query = (event.target as HTMLInputElement).value;
+
+    this.query =
+      (event.target as HTMLInputElement).value;
   }
 
   clearFilters(): void {
+
     this.query = '';
     this.activeCategory = 'Todo';
   }
 
-  action(action: any) {
+  action(action: any): void {
+
     console.log(action);
+
     switch (action.name) {
+
       case 'update':
         this.updateProduct(action.item);
         break;
+
       case 'delete':
         this.removeProduct(action.item);
         break;
+
       case 'update_favorite':
         this.updateFavorite(action.item);
         break;
+
       case 'update_interest':
         this.updateInterest(action.item);
         break;
     }
   }
 
-  createProduct() {
+  createProduct(): void {
+
     this.modalService
       .open(
         CreateProduct,
@@ -117,75 +209,132 @@ export class ProductView {
         {},
       )
       .then((formData: FormData) => {
-        this.productService.createProduct(formData).subscribe({
-          next: (product) => {
-            console.log('Producto creado:', product);
 
-            this.products.unshift(product);
-           
-          },
-          error: (error) => {
-            console.error('Error al crear producto:', error);
-          },
-        });
+        this.productService
+          .createProduct(formData)
+          .subscribe({
+
+            next: (product) => {
+
+              console.log(
+                'Producto creado:',
+                product
+              );
+
+              this.productsState.update(
+                (products) => [
+                  product,
+                  ...products
+                ]
+              );
+            },
+
+            error: (error) => {
+
+              console.error(
+                'Error al crear producto:',
+                error
+              );
+            },
+
+          });
+
       })
       .catch(() => {
         this.modalService.close();
       });
   }
 
-  updateFavorite(product: any) {
-    this.favoriteService.toggleFavorite(product).subscribe({
-      next: () => {
-        const index = this.products.findIndex((p: any) => p.id === product.id);
+  updateFavorite(product: any): void {
 
-        if (index !== -1) {
-          this.products[index] = {
-            ...this.products[index],
-            favorite: !this.products[index].favorite,
-          };
+    this.favoriteService
+      .toggleFavorite(product)
+      .subscribe({
 
-          this.products = [...this.products];
+        next: () => {
 
-        
-        }
-      },
+          this.productsState.update(
+            (products) =>
+              products.map((item) => {
 
-      error: (error) => {
-        console.error('Error al añadir a favoritos:', error);
-      },
-    });
+                if (item.id !== product.id) {
+                  return item;
+                }
+
+                return {
+                  ...item,
+                  favorite: !item.favorite,
+                };
+              })
+          );
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error al añadir a favoritos:',
+            error
+          );
+        },
+
+      });
   }
 
-  updateInterest(product: any) {
+  updateInterest(product: any): void {
+
+    if (!this.user) {
+      return;
+    }
+
     const user1Id = product.userId;
     const user2Id = this.user.id;
 
-    this.chatService.toggleConversation(user2Id, user1Id, product.id).subscribe({
-      next: (result) => {
-        console.log('Conversación:', result);
+    this.chatService
+      .toggleConversation(
+        user2Id,
+        user1Id,
+        product.id
+      )
+      .subscribe({
 
-        const index = this.products.findIndex((p: any) => p.id === product.id);
+        next: (result) => {
 
-        if (index !== -1) {
-          this.products[index] = {
-            ...this.products[index],
-            isChat: result.action === 'created',
-          };
+          console.log(
+            'Conversación:',
+            result
+          );
 
-          this.products = [...this.products];
+          this.productsState.update(
+            (products) =>
+              products.map((item) => {
 
-         
-        }
-      },
+                if (item.id !== product.id) {
+                  return item;
+                }
 
-      error: (error) => {
-        console.error('Error al crear conversación:', error);
-      },
-    });
+                return {
+                  ...item,
+                  isChat:
+                    result.action === 'created',
+                };
+              })
+          );
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error al crear conversación:',
+            error
+          );
+        },
+
+      });
   }
 
-  updateProduct(product: any) {
+  updateProduct(product: any): void {
+
     this.modalService
       .open(
         UpdateProduct,
@@ -198,43 +347,84 @@ export class ProductView {
         },
       )
       .then((formData: FormData) => {
-        this.productService.updateProduct(product.id, formData).subscribe({
-          next: (product) => {
-            console.log('Producto actualizado:', product);
 
-            const index = this.products.findIndex((p) => p.id === product.id);
+        this.productService
+          .updateProduct(
+            product.id,
+            formData
+          )
+          .subscribe({
 
-            if (index !== -1) {
-              this.products[index] = product;
-            }
+            next: (updatedProduct) => {
 
-            
-          },
-          error: (error) => {
-            console.error('Error al crear producto:', error);
-          },
-        });
+              console.log(
+                'Producto actualizado:',
+                updatedProduct
+              );
+
+              this.productsState.update(
+                (products) =>
+                  products.map((item) =>
+                    item.id === updatedProduct.id
+                      ? updatedProduct
+                      : item
+                  )
+              );
+            },
+
+            error: (error) => {
+
+              console.error(
+                'Error al actualizar producto:',
+                error
+              );
+            },
+
+          });
+
       })
       .catch(() => {
         this.modalService.close();
       });
   }
 
-  removeProduct(product: any) {
-    if (!confirm(`¿Seguro que quieres eliminar "${product.name}"?`)) {
+  removeProduct(product: any): void {
+
+    if (
+      !confirm(
+        `¿Seguro que quieres eliminar "${product.name}"?`
+      )
+    ) {
       return;
     }
 
-    this.productService.deleteProduct(product.id).subscribe({
-      next: () => {
-        this.products = this.products.filter((p) => p.id !== product.id);
-      
+    this.productService
+      .deleteProduct(product.id)
+      .subscribe({
 
-        console.log('Producto eliminado');
-      },
-      error: (error) => {
-        console.error('Error al eliminar producto:', error);
-      },
-    });
+        next: () => {
+
+          this.productsState.update(
+            (products) =>
+              products.filter(
+                (item) => item.id !== product.id
+              )
+          );
+
+          console.log(
+            'Producto eliminado'
+          );
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error al eliminar producto:',
+            error
+          );
+        },
+
+      });
   }
 }
+
