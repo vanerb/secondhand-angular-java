@@ -408,4 +408,60 @@ public class ProductService {
                                 favorite,
                                 product.getDescription());
         }
+
+        // =========================================================
+        // OBTENER PRODUCTOS POR ID DE USUARIO
+        // =========================================================
+
+        public List<ProductDTO> getProductsByUserId(
+                        String token,
+                        Long userId) {
+
+                User currentUser = getOptionalUserFromToken(token);
+
+                return productRepository
+                                .findByUserId(userId)
+                                .stream()
+                                .map(product -> convertToDTO(
+                                                product,
+                                                currentUser))
+                                .toList();
+        }
+
+        // =========================================================
+        // OBTENER PRODUCTOS POR USERNAME
+        // =========================================================
+
+        public List<ProductDTO> getProductsByUsername(
+                        String token,
+                        String username) {
+
+                User currentUser = getOptionalUserFromToken(token);
+
+                return productRepository
+                                .findByUserUsername(username)
+                                .stream()
+                                .map(product -> convertToDTO(
+                                                product,
+                                                currentUser))
+                                .toList();
+        }
+
+        // =========================================================
+        // OBTENER MIS PRODUCTOS MEDIANTE TOKEN
+        // =========================================================
+
+        public List<ProductDTO> getMyProducts(
+                        String token) {
+
+                User currentUser = getUserFromToken(token);
+
+                return productRepository
+                                .findByUser(currentUser)
+                                .stream()
+                                .map(product -> convertToDTO(
+                                                product,
+                                                currentUser))
+                                .toList();
+        }
 }

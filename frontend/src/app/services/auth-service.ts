@@ -87,4 +87,8 @@ export class AuthService {
     }
     return null;
   }
+
+  getUserByUsername(username: string) {
+    return this.http.get<any>(this.url + 'user/' + encodeURIComponent(username));
+  }
 }

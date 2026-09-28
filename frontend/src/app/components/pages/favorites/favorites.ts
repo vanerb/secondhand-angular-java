@@ -11,18 +11,11 @@ import { ProductView } from '../products/product-view/product-view';
 
 @Component({
   selector: 'app-favorites',
-  imports: [
-    ProductCard,
-    Container,
-    RouterLink,
-    JsonPipe,
-    ProductView,
-  ],
+  imports: [ProductCard, Container, RouterLink, JsonPipe, ProductView],
   templateUrl: './favorites.html',
   styleUrl: './favorites.css',
 })
 export class Favorites implements OnInit {
-
   favoriteProducts = signal<any[]>([]);
 
   user = signal<any>(null);
@@ -55,37 +48,24 @@ export class Favorites implements OnInit {
 
     this.chatService.getConversations(currentUser.id).subscribe({
       next: (conversations) => {
-
         this.favoriteProducts.update((products) =>
           products.map((product) => ({
             ...product,
 
             isChat: conversations.some(
               (conversation: any) =>
-                (
-                  (
-                    conversation.user1?.id === currentUser.id &&
-                    conversation.user2?.id === product.userId
-                  )
-                  ||
-                  (
-                    conversation.user1?.id === product.userId &&
-                    conversation.user2?.id === currentUser.id
-                  )
-                )
-                &&
-                conversation.productId === product.id
+                ((conversation.user1?.id === currentUser.id &&
+                  conversation.user2?.id === product.userId) ||
+                  (conversation.user1?.id === product.userId &&
+                    conversation.user2?.id === currentUser.id)) &&
+                conversation.productId === product.id,
             ),
-          }))
+          })),
         );
-
       },
 
       error: (error) => {
-        console.error(
-          'Error obteniendo conversaciones:',
-          error
-        );
+        console.error('Error obteniendo conversaciones:', error);
       },
     });
   }
@@ -93,7 +73,6 @@ export class Favorites implements OnInit {
   loadFavorites(): void {
     this.favoriteService.getFavorites().subscribe({
       next: (favorites) => {
-
         const products = favorites.map((favorite: any) => ({
           id: favorite.id,
           name: favorite.name,
@@ -105,10 +84,7 @@ export class Favorites implements OnInit {
           userId: favorite.user?.id ?? null,
           username: favorite.user?.username ?? '',
 
-          images:
-            favorite.images?.map(
-              (image: any) => image.url
-            ) ?? [],
+          images: favorite.images?.map((image: any) => image.url) ?? [],
 
           favorite: true,
 
@@ -125,10 +101,7 @@ export class Favorites implements OnInit {
       },
 
       error: (error) => {
-        console.error(
-          'Error cargando favoritos:',
-          error
-        );
+        console.error('Error cargando favoritos:', error);
 
         this.favoriteProducts.set([]);
       },
@@ -139,7 +112,6 @@ export class Favorites implements OnInit {
     console.log(action);
 
     switch (action.name) {
-
       case 'update_interest':
         this.updateInterest(action.item);
         break;
@@ -147,7 +119,6 @@ export class Favorites implements OnInit {
   }
 
   updateInterest(product: any): void {
-
     const currentUser = this.user();
 
     if (!currentUser) {
@@ -157,42 +128,25 @@ export class Favorites implements OnInit {
     const user1Id = product.userId;
     const user2Id = currentUser.id;
 
-    this.chatService
-      .toggleConversation(
-        user2Id,
-        user1Id,
-        product.id
-      )
-      .subscribe({
+    this.chatService.toggleConversation(user2Id, user1Id, product.id).subscribe({
+      next: (result) => {
+        console.log('Conversación:', result);
 
-        next: (result) => {
+        this.favoriteProducts.update((products) =>
+          products.map((p) =>
+            p.id === product.id
+              ? {
+                  ...p,
+                  isChat: result.action === 'created',
+                }
+              : p,
+          ),
+        );
+      },
 
-          console.log(
-            'Conversación:',
-            result
-          );
-
-          this.favoriteProducts.update((products) =>
-            products.map((p) =>
-              p.id === product.id
-                ? {
-                    ...p,
-                    isChat:
-                      result.action === 'created',
-                  }
-                : p
-            )
-          );
-
-        },
-
-        error: (error) => {
-          console.error(
-            'Error al crear conversación:',
-            error
-          );
-        },
-
-      });
+      error: (error) => {
+        console.error('Error al crear conversación:', error);
+      },
+    });
   }
 }

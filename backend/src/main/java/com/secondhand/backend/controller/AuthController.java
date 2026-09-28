@@ -71,4 +71,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.update(token, name, cogname, username, email, image));
     }
 
+    @GetMapping("/user/{username}")
+public ResponseEntity<User> getUserByUsername(
+        @PathVariable String username) {
+
+    User user = authService.getUserByUsername(username);
+
+    return ResponseEntity.ok(user);
+}
+
 }

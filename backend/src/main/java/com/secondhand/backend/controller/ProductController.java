@@ -189,7 +189,7 @@ public class ProductController {
         }
 
         @DeleteMapping("/{id}")
-        @Transactional 
+        @Transactional
         public ResponseEntity<Void> deleteProduct(
 
                         @RequestHeader("Authorization") String authorization,
@@ -205,5 +205,69 @@ public class ProductController {
                                 id);
 
                 return ResponseEntity.noContent().build();
+        }
+
+        // =========================================================
+        // PRODUCTOS POR ID DE USUARIO
+        // =========================================================
+
+        @GetMapping("/user/id/{userId}")
+        public ResponseEntity<List<ProductDTO>> getProductsByUserId(
+                        @RequestHeader(value = "Authorization", required = false) String authorization,
+                        @PathVariable Long userId) {
+
+                String token = extractToken(authorization);
+
+                return ResponseEntity.ok(
+                                productService.getProductsByUserId(
+                                                token,
+                                                userId));
+        }
+
+        // =========================================================
+        // PRODUCTOS POR USERNAME
+        // =========================================================
+
+        @GetMapping("/user/{username}")
+        public ResponseEntity<List<ProductDTO>> getProductsByUsername(
+                        @RequestHeader(value = "Authorization", required = false) String authorization,
+                        @PathVariable String username) {
+
+                String token = extractToken(authorization);
+
+                return ResponseEntity.ok(
+                                productService.getProductsByUsername(
+                                                token,
+                                                username));
+        }
+
+        // =========================================================
+        // MIS PRODUCTOS
+        // =========================================================
+
+        @GetMapping("/me")
+        public ResponseEntity<List<ProductDTO>> getMyProducts(
+                        @RequestHeader(value = "Authorization", required = false) String authorization) {
+
+                String token = extractToken(authorization);
+
+                return ResponseEntity.ok(
+                                productService.getMyProducts(
+                                                token));
+        }
+
+        // =========================================================
+        // EXTRAER TOKEN
+        // =========================================================
+
+        private String extractToken(String authorization) {
+
+                if (authorization == null ||
+                                !authorization.startsWith("Bearer ")) {
+
+                        return null;
+                }
+
+                return authorization.substring(7);
         }
 }

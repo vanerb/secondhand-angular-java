@@ -163,4 +163,12 @@ public class AuthService {
         userRepository.save(user);
         return new AuthDTO(jwtService.generateToken(user.getEmail()));
     }
+
+    public User getUserByUsername(String username) {
+
+        return userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new RuntimeException(
+                        "User not found"));
+    }
 }

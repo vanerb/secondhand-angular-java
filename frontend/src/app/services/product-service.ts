@@ -17,26 +17,135 @@ export class ProductService {
     private authService: AuthService,
   ) {}
 
-  // Productos públicos - SIN TOKEN
+  // =========================================================
+  // PRODUCTOS PÚBLICOS - SIN TOKEN
+  // =========================================================
+
   getProducts(filters?: ProductFilter): Observable<any> {
     const params = this.buildParams(filters);
 
     return this.http.get<any>(this.apiUrl, { params });
   }
 
-  // Productos para usuarios logueados - CON TOKEN
+  // =========================================================
+  // PRODUCTOS - CON TOKEN
+  // =========================================================
+
   getProductsAuth(filters?: ProductFilter): Observable<any> {
     const params = this.buildParams(filters);
 
- const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.authService.getToken()}`,
-    });
+    const headers = this.getAuthHeaders();
 
-
-    return this.http.get<any>(`${this.apiUrl}/auth`, { params, headers });
+    return this.http.get<any>(
+      `${this.apiUrl}/auth`,
+      {
+        params,
+        headers,
+      }
+    );
   }
 
-  // Construye los parámetros de búsqueda
+  // =========================================================
+  // PRODUCTO POR ID
+  // =========================================================
+
+  getProduct(id: number): Observable<Product> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get<Product>(
+      `${this.apiUrl}/${id}`,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // PRODUCTOS POR ID DE USUARIO
+  // =========================================================
+
+  getProductsByUserId(userId: number): Observable<Product[]> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get<Product[]>(
+      `${this.apiUrl}/user/id/${userId}`,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // PRODUCTOS POR USERNAME
+  // =========================================================
+
+  getProductsByUsername(username: string): Observable<Product[]> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get<Product[]>(
+      `${this.apiUrl}/user/${encodeURIComponent(username)}`,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // MIS PRODUCTOS - USANDO EL TOKEN
+  // =========================================================
+
+  getMyProducts(): Observable<Product[]> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get<Product[]>(
+      `${this.apiUrl}/me`,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // CREAR PRODUCTO
+  // =========================================================
+
+  createProduct(formData: FormData): Observable<Product> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.post<Product>(
+      this.apiUrl,
+      formData,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // ACTUALIZAR PRODUCTO
+  // =========================================================
+
+  updateProduct(
+    id: number,
+    formData: FormData
+  ): Observable<Product> {
+
+    const headers = this.getAuthHeaders();
+
+    return this.http.put<Product>(
+      `${this.apiUrl}/${id}`,
+      formData,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // ELIMINAR PRODUCTO
+  // =========================================================
+
+  deleteProduct(id: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`,
+      { headers }
+    );
+  }
+
+  // =========================================================
+  // CONSTRUIR PARÁMETROS DE BÚSQUEDA
+  // =========================================================
+
   private buildParams(filters?: ProductFilter): HttpParams {
     let params = new HttpParams();
 
@@ -87,31 +196,13 @@ export class ProductService {
     return params;
   }
 
-  getProduct(id: number): Observable<Product> {
-     const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.authService.getToken()}`,
-    });
-    return this.http.get<Product>(`${this.apiUrl}/${id}`, {headers});
-  }
+  // =========================================================
+  // HEADERS DE AUTENTICACIÓN
+  // =========================================================
 
-  createProduct(formData: FormData): Observable<Product> {
-    const headers = new HttpHeaders({
+  private getAuthHeaders(): HttpHeaders {
+    return new HttpHeaders({
       Authorization: `Bearer ${this.authService.getToken()}`,
     });
-    return this.http.post<Product>(this.apiUrl, formData, { headers });
-  }
-
-  updateProduct(id: number, formData: FormData): Observable<Product> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.authService.getToken()}`,
-    });
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, formData, { headers });
-  }
-
-  deleteProduct(id: number): Observable<void> {
-     const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.authService.getToken()}`,
-    });
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, {headers});
   }
 }
