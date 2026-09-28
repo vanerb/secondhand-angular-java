@@ -166,15 +166,24 @@
               type="button"
               class="contact-button"
               [class.chat-active]="product()!.isChat"
+              [class.own-product]="product()!.userId === user?.id"
+              [disabled]="product()!.userId === user?.id"
               (click)="contactSeller()"
             >
               <i
                 class="bi"
-                [class.bi-chat-heart]="!product()!.isChat"
-                [class.bi-chat-heart-fill]="product()!.isChat"
+                [class.bi-person-check]="product()!.userId === user?.id"
+                [class.bi-chat-heart]="product()!.userId !== user?.id && !product()!.isChat"
+                [class.bi-chat-heart-fill]="product()!.userId !== user?.id && product()!.isChat"
               ></i>
 
-              {{ product()!.isChat ? 'Ir al chat' : 'Contactar con el vendedor' }}
+              {{
+                product()!.userId === user?.id
+                  ? 'Este es tu producto'
+                  : product()!.isChat
+                    ? 'Ir al chat'
+                    : 'Contactar con el vendedor'
+              }}
             </button>
 
             <button
