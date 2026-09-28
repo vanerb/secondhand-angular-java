@@ -1,1 +1,199 @@
-<p>config-profile works!</p>
+<main class="profile-page">
+  <!-- ==========================================
+       HEADER
+  =========================================== -->
+
+  <header class="profile-heading">
+    <div>
+      <span class="eyebrow"> CONFIGURA TU PERFIL </span>
+
+      <h1>Editar perfil</h1>
+
+      <p style="margin-top: 10px">Actualiza tu información personal y la imagen de tu perfil.</p>
+    </div>
+
+    <div class="close-modal" (click)="closeModal()">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i>
+
+      Cerrar
+    </div>
+  </header>
+
+  <!-- ==========================================
+       LAYOUT
+  =========================================== -->
+
+  <section class="profile-layout">
+    <!-- ========================================
+         RESUMEN
+    ========================================= -->
+
+    <aside class="profile-summary">
+      <div class="summary-icon">
+        <i class="bi bi-person-gear" aria-hidden="true"></i>
+      </div>
+
+      <span class="summary-eyebrow"> CONFIGURACIÓN DEL PERFIL </span>
+
+      <h2>Mantén tu perfil actualizado.</h2>
+
+      <p>
+        Modifica tus datos personales para que el resto de la comunidad pueda reconocerte
+        fácilmente.
+      </p>
+
+      <div class="summary-tip">
+        <i class="bi bi-lightbulb" aria-hidden="true"></i>
+
+        <span> Una información actualizada ayuda a generar confianza dentro de la comunidad. </span>
+      </div>
+
+      <div class="summary-note">
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+
+        <span> Tus datos personales solo se utilizarán para gestionar tu cuenta. </span>
+      </div>
+    </aside>
+
+    <!-- ========================================
+         EDITOR
+    ========================================= -->
+
+    <section class="profile-editor">
+      <div class="editor-title">
+        <div>
+          <span class="eyebrow"> INFORMACIÓN PERSONAL </span>
+
+          <h2>Edita tu perfil</h2>
+        </div>
+
+        <span class="privacy-mark">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+
+          Perfil seguro
+        </span>
+      </div>
+
+      <p class="editor-intro">Modifica los datos que quieras actualizar de tu cuenta.</p>
+
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+        <!-- ======================================
+             FOTO DE PERFIL
+        ======================================= -->
+
+        <section class="profile-image-section">
+          <div class="profile-image-heading">
+            <div>
+              <label> Foto de perfil </label>
+
+              <p>Elige una imagen que represente tu perfil.</p>
+            </div>
+          </div>
+
+          <div class="profile-image-content">
+            <!-- PREVIEW -->
+
+            <div class="profile-image-preview">
+              @if (imagePreview()) {
+                <img [src]="imagePreview()" alt="Vista previa de la foto de perfil" />
+              } @else {
+                <div class="default-profile-image">
+                  <i class="bi bi-person"></i>
+                </div>
+              }
+            </div>
+
+            <!-- ACTIONS -->
+
+            <div class="profile-image-actions">
+              <label class="image-upload-button">
+                <i class="bi bi-cloud-arrow-up"></i>
+
+                <strong> Cambiar imagen </strong>
+
+                <span> JPG, PNG o WEBP </span>
+
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  (change)="onImageSelected($event)"
+                />
+              </label>
+
+              @if (imagePreview()) {
+                <button type="button" class="remove-profile-image" (click)="removeImage()">
+                  <i class="bi bi-trash3"></i>
+
+                  Quitar imagen
+                </button>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================
+             FORMULARIO
+        ======================================= -->
+
+        <div class="profile-form-grid">
+          <!-- Nombre -->
+
+          <mat-form-field appearance="outline">
+            <mat-label> Nombre </mat-label>
+
+            <input matInput formControlName="name" placeholder="Tu nombre" />
+          </mat-form-field>
+
+          <!-- Apellidos -->
+
+          <mat-form-field appearance="outline">
+            <mat-label> Apellidos </mat-label>
+
+            <input matInput formControlName="cogname" placeholder="Tus apellidos" />
+          </mat-form-field>
+
+          <!-- Username -->
+
+          <mat-form-field appearance="outline">
+            <mat-label> Nombre de usuario </mat-label>
+
+            <span matTextPrefix> &#64;&nbsp; </span>
+
+            <input matInput formControlName="username" placeholder="usuario" />
+          </mat-form-field>
+
+          <!-- Email -->
+
+          <mat-form-field appearance="outline">
+            <mat-label> Correo electrónico </mat-label>
+
+            <input matInput type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+          </mat-form-field>
+        </div>
+
+        <!-- ======================================
+             ACCIONES
+        ======================================= -->
+
+        <div class="form-actions">
+          <span>
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+
+            Los cambios se aplicarán a tu perfil.
+          </span>
+
+          <button type="submit" [disabled]="profileForm.invalid || isSaving()">
+            <i
+              class="bi"
+              [class.bi-check2]="!isSaving()"
+              [class.bi-arrow-repeat]="isSaving()"
+              aria-hidden="true"
+            ></i>
+
+            {{ isSaving() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </section>
+</main>

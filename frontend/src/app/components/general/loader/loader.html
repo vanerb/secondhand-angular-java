@@ -1,0 +1,15 @@
+<div class="loader-page">
+  <div class="loader-content">
+    <div class="loader-spinner">
+      <mat-spinner [diameter]="42"></mat-spinner>
+    </div>
+
+    <div class="loader-text" *ngIf="text">
+      {{ text }}
+    </div>
+
+    <span class="loader-subtext" *ngIf="text">
+      Un momento, por favor...
+    </span>
+  </div>
+</div>

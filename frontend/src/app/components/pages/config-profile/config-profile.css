@@ -1,0 +1,895 @@
+:host {
+  display: block;
+  min-height: 100%;
+  max-height: 100%;
+}
+
+
+/* =========================================================
+   CONTENIDO DEL MODAL
+   ========================================================= */
+
+.profile-page {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 27px clamp(10px, 2vw, 26px) 36px;
+  box-sizing: border-box;
+
+  color: #293a30;
+  background: white;
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.profile-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+
+  margin: 0 4px 22px;
+}
+
+.eyebrow {
+  color: #81927f;
+
+  font-size: 0.65rem;
+  font-weight: 750;
+
+  letter-spacing: 0.14em;
+}
+
+.profile-heading h1 {
+  margin: 7px 0 3px;
+
+  font-family: Georgia, serif;
+
+  font-size: 2.3rem;
+  font-weight: 500;
+
+  letter-spacing: -0.045em;
+}
+
+.profile-heading p {
+  margin: 0;
+
+  color: #879188;
+
+  font-size: 0.8rem;
+}
+
+
+.close-modal {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding-bottom: 4px;
+
+  color: #71816f;
+
+  font-size: 0.74rem;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s,
+    transform 0.2s;
+}
+
+.close-modal:hover {
+  color: #344d3d;
+}
+
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+
+.profile-layout {
+  display: grid;
+
+  grid-template-columns: 290px minmax(0, 1fr);
+
+  gap: 20px;
+
+  align-items: stretch;
+
+  max-height: 68vh;
+  min-height: 0;
+}
+
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+.profile-summary,
+.profile-editor {
+  overflow: hidden;
+
+  border: 1px solid #e8ece6;
+  border-radius: 15px;
+
+  background: white;
+
+  box-shadow:
+    0 10px 32px rgba(36, 55, 39, 0.045);
+}
+
+
+.profile-summary {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 28px 22px 22px;
+
+  text-align: center;
+}
+
+
+.profile-summary::before {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 5px;
+
+  background: #526d55;
+
+  content: '';
+}
+
+
+.summary-icon {
+  display: grid;
+
+  width: 64px;
+  height: 64px;
+
+  margin-bottom: 18px;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #edf2eb;
+
+  color: #526d55;
+
+  font-size: 1.5rem;
+}
+
+
+.summary-eyebrow {
+  color: #81927f;
+
+  font-size: 0.62rem;
+  font-weight: 750;
+
+  letter-spacing: 0.13em;
+}
+
+
+.profile-summary h2 {
+  margin: 10px 0 9px;
+
+  color: #35473a;
+
+  font-family: Georgia, serif;
+
+  font-size: 1.35rem;
+  font-weight: 500;
+
+  line-height: 1.25;
+
+  letter-spacing: -0.03em;
+}
+
+
+.profile-summary > p {
+  margin: 0;
+
+  color: #879188;
+
+  font-size: 0.73rem;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   SUMMARY TIP
+   ========================================================= */
+
+.summary-tip {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  width: 100%;
+
+  margin-top: 22px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  padding: 12px;
+
+  background: #f4f7f1;
+
+  color: #768375;
+
+  text-align: left;
+
+  font-size: 0.67rem;
+
+  line-height: 1.55;
+}
+
+.summary-tip i {
+  flex: 0 0 auto;
+
+  color: #a49a6a;
+}
+
+
+/* =========================================================
+   SUMMARY NOTE
+   ========================================================= */
+
+.summary-note {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  width: 100%;
+
+  margin-top: 13px;
+
+  border-top: 1px solid #eef1ec;
+
+  padding-top: 15px;
+
+  box-sizing: border-box;
+
+  color: #738173;
+
+  text-align: left;
+
+  font-size: 0.68rem;
+
+  line-height: 1.55;
+}
+
+.summary-note i {
+  margin-top: 1px;
+
+  color: #82997b;
+}
+
+
+/* =========================================================
+   EDITOR
+   ========================================================= */
+
+.profile-editor {
+  min-width: 0;
+
+  height: 68vh;
+  max-height: 68vh;
+
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: clamp(20px, 3vw, 35px);
+
+  box-sizing: border-box;
+
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    #b8c4b5
+    transparent;
+}
+
+
+/* Chrome / Edge / Safari */
+
+.profile-editor::-webkit-scrollbar {
+  width: 7px;
+}
+
+.profile-editor::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-editor::-webkit-scrollbar-thumb {
+  background: #b8c4b5;
+
+  border-radius: 10px;
+}
+
+.profile-editor::-webkit-scrollbar-thumb:hover {
+  background: #8fa18b;
+}
+
+
+/* =========================================================
+   EDITOR TITLE
+   ========================================================= */
+
+.editor-title {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+
+.editor-title h2 {
+  margin: 7px 0 0;
+
+  color: #35473a;
+
+  font-family: Georgia, serif;
+
+  font-size: 1.55rem;
+  font-weight: 500;
+
+  letter-spacing: -0.03em;
+}
+
+
+.privacy-mark {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  color: #929d93;
+
+  font-size: 0.65rem;
+
+  white-space: nowrap;
+}
+
+.privacy-mark i {
+  color: #849a7f;
+}
+
+
+.editor-intro {
+  margin: 10px 0 22px;
+
+  color: #8b968c;
+
+  font-size: 0.77rem;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   FOTO PERFIL
+   ========================================================= */
+
+.profile-image-section {
+  width: 100%;
+
+  margin-bottom: 22px;
+
+  border-bottom: 1px solid #edf0eb;
+
+  padding-bottom: 21px;
+}
+
+
+.profile-image-heading {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  margin-bottom: 12px;
+}
+
+
+.profile-image-heading label {
+  display: block;
+
+  color: #35473a;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+}
+
+
+.profile-image-heading p {
+  margin: 4px 0 0;
+
+  color: #929c92;
+
+  font-size: 0.68rem;
+}
+
+
+/* =========================================================
+   FOTO + ACCIONES
+   ========================================================= */
+
+.profile-image-content {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+
+.profile-image-preview {
+  flex: 0 0 auto;
+
+  width: 100px;
+  height: 100px;
+
+  overflow: hidden;
+
+  border: 2px solid #71896d;
+
+  border-radius: 50%;
+
+  background: #f3f5f2;
+}
+
+
+.profile-image-preview img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+
+.default-profile-image {
+  display: grid;
+
+  width: 100%;
+  height: 100%;
+
+  place-items: center;
+
+  background: #edf2eb;
+
+  color: #71896d;
+
+  font-size: 2.3rem;
+}
+
+
+/* =========================================================
+   IMAGE ACTIONS
+   ========================================================= */
+
+.profile-image-actions {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 9px;
+}
+
+
+.image-upload-button {
+  display: flex;
+
+  min-height: 70px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  box-sizing: border-box;
+
+  border: 1px dashed #bdc9ba;
+
+  border-radius: 11px;
+
+  padding: 10px 24px;
+
+  background: #fafcf9;
+
+  color: #768375;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+
+.image-upload-button:hover {
+  border-color: #81977d;
+
+  background: #f5f8f3;
+}
+
+
+.image-upload-button > i {
+  color: #71896d;
+
+  font-size: 1.2rem;
+}
+
+
+.image-upload-button strong {
+  color: #526651;
+
+  font-size: 0.72rem;
+
+  font-weight: 650;
+}
+
+
+.image-upload-button span {
+  color: #9aa39b;
+
+  font-size: 0.6rem;
+}
+
+
+.image-upload-button input {
+  display: none;
+}
+
+
+/* =========================================================
+   QUITAR FOTO
+   ========================================================= */
+
+.remove-profile-image {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  border: 0;
+
+  padding: 0;
+
+  background: transparent;
+
+  color: #a95b51;
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 0.66rem;
+}
+
+.remove-profile-image:hover {
+  color: #82483f;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.profile-form-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px 14px;
+}
+
+
+.profile-form-grid mat-form-field {
+  width: 100%;
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.form-actions {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 10px;
+
+  border-top: 1px solid #edf0eb;
+
+  padding-top: 19px;
+}
+
+
+.form-actions > span {
+  color: #929c92;
+
+  font-size: 0.67rem;
+}
+
+
+.form-actions > span i {
+  margin-right: 5px;
+
+  color: #8da187;
+}
+
+
+.form-actions button {
+  display: inline-flex;
+
+  min-height: 42px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  padding: 0 17px;
+
+  background: #344d3d;
+
+  color: white;
+
+  cursor: pointer;
+
+  font: inherit;
+
+  font-size: 0.73rem;
+
+  font-weight: 650;
+
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+
+.form-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  background: #263c2e;
+}
+
+
+.form-actions button:disabled {
+  background: #aab8a6;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ANGULAR MATERIAL
+   ========================================================= */
+
+::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  background: white;
+}
+
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  font-size: 0.65rem;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .profile-page {
+    padding: 16px 4px 28px;
+  }
+
+
+  .profile-heading {
+    margin-bottom: 15px;
+  }
+
+
+  .profile-heading h1 {
+    font-size: 1.9rem;
+  }
+
+
+  .profile-heading p {
+    max-width: 230px;
+
+    font-size: 0.72rem;
+  }
+
+
+  .close-modal {
+    font-size: 0.68rem;
+
+    white-space: nowrap;
+  }
+
+
+  .profile-layout {
+    grid-template-columns: 1fr;
+
+    gap: 13px;
+
+    max-height: none;
+  }
+
+
+  .profile-summary {
+    padding: 22px 20px 18px;
+  }
+
+
+  .summary-icon {
+    width: 55px;
+    height: 55px;
+
+    margin-bottom: 13px;
+
+    font-size: 1.3rem;
+  }
+
+
+  .summary-tip {
+    max-width: 350px;
+  }
+
+
+  .summary-note {
+    max-width: 350px;
+  }
+
+
+  .profile-editor {
+    max-height: none;
+
+    overflow: visible;
+
+    padding: 20px 16px;
+  }
+
+
+  .profile-form-grid {
+    gap: 6px 9px;
+  }
+
+
+  .privacy-mark {
+    font-size: 0.58rem;
+  }
+
+
+  .editor-title h2 {
+    font-size: 1.35rem;
+  }
+
+
+  .editor-intro {
+    margin-bottom: 15px;
+
+    font-size: 0.72rem;
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .profile-heading {
+    align-items: flex-start;
+  }
+
+
+  .close-modal {
+    margin-top: 18px;
+  }
+
+
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+
+  .form-actions {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  .form-actions button {
+    width: 100%;
+  }
+
+
+  .editor-title {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .privacy-mark {
+    align-self: flex-start;
+  }
+
+
+  .profile-image-content {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .profile-image-preview {
+    width: 90px;
+    height: 90px;
+  }
+
+
+  .profile-image-actions {
+    width: 100%;
+  }
+
+
+  .image-upload-button {
+    width: 100%;
+  }
+
+}

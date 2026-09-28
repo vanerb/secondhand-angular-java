@@ -16,6 +16,7 @@ import { ProductCard } from '../product-card/product-card';
 import { ChipCategory } from '../../home/chip-category/chip-category';
 
 import { CommonModule } from '@angular/common';
+import { WarningModal } from '../../../general/warning-modal/warning-modal';
 
 @Component({
   selector: 'app-product-view',
@@ -24,7 +25,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './product-view.css',
 })
 export class ProductView implements OnInit {
-
   /**
    * Estado interno de los productos.
    */
@@ -128,7 +128,6 @@ export class ProductView implements OnInit {
   // ==========================================
 
   async ngOnInit(): Promise<void> {
-
     if (!this.authService.getToken()) {
       return;
     }
@@ -149,18 +148,13 @@ export class ProductView implements OnInit {
   // ==========================================
 
   get filteredProducts(): Product[] {
-
     const products = this.productsState();
 
-    const term = this.query
-      .trim()
-      .toLocaleLowerCase('es');
+    const term = this.query.trim().toLocaleLowerCase('es');
 
     return products.filter((product: any) => {
-
       const matchesCategory =
-        this.activeCategory === 'Todo' ||
-        product.category === this.activeCategory;
+        this.activeCategory === 'Todo' || product.category === this.activeCategory;
 
       const matchesQuery =
         !term ||
@@ -177,13 +171,10 @@ export class ProductView implements OnInit {
   // ==========================================
 
   onSearch(event: Event): void {
-
-    this.query =
-      (event.target as HTMLInputElement).value;
+    this.query = (event.target as HTMLInputElement).value;
   }
 
   clearFilters(): void {
-
     this.query = '';
     this.activeCategory = 'Todo';
   }
@@ -193,11 +184,9 @@ export class ProductView implements OnInit {
   // ==========================================
 
   action(action: any): void {
-
     console.log(action);
 
     switch (action.name) {
-
       case 'update':
         this.updateProduct(action.item);
         break;
@@ -221,7 +210,6 @@ export class ProductView implements OnInit {
   // ==========================================
 
   createProduct(): void {
-
     this.modalService
       .open(
         CreateProduct,
@@ -232,36 +220,17 @@ export class ProductView implements OnInit {
         {},
       )
       .then((formData: FormData) => {
+        this.productService.createProduct(formData).subscribe({
+          next: (product) => {
+            console.log('Producto creado:', product);
 
-        this.productService
-          .createProduct(formData)
-          .subscribe({
+            this.productsState.update((products) => [product, ...products]);
+          },
 
-            next: (product) => {
-
-              console.log(
-                'Producto creado:',
-                product
-              );
-
-              this.productsState.update(
-                (products) => [
-                  product,
-                  ...products
-                ]
-              );
-            },
-
-            error: (error) => {
-
-              console.error(
-                'Error al crear producto:',
-                error
-              );
-            },
-
-          });
-
+          error: (error) => {
+            console.error('Error al crear producto:', error);
+          },
+        });
       })
       .catch(() => {
         this.modalService.close();
@@ -273,38 +242,26 @@ export class ProductView implements OnInit {
   // ==========================================
 
   updateFavorite(product: any): void {
+    this.favoriteService.toggleFavorite(product).subscribe({
+      next: () => {
+        this.productsState.update((products) =>
+          products.map((item) => {
+            if (item.id !== product.id) {
+              return item;
+            }
 
-    this.favoriteService
-      .toggleFavorite(product)
-      .subscribe({
+            return {
+              ...item,
+              favorite: !item.favorite,
+            };
+          }),
+        );
+      },
 
-        next: () => {
-
-          this.productsState.update(
-            (products) =>
-              products.map((item) => {
-
-                if (item.id !== product.id) {
-                  return item;
-                }
-
-                return {
-                  ...item,
-                  favorite: !item.favorite,
-                };
-              })
-          );
-        },
-
-        error: (error) => {
-
-          console.error(
-            'Error al añadir a favoritos:',
-            error
-          );
-        },
-
-      });
+      error: (error) => {
+        console.error('Error al añadir a favoritos:', error);
+      },
+    });
   }
 
   // ==========================================
@@ -312,7 +269,6 @@ export class ProductView implements OnInit {
   // ==========================================
 
   updateInterest(product: any): void {
-
     const currentUser = this.user();
 
     if (!currentUser) {
@@ -322,47 +278,28 @@ export class ProductView implements OnInit {
     const user1Id = product.userId;
     const user2Id = currentUser.id;
 
-    this.chatService
-      .toggleConversation(
-        user2Id,
-        user1Id,
-        product.id
-      )
-      .subscribe({
+    this.chatService.toggleConversation(user2Id, user1Id, product.id).subscribe({
+      next: (result) => {
+        console.log('Conversación:', result);
 
-        next: (result) => {
+        this.productsState.update((products) =>
+          products.map((item) => {
+            if (item.id !== product.id) {
+              return item;
+            }
 
-          console.log(
-            'Conversación:',
-            result
-          );
+            return {
+              ...item,
+              isChat: result.action === 'created',
+            };
+          }),
+        );
+      },
 
-          this.productsState.update(
-            (products) =>
-              products.map((item) => {
-
-                if (item.id !== product.id) {
-                  return item;
-                }
-
-                return {
-                  ...item,
-                  isChat:
-                    result.action === 'created',
-                };
-              })
-          );
-        },
-
-        error: (error) => {
-
-          console.error(
-            'Error al crear conversación:',
-            error
-          );
-        },
-
-      });
+      error: (error) => {
+        console.error('Error al crear conversación:', error);
+      },
+    });
   }
 
   // ==========================================
@@ -370,7 +307,6 @@ export class ProductView implements OnInit {
   // ==========================================
 
   updateProduct(product: any): void {
-
     this.modalService
       .open(
         UpdateProduct,
@@ -383,41 +319,19 @@ export class ProductView implements OnInit {
         },
       )
       .then((formData: FormData) => {
+        this.productService.updateProduct(product.id, formData).subscribe({
+          next: (updatedProduct) => {
+            console.log('Producto actualizado:', updatedProduct);
 
-        this.productService
-          .updateProduct(
-            product.id,
-            formData
-          )
-          .subscribe({
+            this.productsState.update((products) =>
+              products.map((item) => (item.id === updatedProduct.id ? updatedProduct : item)),
+            );
+          },
 
-            next: (updatedProduct) => {
-
-              console.log(
-                'Producto actualizado:',
-                updatedProduct
-              );
-
-              this.productsState.update(
-                (products) =>
-                  products.map((item) =>
-                    item.id === updatedProduct.id
-                      ? updatedProduct
-                      : item
-                  )
-              );
-            },
-
-            error: (error) => {
-
-              console.error(
-                'Error al actualizar producto:',
-                error
-              );
-            },
-
-          });
-
+          error: (error) => {
+            console.error('Error al actualizar producto:', error);
+          },
+        });
       })
       .catch(() => {
         this.modalService.close();
@@ -429,41 +343,33 @@ export class ProductView implements OnInit {
   // ==========================================
 
   removeProduct(product: any): void {
-
-    if (
-      !confirm(
-        `¿Seguro que quieres eliminar "${product.name}"?`
+    this.modalService
+      .open(
+        WarningModal,
+        { width: '60vh' },
+        {
+          props: {
+            title: 'Eliminar',
+            message: `¿Está seguro de que quiere eliminar ${product.name}?`,
+            type: 'delete',
+          },
+        },
       )
-    ) {
-      return;
-    }
+      .then(() => {
+        this.productService.deleteProduct(product.id).subscribe({
+          next: () => {
+            this.productsState.update((products) =>
+              products.filter((item) => item.id !== product.id),
+            );
 
-    this.productService
-      .deleteProduct(product.id)
-      .subscribe({
+            console.log('Producto eliminado');
+          },
 
-        next: () => {
-
-          this.productsState.update(
-            (products) =>
-              products.filter(
-                (item) => item.id !== product.id
-              )
-          );
-
-          console.log(
-            'Producto eliminado'
-          );
-        },
-
-        error: (error) => {
-
-          console.error(
-            'Error al eliminar producto:',
-            error
-          );
-        },
-
-      });
+          error: (error) => {
+            console.error('Error al eliminar producto:', error);
+          },
+        });
+      })
+      .catch(() => this.modalService.close());
   }
 }

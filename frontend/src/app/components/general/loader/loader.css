@@ -1,0 +1,85 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.loader-page {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 32px;
+
+  background: #f8faf8;
+  color: #293a30;
+}
+
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+/* =========================
+   SPINNER
+========================= */
+
+.loader-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 82px;
+  height: 82px;
+
+  margin-bottom: 20px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+  border: 1px solid #dce5dd;
+
+  box-shadow: 0 8px 24px rgba(41, 58, 48, 0.06);
+}
+
+/* =========================
+   TEXTO
+========================= */
+
+.loader-text {
+  margin-bottom: 6px;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: 20px;
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  color: #293a30;
+}
+
+.loader-subtext {
+  font-size: 12px;
+  line-height: 1.5;
+
+  color: #81927f;
+}
+
+/* =========================
+   ANGULAR MATERIAL
+========================= */
+
+::ng-deep .loader-spinner .mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: #526d55;
+}

@@ -1,0 +1,43 @@
+<main class="warning-page">
+  <div class="warning-content">
+    <div class="warning-label">
+      <div class="warning-icon">
+        <i
+          class="bi"
+          [ngClass]="props.type === 'info' ? 'bi-info-circle' : 'bi-exclamation-triangle'"
+          aria-hidden="true"
+        ></i>
+      </div>
+
+      <span>
+        {{ props.type === 'info' ? 'INFORMACIÓN' : 'AVISO' }}
+      </span>
+    </div>
+
+    <h1>{{ props.title }}</h1>
+
+    <p class="warning-message">
+      {{ props.message }}
+    </p>
+
+    <div class="warning-info">
+      <i class="bi bi-info-circle" aria-hidden="true"></i>
+
+      <span>
+        {{
+          props.type === 'info' ? 'Información importante.' : 'Revisa la acción antes de continuar.'
+        }}
+      </span>
+    </div>
+
+    <div class="action-buttons">
+      <button *ngIf="props.type !== 'info'" type="button" class="cancel-button" (click)="close()">
+        Cancelar
+      </button>
+
+      <button type="button" class="confirm-button" (click)="confirm()">
+        {{ props.type === 'info' ? 'Aceptar' : 'Continuar' }}
+      </button>
+    </div>
+  </div>
+</main>

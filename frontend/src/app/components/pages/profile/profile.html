@@ -41,11 +41,10 @@
               </div>
 
               @if (isOwnProfile()) {
-                <a routerLink="/profile/edit" class="edit-profile-button">
+                <button type="button" class="edit-profile-button" (click)="openEditProfile()">
                   <i class="bi bi-pencil"></i>
-
                   Editar perfil
-                </a>
+                </button>
               }
             </div>
 

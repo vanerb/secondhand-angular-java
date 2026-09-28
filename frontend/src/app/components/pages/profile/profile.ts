@@ -9,6 +9,8 @@ import { CommonModule } from '@angular/common';
 import { getImage } from '../../../services/utilities-service';
 import { ProductView } from '../products/product-view/product-view';
 import { ChatService } from '../../../services/chat-service';
+import { ModalService } from '../../../services/modal-service';
+import { ConfigProfile } from '../config-profile/config-profile';
 
 @Component({
   selector: 'app-profile',
@@ -43,6 +45,7 @@ export class Profile implements OnInit {
     private readonly authService: AuthService,
     private readonly chatService: ChatService,
     private readonly route: ActivatedRoute,
+    private readonly modalService: ModalService,
   ) {}
 
   ngOnInit(): void {
@@ -341,5 +344,58 @@ export class Profile implements OnInit {
 
   getNewImage(name: string): string {
     return getImage(name);
+  }
+
+  openEditProfile(): void {
+    const currentUser = this.user();
+
+    if (!currentUser) {
+      return;
+    }
+
+    this.modalService
+      .open(
+        ConfigProfile,
+        {
+          width: '990px',
+          height: 'auto',
+        },
+        {
+          user: currentUser,
+        },
+      )
+      .then((formData: FormData) => {
+        this.authService.update(formData)?.subscribe({
+          next: () => {
+            console.log('PERFIL ACTUALIZADO');
+
+            // Volvemos a obtener el usuario desde el backend
+            const user$ = this.authService.getUserByToken();
+
+            if (!user$) {
+              return;
+            }
+
+            user$.subscribe({
+              next: (updatedUser: any) => {
+                console.log('USUARIO ACTUALIZADO:', updatedUser);
+
+                this.user.set(updatedUser);
+                this.profileImage.set(this.getUserImage(updatedUser));
+              },
+              error: (error) => {
+                console.error('ERROR OBTENIENDO EL PERFIL ACTUALIZADO:', error);
+              },
+            });
+          },
+
+          error: (error) => {
+            console.error('ERROR ACTUALIZANDO PERFIL:', error);
+          },
+        });
+      })
+      .catch(() => {
+        this.modalService.close();
+      });
   }
 }
