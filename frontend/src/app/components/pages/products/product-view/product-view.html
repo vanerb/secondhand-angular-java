@@ -1,7 +1,7 @@
 
 <!-- Botón añadir producto -->
 <button
-  *ngIf="user && !cardsOnly && !readOnly"
+  *ngIf="user() && !readOnly"
   type="button"
   class="floating-add-button"
   (click)="createProduct()"
@@ -91,7 +91,7 @@
       <app-product-card
         [product]="product"
         [index]="index"
-        [user]="user"
+        [user]="user()"
         [readOnly]="readOnly"
         (actions)="action($event)"
       ></app-product-card>

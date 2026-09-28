@@ -1,10 +1,5 @@
-<article
-  class="product-card"
-  [style.--card-index]="index()"
->
-
+<article class="product-card" [style.--card-index]="index()">
   <div class="product-image-wrap">
-
     <img
       class="product-image"
       [src]="getNewImage(product().images?.[0])"
@@ -12,194 +7,122 @@
       loading="lazy"
     />
 
-
     <!-- ==========================================
          FAVORITO
     =========================================== -->
 
-    @if (user() && !readOnly()) {
-
+    @if (user()) {
       <button
         type="button"
         class="favorite-button"
         [class.is-favorite]="product().favorite"
         (click)="toggleFavorite(product())"
-        [attr.aria-label]="
-          product().favorite
-            ? 'Quitar de favoritos'
-            : 'Añadir a favoritos'
-        "
+        [attr.aria-label]="product().favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
         [attr.aria-pressed]="product().favorite"
       >
-
         <i
           class="bi"
           [class.bi-heart]="!product().favorite"
           [class.bi-heart-fill]="product().favorite"
           aria-hidden="true"
         ></i>
-
       </button>
-
     }
-
 
     <!-- ==========================================
          MENÚ DEL PRODUCTO
+         Solo propietario y NO readonly
     =========================================== -->
 
-    @if (
-      user()
-      &&
-      !readOnly()
-      &&
-      product().userId === user().id
-    ) {
-
+    @if (user() && !readOnly() && product().userId === user().id) {
       <div class="product-actions">
-
         <button
           type="button"
           class="actions-button"
           aria-label="Opciones del producto"
           (click)="toggleActions($event)"
         >
-
-          <i
-            class="bi bi-three-dots-vertical"
-          ></i>
-
+          <i class="bi bi-three-dots-vertical"></i>
         </button>
 
-
         @if (actionsOpen) {
-
           <div class="actions-menu">
-
-            <button
-              type="button"
-              class="action-item"
-              (click)="editProduct(product())"
-            >
-
+            <button type="button" class="action-item" (click)="editProduct(product())">
               <i class="bi bi-pencil"></i>
 
-              <span>
-                Editar
-              </span>
-
+              <span> Editar </span>
             </button>
 
-
-            <button
-              type="button"
-              class="action-item delete"
-              (click)="deleteProduct(product())"
-            >
-
+            <button type="button" class="action-item delete" (click)="deleteProduct(product())">
               <i class="bi bi-trash"></i>
 
-              <span>
-                Eliminar
-              </span>
-
+              <span> Eliminar </span>
             </button>
-
           </div>
-
         }
-
       </div>
-
     }
-
   </div>
-
 
   <!-- ==========================================
        INFORMACIÓN
   =========================================== -->
 
   <div class="product-info">
-
     <div class="product-meta">
-
       <span>
         {{ product().category }}
       </span>
 
-
       <span class="condition">
-
-        <i
-          class="bi bi-stars"
-          aria-hidden="true"
-        ></i>
+        <i class="bi bi-stars" aria-hidden="true"></i>
 
         {{ product().condition }}
-
       </span>
-
     </div>
-
 
     <h3>
       {{ product().name }}
     </h3>
 
-
     <div class="product-bottom">
-
-      <strong class="product-price">
-
-        {{ product().price }} €
-
-      </strong>
-
+      <strong class="product-price"> {{ product().price }} € </strong>
 
       <span class="seller">
-
         <span class="seller-dot"></span>
 
         {{ product().username }}
-
       </span>
-
     </div>
 
-
     <!-- ==========================================
-         INTERÉS
-    =========================================== -->
+     INTERÉS
+=========================================== -->
 
-    @if (!readOnly()) {
+    @if (user()) {
+      @if (product().userId !== user().id) {
+        <button
+          type="button"
+          class="interest-button"
+          [class.is-interested]="product().isChat"
+          (click)="toggleInterest(product())"
+          [attr.aria-pressed]="product().isChat"
+        >
+          <i
+            class="bi"
+            [class.bi-chat-heart]="!product().isChat"
+            [class.bi-x-lg]="product().isChat"
+            aria-hidden="true"
+          ></i>
 
-      <button
-        type="button"
-        class="interest-button"
-        [class.is-interested]="product().isChat"
-        (click)="toggleInterest(product())"
-        [attr.aria-pressed]="product().isChat"
-      >
-
-        <i
-          class="bi"
-          [class.bi-chat-heart]="!product().isChat"
-          [class.bi-x-lg]="product().isChat"
-          aria-hidden="true"
-        ></i>
-
-
-        {{
-          product().isChat
-            ? 'Ya no me interesa'
-            : 'Me interesa'
-        }}
-
-      </button>
-
+          {{ product().isChat ? 'Ya no me interesa' : 'Me interesa' }}
+        </button>
+      } @else {
+        <div class="own-product-notice">
+          <i class="bi bi-person-check" aria-hidden="true"></i>
+          <span>Es tu producto</span>
+        </div>
+      }
     }
-
   </div>
-
 </article>

@@ -1,27 +1,20 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnChanges, OnInit, signal, SimpleChanges } from '@angular/core';
 import { Container } from '../../general/container/container';
 import { AuthService } from '../../../services/auth-service';
 import { ProductService } from '../../../services/product-service';
 import { FavoriteService } from '../../../services/favorite-service';
 import { CommonModule } from '@angular/common';
 import { getImage } from '../../../services/utilities-service';
-import { ProductCard } from '../products/product-card/product-card';
 import { ProductView } from '../products/product-view/product-view';
 import { ChatService } from '../../../services/chat-service';
 
 @Component({
   selector: 'app-profile',
-  imports: [
-    Container,
-    CommonModule,
-    ProductCard,
-    ProductView,
-  ],
+  imports: [Container, CommonModule, ProductView],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class Profile implements OnInit {
-
   user = signal<any | null>(null);
 
   products = signal<any[]>([]);
@@ -56,17 +49,12 @@ export class Profile implements OnInit {
   // ==========================================
 
   loadProfile(): void {
-
     this.isLoading.set(true);
 
-    const user$ =
-      this.authService.getUserByToken();
+    const user$ = this.authService.getUserByToken();
 
     if (!user$) {
-
-      this.errorMessage.set(
-        'No se ha podido obtener la información del usuario.'
-      );
+      this.errorMessage.set('No se ha podido obtener la información del usuario.');
 
       this.isLoading.set(false);
 
@@ -74,19 +62,12 @@ export class Profile implements OnInit {
     }
 
     user$.subscribe({
-
       next: (user: any) => {
-
-        console.log(
-          'USUARIO RECIBIDO:',
-          user
-        );
+        console.log('USUARIO RECIBIDO:', user);
 
         this.user.set(user);
 
-        this.profileImage.set(
-          this.getUserImage(user)
-        );
+        this.profileImage.set(this.getUserImage(user));
 
         this.isOwnProfile.set(true);
 
@@ -98,19 +79,12 @@ export class Profile implements OnInit {
       },
 
       error: (error) => {
+        console.error('ERROR OBTENIENDO USUARIO:', error);
 
-        console.error(
-          'ERROR OBTENIENDO USUARIO:',
-          error
-        );
-
-        this.errorMessage.set(
-          'No se ha podido cargar la información del perfil.'
-        );
+        this.errorMessage.set('No se ha podido cargar la información del perfil.');
 
         this.isLoading.set(false);
       },
-
     });
   }
 
@@ -119,43 +93,25 @@ export class Profile implements OnInit {
   // ==========================================
 
   loadProducts(): void {
+    this.productService.getProductsAuth().subscribe({
+      next: (products: any) => {
+        console.log('PRODUCTOS DEL USUARIO:', products);
 
-    this.productService
-      .getProductsAuth()
-      .subscribe({
+        const productList = Array.isArray(products) ? products : (products.content ?? []);
 
-        next: (products: any) => {
+        this.products.set(productList);
 
-          console.log(
-            'PRODUCTOS DEL USUARIO:',
-            products
-          );
+        this.userProductsCount.set(productList.length);
+      },
 
-          const productList =
-            Array.isArray(products)
-              ? products
-              : (products.content ?? []);
+      error: (error) => {
+        console.error('ERROR CARGANDO PRODUCTOS:', error);
 
-          this.products.set(productList);
+        this.products.set([]);
 
-          this.userProductsCount.set(
-            productList.length
-          );
-        },
-
-        error: (error) => {
-
-          console.error(
-            'ERROR CARGANDO PRODUCTOS:',
-            error
-          );
-
-          this.products.set([]);
-
-          this.userProductsCount.set(0);
-        },
-
-      });
+        this.userProductsCount.set(0);
+      },
+    });
   }
 
   // ==========================================
@@ -163,72 +119,48 @@ export class Profile implements OnInit {
   // ==========================================
 
   loadFavorites(): void {
+    this.favoriteService.getFavorites().subscribe({
+      next: (favorites: any[]) => {
+        console.log('FAVORITOS:', favorites);
 
-    this.favoriteService
-      .getFavorites()
-      .subscribe({
+        const favoriteProducts = favorites.map((favorite: any) => ({
+          id: favorite.id,
 
-        next: (favorites: any[]) => {
+          name: favorite.name,
 
-          console.log(
-            'FAVORITOS:',
-            favorites
-          );
+          category: favorite.category,
 
-          const favoriteProducts =
-            favorites.map((favorite: any) => ({
+          price: favorite.price,
 
-              id: favorite.id,
+          condition: favorite.condition,
 
-              name: favorite.name,
+          availability: favorite.availability,
 
-              category: favorite.category,
+          userId: favorite.user?.id ?? null,
 
-              price: favorite.price,
+          username: favorite.user?.username ?? '',
 
-              condition: favorite.condition,
+          images: favorite.images?.map((image: any) => image.url) ?? [],
 
-              availability: favorite.availability,
+          favorite: true,
 
-              userId:
-                favorite.user?.id ?? null,
+          description: favorite.description,
+        }));
 
-              username:
-                favorite.user?.username ?? '',
+        this.favorites.set(favoriteProducts);
 
-              images:
-                favorite.images?.map(
-                  (image: any) => image.url
-                ) ?? [],
+        // Comprobar chats de los favoritos
+        if (this.user()) {
+          this.loadChatStatus();
+        }
+      },
 
-              favorite: true,
+      error: (error) => {
+        console.error('ERROR CARGANDO FAVORITOS:', error);
 
-              description:
-                favorite.description,
-
-            }));
-
-          this.favorites.set(
-            favoriteProducts
-          );
-
-          // Comprobar chats de los favoritos
-          if (this.user()) {
-            this.loadChatStatus();
-          }
-        },
-
-        error: (error) => {
-
-          console.error(
-            'ERROR CARGANDO FAVORITOS:',
-            error
-          );
-
-          this.favorites.set([]);
-        },
-
-      });
+        this.favorites.set([]);
+      },
+    });
   }
 
   // ==========================================
@@ -236,64 +168,34 @@ export class Profile implements OnInit {
   // ==========================================
 
   loadChatStatus(): void {
-
-    const currentUser =
-      this.user();
+    const currentUser = this.user();
 
     if (!currentUser) {
       return;
     }
 
-    this.chatService
-      .getConversations(currentUser.id)
-      .subscribe({
+    this.chatService.getConversations(currentUser.id).subscribe({
+      next: (conversations) => {
+        this.favorites.update((products) =>
+          products.map((product) => ({
+            ...product,
 
-        next: (conversations) => {
+            isChat: conversations.some(
+              (conversation: any) =>
+                ((conversation.user1?.id === currentUser.id &&
+                  conversation.user2?.id === product.userId) ||
+                  (conversation.user1?.id === product.userId &&
+                    conversation.user2?.id === currentUser.id)) &&
+                conversation.productId === product.id,
+            ),
+          })),
+        );
+      },
 
-          this.favorites.update(
-            (products) =>
-              products.map((product) => ({
-
-                ...product,
-
-                isChat:
-                  conversations.some(
-                    (conversation: any) =>
-                      (
-                        (
-                          conversation.user1?.id ===
-                          currentUser.id
-                          &&
-                          conversation.user2?.id ===
-                          product.userId
-                        )
-                        ||
-                        (
-                          conversation.user1?.id ===
-                          product.userId
-                          &&
-                          conversation.user2?.id ===
-                          currentUser.id
-                        )
-                      )
-                      &&
-                      conversation.productId ===
-                      product.id
-                  ),
-
-              }))
-          );
-        },
-
-        error: (error) => {
-
-          console.error(
-            'Error obteniendo conversaciones:',
-            error
-          );
-        },
-
-      });
+      error: (error) => {
+        console.error('Error obteniendo conversaciones:', error);
+      },
+    });
   }
 
   // ==========================================
@@ -301,25 +203,17 @@ export class Profile implements OnInit {
   // ==========================================
 
   getUserImage(user: any): string {
-
-    console.log(
-      'IMAGEN USUARIO:',
-      user?.profileImage
-    );
+    console.log('IMAGEN USUARIO:', user?.profileImage);
 
     if (!user?.profileImage) {
       return 'assets/images/default-avatar.png';
     }
 
-    if (
-      user.profileImage.startsWith('http')
-    ) {
+    if (user.profileImage.startsWith('http')) {
       return user.profileImage;
     }
 
-    return getImage(
-      user.profileImage
-    );
+    return getImage(user.profileImage);
   }
 
   getNewImage(name: string): string {

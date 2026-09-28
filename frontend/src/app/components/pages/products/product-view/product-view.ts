@@ -1,9 +1,4 @@
-
-import {
-  Component,
-  Input,
-  signal,
-} from '@angular/core';
+import { Component, Input, OnInit, signal } from '@angular/core';
 
 import { ModalService } from '../../../../services/modal-service';
 import { ProductService } from '../../../../services/product-service';
@@ -24,28 +19,19 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-product-view',
-  imports: [
-    ProductCard,
-    ChipCategory,
-    CommonModule
-  ],
+  imports: [ProductCard, ChipCategory, CommonModule],
   templateUrl: './product-view.html',
   styleUrl: './product-view.css',
 })
-export class ProductView {
+export class ProductView implements OnInit {
 
   /**
-   * Signal interno con el estado real de los productos.
-   *
-   * NO modificamos directamente el @Input.
+   * Estado interno de los productos.
    */
   private readonly productsState = signal<any[]>([]);
 
   /**
-   * Mantenemos el mismo @Input para no romper
-   * los componentes que ya utilizan:
-   *
-   * [products]="..."
+   * Input de productos.
    */
   @Input()
   set products(value: any[]) {
@@ -56,66 +42,78 @@ export class ProductView {
     return this.productsState();
   }
 
+  /**
+   * Configuración de la vista.
+   */
   @Input() readOnly = false;
   @Input() cardsOnly = false;
 
+  /**
+   * Usuario logueado.
+   */
+  user = signal<any | null>(null);
+
+  /**
+   * Filtros.
+   */
   query = '';
   activeCategory = 'Todo';
 
+  /**
+   * Categorías.
+   */
   readonly categories = [
     {
       name: 'Todo',
       value: '',
-      icon: 'bi-grid'
+      icon: 'bi-grid',
     },
     {
       name: 'Electrónica',
       value: 'ELECTRONICS',
-      icon: 'bi-headphones'
+      icon: 'bi-headphones',
     },
     {
       name: 'Informática',
       value: 'COMPUTERS',
-      icon: 'bi-pc-display'
+      icon: 'bi-pc-display',
     },
     {
       name: 'Videojuegos',
       value: 'VIDEO_GAMES',
-      icon: 'bi-controller'
+      icon: 'bi-controller',
     },
     {
       name: 'Móviles',
       value: 'MOBILE',
-      icon: 'bi-phone'
+      icon: 'bi-phone',
     },
     {
       name: 'Ropa',
       value: 'CLOTHING',
-      icon: 'bi-bag'
+      icon: 'bi-bag',
     },
     {
       name: 'Hogar',
       value: 'HOME',
-      icon: 'bi-lamp'
+      icon: 'bi-lamp',
     },
     {
       name: 'Deporte',
       value: 'SPORTS',
-      icon: 'bi-bicycle'
+      icon: 'bi-bicycle',
     },
     {
       name: 'Libros',
       value: 'BOOKS',
-      icon: 'bi-book'
+      icon: 'bi-book',
     },
     {
       name: 'Otros',
       value: 'OTHER',
-      icon: 'bi-three-dots'
+      icon: 'bi-three-dots',
     },
   ];
-
-  user: any = null;
 
   constructor(
     private modalService: ModalService,
@@ -125,17 +123,30 @@ export class ProductView {
     private chatService: ChatService,
   ) {}
 
+  // ==========================================
+  // INICIALIZACIÓN
+  // ==========================================
+
   async ngOnInit(): Promise<void> {
 
-    if (this.authService.getToken()) {
-
-      const user$ = this.authService.getUserByToken();
-
-      if (user$) {
-        this.user = await firstValueFrom(user$);
-      }
+    if (!this.authService.getToken()) {
+      return;
     }
+
+    const user$ = this.authService.getUserByToken();
+
+    if (!user$) {
+      return;
+    }
+
+    const user = await firstValueFrom(user$);
+
+    this.user.set(user);
   }
+
+  // ==========================================
+  // PRODUCTOS FILTRADOS
+  // ==========================================
 
   get filteredProducts(): Product[] {
 
@@ -161,6 +172,10 @@ export class ProductView {
     });
   }
 
+  // ==========================================
+  // BÚSQUEDA
+  // ==========================================
+
   onSearch(event: Event): void {
 
     this.query =
@@ -172,6 +187,10 @@ export class ProductView {
     this.query = '';
     this.activeCategory = 'Todo';
   }
+
+  // ==========================================
+  // ACCIONES
+  // ==========================================
 
   action(action: any): void {
 
@@ -196,6 +215,10 @@ export class ProductView {
         break;
     }
   }
+
+  // ==========================================
+  // CREAR PRODUCTO
+  // ==========================================
 
   createProduct(): void {
 
@@ -245,6 +268,10 @@ export class ProductView {
       });
   }
 
+  // ==========================================
+  // FAVORITO
+  // ==========================================
+
   updateFavorite(product: any): void {
 
     this.favoriteService
@@ -267,7 +294,6 @@ export class ProductView {
                 };
               })
           );
-
         },
 
         error: (error) => {
@@ -281,14 +307,20 @@ export class ProductView {
       });
   }
 
+  // ==========================================
+  // INTERÉS / CHAT
+  // ==========================================
+
   updateInterest(product: any): void {
 
-    if (!this.user) {
+    const currentUser = this.user();
+
+    if (!currentUser) {
       return;
     }
 
     const user1Id = product.userId;
-    const user2Id = this.user.id;
+    const user2Id = currentUser.id;
 
     this.chatService
       .toggleConversation(
@@ -332,6 +364,10 @@ export class ProductView {
 
       });
   }
+
+  // ==========================================
+  // ACTUALIZAR PRODUCTO
+  // ==========================================
 
   updateProduct(product: any): void {
 
@@ -388,6 +424,10 @@ export class ProductView {
       });
   }
 
+  // ==========================================
+  // ELIMINAR PRODUCTO
+  // ==========================================
+
   removeProduct(product: any): void {
 
     if (
@@ -427,4 +467,3 @@ export class ProductView {
       });
   }
 }
-

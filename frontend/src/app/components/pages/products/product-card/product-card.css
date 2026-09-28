@@ -106,3 +106,23 @@
   background: #ffe3e6;
   color: #bb2d3b;
 }
+
+.own-product-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #777;
+  background: #f5f5f5;
+  box-sizing: border-box;
+   margin-top: 12px;
+}
+
+.own-product-notice i {
+ 
+  font-size: 0.9rem;
+}
