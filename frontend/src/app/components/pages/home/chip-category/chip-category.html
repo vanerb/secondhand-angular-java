@@ -1,13 +1,10 @@
 <button
   class="category-chip"
-  [class.selected]="activeCategory() === category().name"
-  (click)="selectCategory(category().name)"
-  [attr.aria-pressed]="activeCategory() === category().name"
+  [class.selected]="activeCategory() === category().value"
+  (click)="selectCategory(category().value)"
+  [attr.aria-pressed]="activeCategory() === category().value"
 >
-  <i
-    class="bi {{ category().icon }}"
-    aria-hidden="true"
-  ></i>
+  <i class="bi {{ category().icon }}" aria-hidden="true"></i>
 
   <span>
     {{ category().name }}

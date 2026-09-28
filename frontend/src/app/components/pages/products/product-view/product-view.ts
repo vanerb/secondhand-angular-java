@@ -66,7 +66,7 @@ export class ProductView implements OnInit {
   readonly categories = [
     {
       name: 'Todo',
-      value: '',
+      value: 'Todo',
       icon: 'bi-grid',
     },
     {
