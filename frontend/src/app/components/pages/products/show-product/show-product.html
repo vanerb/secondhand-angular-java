@@ -144,7 +144,7 @@
           </div>
 
           <!-- VENDEDOR -->
-          <div class="seller-card">
+          <div class="seller-card" (click)="viewUser(product()!.username)">
             <div class="seller-avatar">
               <i class="bi bi-person"></i>
             </div>
@@ -162,9 +162,19 @@
 
           <!-- ACCIONES -->
           <div class="actions">
-            <button type="button" class="contact-button" (click)="contactSeller()">
-              <i class="bi bi-chat-heart"></i>
-              Contactar con el vendedor
+            <button
+              type="button"
+              class="contact-button"
+              [class.chat-active]="product()!.isChat"
+              (click)="contactSeller()"
+            >
+              <i
+                class="bi"
+                [class.bi-chat-heart]="!product()!.isChat"
+                [class.bi-chat-heart-fill]="product()!.isChat"
+              ></i>
+
+              {{ product()!.isChat ? 'Ir al chat' : 'Contactar con el vendedor' }}
             </button>
 
             <button
