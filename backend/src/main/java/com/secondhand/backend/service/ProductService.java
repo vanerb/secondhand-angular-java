@@ -6,11 +6,15 @@ import com.secondhand.backend.entity.Product;
 import com.secondhand.backend.entity.User;
 import com.secondhand.backend.entity.Availability;
 import com.secondhand.backend.entity.Condition;
+import com.secondhand.backend.repository.ConversationRepository;
 import com.secondhand.backend.repository.FavoriteRepository;
+import com.secondhand.backend.repository.PriceOfferRepository;
 import com.secondhand.backend.repository.ProductRepository;
 import com.secondhand.backend.repository.UserRepository;
 import com.secondhand.backend.security.JwtService;
 import com.secondhand.backend.specification.ProductSpecification;
+
+import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,18 +34,24 @@ public class ProductService {
         private final FavoriteRepository favoriteRepository;
         private final ImageService imageService;
         private final JwtService jwtService;
+        private final PriceOfferRepository priceOfferRepository;
+        private final ConversationRepository conversationRepository;
 
         public ProductService(
                         ProductRepository productRepository,
                         UserRepository userRepository,
                         FavoriteRepository favoriteRepository,
                         ImageService imageService,
-                        JwtService jwtService) {
+                        JwtService jwtService,
+                        PriceOfferRepository priceOfferRepository,
+                        ConversationRepository conversationRepository) {
                 this.productRepository = productRepository;
                 this.userRepository = userRepository;
                 this.favoriteRepository = favoriteRepository;
                 this.imageService = imageService;
                 this.jwtService = jwtService;
+                this.priceOfferRepository = priceOfferRepository;
+                this.conversationRepository = conversationRepository;
         }
 
         // =========================================================
@@ -275,27 +285,45 @@ public class ProductService {
         // ELIMINAR PRODUCTO
         // =========================================================
 
-        public void deleteProduct(
-                        String token,
-                        Long productId) {
+        @Transactional
+public void deleteProduct(
+String token,
+Long productId) {
 
-                User user = getUserFromToken(token);
 
-                Product product = productRepository
-                                .findById(productId)
-                                .orElseThrow(() -> new RuntimeException(
-                                                "Product not found"));
+    User user = getUserFromToken(token);
 
-                checkOwnership(product, user);
+    Product product = productRepository
+                    .findById(productId)
+                    .orElseThrow(() -> new RuntimeException(
+                                    "Product not found"));
 
-                favoriteRepository.deleteByProduct(product);
+    checkOwnership(product, user);
 
-                imageService.deleteByFromId(
-                                "PRODUCT",
-                                product.getId());
+    // =========================================================
+    // ELIMINAR DEPENDENCIAS DEL PRODUCTO
+    // =========================================================
 
-                productRepository.delete(product);
-        }
+    // Primero eliminamos las ofertas.
+    // Las ofertas tienen una FK hacia conversations y products.
+    priceOfferRepository.deleteByProductId(productId);
+
+    // Después eliminamos las conversaciones.
+    conversationRepository.deleteByProductId(productId);
+
+    // Después eliminamos favoritos.
+    favoriteRepository.deleteByProduct(product);
+
+    // Después eliminamos las imágenes.
+    imageService.deleteByFromId(
+                    "PRODUCT",
+                    product.getId());
+
+    // Finalmente eliminamos el producto.
+    productRepository.delete(product);
+
+
+}
 
         // =========================================================
         // OBTENER USUARIO DESDE TOKEN

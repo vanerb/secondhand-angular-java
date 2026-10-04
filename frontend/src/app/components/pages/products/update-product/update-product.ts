@@ -33,22 +33,6 @@ export class UpdateProduct implements OnInit {
 
   productForm: FormGroup;
 
-  conditions = Object.values(Condition);
-
-  availabilities = Object.values(Availability);
-
-  categories = [
-    'ELECTRONICS',
-    'COMPUTERS',
-    'VIDEO_GAMES',
-    'MOBILE',
-    'CLOTHING',
-    'HOME',
-    'SPORTS',
-    'BOOKS',
-    'OTHER',
-  ];
-
   isSaving = signal(false);
 
   existingImages = signal<string[]>([]);

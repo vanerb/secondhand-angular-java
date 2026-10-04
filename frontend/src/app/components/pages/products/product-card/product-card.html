@@ -7,69 +7,92 @@
       loading="lazy"
     />
 
-    <!-- ==========================================
-         FAVORITO
-    =========================================== -->
 
-    @if (user()) {
-      <button
-        type="button"
-        class="favorite-button"
-        [class.is-favorite]="product().favorite"
-        (click)="toggleFavorite(product()); $event.stopPropagation()"
-        [attr.aria-label]="product().favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
-        [attr.aria-pressed]="product().favorite"
-      >
-        <i
-          class="bi"
-          [class.bi-heart]="!product().favorite"
-          [class.bi-heart-fill]="product().favorite"
-          aria-hidden="true"
-        ></i>
-      </button>
-    }
+<!-- ==========================================
+     ESTADO DEL PRODUCTO
+=========================================== -->
 
-    <!-- ==========================================
-         MENÚ DEL PRODUCTO
-         Solo propietario y NO readonly
-    =========================================== -->
+<div
+  class="product-status"
+  [class.available]="product().availability === 'AVAILABLE'"
+  [class.reserved]="product().availability === 'RESERVED'"
+  [class.sold]="product().availability === 'SOLD'"
+>
+  @if (product().availability === 'AVAILABLE') {
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    <span>Disponible</span>
+  } @else if (product().availability === 'RESERVED') {
+    <i class="bi bi-clock-fill" aria-hidden="true"></i>
+    <span>Reservado</span>
+  } @else if (product().availability === 'SOLD') {
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    <span>Vendido</span>
+  }
+</div>
 
-    @if (user() && !readOnly() && product().userId === user().id) {
-      <div class="product-actions">
+<!-- ==========================================
+     FAVORITO
+=========================================== -->
+
+@if (user()) {
+  <button
+    type="button"
+    class="favorite-button"
+    [class.is-favorite]="product().favorite"
+    (click)="toggleFavorite(product()); $event.stopPropagation()"
+    [attr.aria-label]="product().favorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+    [attr.aria-pressed]="product().favorite"
+  >
+    <i
+      class="bi"
+      [class.bi-heart]="!product().favorite"
+      [class.bi-heart-fill]="product().favorite"
+      aria-hidden="true"
+    ></i>
+  </button>
+}
+
+<!-- ==========================================
+     MENÚ DEL PRODUCTO
+     Solo propietario y NO readonly
+=========================================== -->
+
+@if (user() && !readOnly() && product().userId === user().id) {
+  <div class="product-actions">
+    <button
+      type="button"
+      class="actions-button"
+      aria-label="Opciones del producto"
+      (click)="toggleActions($event); $event.stopPropagation()"
+    >
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+
+    @if (actionsOpen) {
+      <div class="actions-menu">
         <button
           type="button"
-          class="actions-button"
-          aria-label="Opciones del producto"
-          (click)="toggleActions($event); $event.stopPropagation()"
+          class="action-item"
+          (click)="editProduct(product()); $event.stopPropagation()"
         >
-          <i class="bi bi-three-dots-vertical"></i>
+          <i class="bi bi-pencil"></i>
+          <span>Editar</span>
         </button>
 
-        @if (actionsOpen) {
-          <div class="actions-menu">
-            <button
-              type="button"
-              class="action-item"
-              (click)="editProduct(product()); $event.stopPropagation()"
-            >
-              <i class="bi bi-pencil"></i>
-
-              <span> Editar </span>
-            </button>
-
-            <button
-              type="button"
-              class="action-item delete"
-              (click)="deleteProduct(product()); $event.stopPropagation()"
-            >
-              <i class="bi bi-trash"></i>
-
-              <span> Eliminar </span>
-            </button>
-          </div>
-        }
+        <button
+          type="button"
+          class="action-item delete"
+          (click)="deleteProduct(product()); $event.stopPropagation()"
+        >
+          <i class="bi bi-trash"></i>
+          <span>Eliminar</span>
+        </button>
       </div>
     }
+  </div>
+}
+```
+
   </div>
 
   <!-- ==========================================
@@ -82,55 +105,58 @@
         {{ product().category }}
       </span>
 
-      <span class="condition">
-        <i class="bi bi-stars" aria-hidden="true"></i>
+```
+  <span class="condition">
+    <i class="bi bi-stars" aria-hidden="true"></i>
+    {{ product().condition }}
+  </span>
+</div>
 
-        {{ product().condition }}
-      </span>
-    </div>
+<h3>
+  {{ product().name }}
+</h3>
 
-    <h3>
-      {{ product().name }}
-    </h3>
+<div class="product-bottom">
+  <strong class="product-price">
+    {{ product().price }} €
+  </strong>
 
-    <div class="product-bottom">
-      <strong class="product-price"> {{ product().price }} € </strong>
+  <span class="seller">
+    <span class="seller-dot"></span>
+    {{ product().username }}
+  </span>
+</div>
 
-      <span class="seller">
-        <span class="seller-dot"></span>
-
-        {{ product().username }}
-      </span>
-    </div>
-
-    <!-- ==========================================
+<!-- ==========================================
      INTERÉS
 =========================================== -->
 
-    @if (user()) {
-      @if (product().userId !== user().id) {
-        <button
-          type="button"
-          class="interest-button"
-          [class.is-interested]="product().isChat"
-          (click)="toggleInterest(product()); $event.stopPropagation()"
-          [attr.aria-pressed]="product().isChat"
-        >
-          <i
-            class="bi"
-            [class.bi-chat-heart]="!product().isChat"
-            [class.bi-x-lg]="product().isChat"
-            aria-hidden="true"
-          ></i>
+@if (user()) {
+  @if (product().userId !== user().id) {
+    <button
+      type="button"
+      class="interest-button"
+      [class.is-interested]="product().isChat"
+      (click)="toggleInterest(product()); $event.stopPropagation()"
+      [attr.aria-pressed]="product().isChat"
+    >
+      <i
+        class="bi"
+        [class.bi-chat-heart]="!product().isChat"
+        [class.bi-x-lg]="product().isChat"
+        aria-hidden="true"
+      ></i>
 
-          {{ product().isChat ? 'Ya no me interesa' : 'Me interesa' }}
-        </button>
-      } @else {
-        <div class="own-product-notice">
-          <i class="bi bi-person-check" aria-hidden="true"></i>
-          <span>Es tu producto</span>
-        </div>
-      }
-    }
+      {{ product().isChat ? 'Ya no me interesa' : 'Me interesa' }}
+    </button>
+  } @else {
+    <div class="own-product-notice">
+      <i class="bi bi-person-check" aria-hidden="true"></i>
+      <span>Es tu producto</span>
+    </div>
+  }
+}
+
+
   </div>
 </article>

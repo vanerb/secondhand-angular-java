@@ -126,3 +126,48 @@
  
   font-size: 0.9rem;
 }
+
+.product-status {
+position: absolute;
+bottom: 12px;
+left: 12px;
+z-index: 5;
+
+display: flex;
+align-items: center;
+gap: 6px;
+
+padding: 6px 10px;
+border-radius: 20px;
+
+background: rgba(255, 255, 255, 0.95);
+
+font-size: 0.75rem;
+font-weight: 600;
+
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+backdrop-filter: blur(4px);
+}
+
+.product-status i {
+font-size: 0.8rem;
+}
+
+/* Disponible */
+
+.product-status.available {
+color: #198754;
+}
+
+/* Reservado */
+
+.product-status.reserved {
+color: #d97706;
+}
+
+/* Vendido */
+
+.product-status.sold {
+color: #dc3545;
+}

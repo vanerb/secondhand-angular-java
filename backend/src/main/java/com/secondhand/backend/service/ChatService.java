@@ -8,6 +8,7 @@ import com.secondhand.backend.entity.User;
 import com.secondhand.backend.repository.ConversationRepository;
 import com.secondhand.backend.repository.MessageRepository;
 import com.secondhand.backend.repository.ProductRepository;
+import com.secondhand.backend.repository.PriceOfferRepository;
 import com.secondhand.backend.repository.UserRepository;
 
 import org.springframework.stereotype.Service;
@@ -21,17 +22,20 @@ public class ChatService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final PriceOfferRepository priceOfferRepository;
 
     public ChatService(
             ConversationRepository conversationRepository,
             MessageRepository messageRepository,
             UserRepository userRepository,
-            ProductRepository productRepository) {
+            ProductRepository productRepository,
+            PriceOfferRepository priceOfferRepository) {
 
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.priceOfferRepository = priceOfferRepository;
     }
 
     // Crear una conversación o devolverla si ya existe
@@ -108,6 +112,7 @@ public class ChatService {
                         "Conversación no encontrada"));
 
         messageRepository.deleteByConversation(conversation);
+        priceOfferRepository.deleteByConversation(conversation);
 
         conversationRepository.delete(conversation);
     }

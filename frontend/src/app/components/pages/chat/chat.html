@@ -3,161 +3,78 @@
   <main class="chat-page">
 
     <div class="chat-heading">
-
       <div>
-
-        <span class="eyebrow">
-          TU ESPACIO PERSONAL
-        </span>
-
-        <h1>
-          Mensajes
-        </h1>
-
-        <p>
-          Habla con la comunidad y encuentra tu próximo tesoro.
-        </p>
-
+        <span class="eyebrow">TU ESPACIO PERSONAL</span>
+        <h1>Mensajes</h1>
+        <p>Habla con la comunidad y encuentra tu próximo tesoro.</p>
       </div>
 
       <span class="inbox-count">
-
-        <i
-          class="bi bi-chat-dots"
-          aria-hidden="true"
-        ></i>
-
-        {{ conversations().length }}
-        conversaciones
-
+        <i class="bi bi-chat-dots" aria-hidden="true"></i>
+        {{ conversations().length }} conversaciones
       </span>
-
     </div>
-
 
     <section
       class="chat-panel"
       [class.conversation-open]="selectedConversation()"
     >
 
-      <!-- ==========================================
-           SIDEBAR
-      =========================================== -->
-
-      <aside
-        class="conversation-sidebar"
-        aria-label="Tus conversaciones"
-      >
+      <aside class="conversation-sidebar" aria-label="Tus conversaciones">
 
         <div class="conversation-heading">
-
           <div>
-
-            <h2>
-              Bandeja de entrada
-            </h2>
-
-            <span>
-              {{ conversations().length }}
-              conversaciones
-            </span>
-
+            <h2>Bandeja de entrada</h2>
+            <span>{{ conversations().length }} conversaciones</span>
           </div>
-
-          <i
-            class="bi bi-pencil-square"
-            aria-hidden="true"
-          ></i>
-
+          <i class="bi bi-pencil-square" aria-hidden="true"></i>
         </div>
 
-
         <label class="conversation-search">
-
-          <i
-            class="bi bi-search"
-            aria-hidden="true"
-          ></i>
-
+          <i class="bi bi-search" aria-hidden="true"></i>
           <input
             [(ngModel)]="conversationQuery"
             placeholder="Buscar conversación"
             aria-label="Buscar conversación"
           />
-
         </label>
 
-
         <div class="conversation-list">
-
           @for (
             conversation of filteredConversations;
             track conversation.id
           ) {
-
             <button
               class="conversation-item"
-              [class.active]="
-                selectedConversation()?.id === conversation.id
-              "
+              [class.active]="selectedConversation()?.id === conversation.id"
               (click)="openConversation(conversation)"
             >
-
               <span class="conversation-avatar">
-
                 <img
-                  [src]="
-                    getUserImage(
-                      getOtherUser(conversation).profileImage
-                    )
-                  "
-                  [alt]="
-                    'Foto de ' +
-                    getOtherUser(conversation).username
-                  "
+                  [src]="getUserImage(getOtherUser(conversation).profileImage)"
+                  [alt]="'Foto de ' + getOtherUser(conversation).username"
                 />
-
               </span>
 
-
               <span class="conversation-copy">
-
-                <strong>
-                  {{ getOtherUser(conversation).username }}
-                </strong>
-
+                <strong>{{ getOtherUser(conversation).username }}</strong>
                 <span>
                   {{ getOtherUser(conversation).name }}
                   {{ getOtherUser(conversation).cogname }}
                 </span>
-
+                <small>
+                  {{ conversation.productName }} · {{ conversation.productPrice | number:'1.2-2' }} €
+                </small>
               </span>
 
-
-              <i
-                class="bi bi-chevron-right conversation-chevron"
-                aria-hidden="true"
-              ></i>
-
+              <i class="bi bi-chevron-right conversation-chevron" aria-hidden="true"></i>
             </button>
-
           } @empty {
-
             <div class="conversation-empty">
-
-              <i
-                class="bi bi-chat-square-text"
-                aria-hidden="true"
-              ></i>
-
+              <i class="bi bi-chat-square-text" aria-hidden="true"></i>
               <strong>
-                {{
-                  conversations().length
-                    ? 'Sin resultados'
-                    : 'Tu bandeja está tranquila'
-                }}
+                {{ conversations().length ? 'Sin resultados' : 'Tu bandeja está tranquila' }}
               </strong>
-
               <span>
                 {{
                   conversations().length
@@ -165,197 +82,262 @@
                     : 'Cuando contactes con alguien, tu conversación aparecerá aquí.'
                 }}
               </span>
-
             </div>
-
           }
-
         </div>
 
-
-        <a
-          class="discover-link"
-          href="/home"
-        >
-
-          <i
-            class="bi bi-compass"
-            aria-hidden="true"
-          ></i>
-
+        <a class="discover-link" href="/home">
+          <i class="bi bi-compass" aria-hidden="true"></i>
           Seguir descubriendo
-
         </a>
-
       </aside>
 
-
-      <!-- ==========================================
-           PANEL DE MENSAJES
-      =========================================== -->
-
-      <section
-        class="message-panel"
-        aria-label="Conversación"
-      >
+      <section class="message-panel" aria-label="Conversación">
 
         @if (selectedConversation()) {
 
           <header class="message-header">
-
             <button
               class="back-to-inbox"
               (click)="closeConversation()"
               aria-label="Volver a conversaciones"
             >
-
-              <i
-                class="bi bi-arrow-left"
-                aria-hidden="true"
-              ></i>
-
+              <i class="bi bi-arrow-left" aria-hidden="true"></i>
             </button>
-
 
             <span class="message-avatar">
-
               <img
-                [src]="
-                  getUserImage(
-                    getOtherUser(
-                      selectedConversation()
-                    ).profileImage
-                  )
-                "
-                [alt]="
-                  'Foto de ' +
-                  getOtherUser(
-                    selectedConversation()
-                  ).username
-                "
+                [src]="getUserImage(getOtherUser(selectedConversation()).profileImage)"
+                [alt]="'Foto de ' + getOtherUser(selectedConversation()).username"
               />
-
             </span>
-
 
             <span class="message-person">
-
-              <strong>
-                {{
-                  getOtherUser(
-                    selectedConversation()
-                  ).username
-                }}
-              </strong>
-
-              <span>
-                <i></i>
-                En la comunidad
-              </span>
-
+              <strong>{{ getOtherUser(selectedConversation()).username }}</strong>
+              <span><i></i> En la comunidad</span>
             </span>
 
-
-            <button
-              class="message-menu"
-              aria-label="Más opciones"
-            >
-
-              <i
-                class="bi bi-three-dots"
-                aria-hidden="true"
-              ></i>
-
-            </button>
-
-          </header>
-
-
-          <!-- ==========================================
-               MENSAJES
-          =========================================== -->
-
-          <div
-            class="messages-area"
-            #messagesArea
-          >
-
-            <div class="message-date">
-
-              <span>
-                Esta conversación
-              </span>
-
+            <div class="product-chat-info">
+              <strong>{{ selectedConversation().productName }}</strong>
+              <span>{{ selectedConversation().productPrice | number:'1.2-2' }} €</span>
             </div>
 
+            <button
+              class="negotiate-button"
+              type="button"
+              (click)="toggleOfferForm()"
+              [disabled]="!!getPendingOffer() || isProductSold()"
+            >
+              <i class="bi bi-tag" aria-hidden="true"></i>
+              {{ isProductSold() ? 'Producto vendido' : 'Negociar precio' }}
+            </button>
 
-            @for (
-              message of messages();
-              track $index
-            ) {
+            <button class="message-menu" aria-label="Más opciones">
+              <i class="bi bi-three-dots" aria-hidden="true"></i>
+            </button>
+          </header>
 
-              <div
-                class="message-row"
-                [class.sent]="
-                  message.sender.id === userId()
-                "
-              >
-
-                <div class="message-bubble">
-
-                  {{ message.content }}
-
-                </div>
-
-              </div>
-
-            } @empty {
-
-              <div class="message-empty">
-
-                <span class="message-empty-icon">
-
-                  <i
-                    class="bi bi-chat-heart"
-                    aria-hidden="true"
-                  ></i>
-
-                </span>
-
-                <strong>
-                  ¡Hola! Empieza la conversación
-                </strong>
-
+          @if (showOfferForm()) {
+            <form class="offer-form" (ngSubmit)="enviarOferta()">
+              <div class="offer-form-copy">
+                <strong>Haz una oferta</strong>
                 <span>
-
-                  Cuéntale a
-                  {{
-                    getOtherUser(
-                      selectedConversation()
-                    ).username
-                  }}
-                  qué te interesa.
-
+                  Precio actual: {{ selectedConversation().productPrice | number:'1.2-2' }} €
                 </span>
-
               </div>
 
+              <div class="offer-input-wrapper">
+                <input
+                  type="number"
+                  name="offerAmount"
+                  [(ngModel)]="offerAmount"
+                  min="0.01"
+                  [max]="selectedConversation().productPrice"
+                  step="0.01"
+                  placeholder="0,00"
+                  aria-label="Importe de la oferta"
+                />
+                <span>€</span>
+              </div>
+
+              <button
+                class="offer-primary-button"
+                type="submit"
+                [disabled]="offerAmount === null || offerAmount <= 0"
+              >
+                Enviar oferta
+              </button>
+
+              <button
+                class="offer-secondary-button"
+                type="button"
+                (click)="closeOfferForm()"
+              >
+                Cancelar
+              </button>
+            </form>
+          }
+
+          <div class="messages-area">
+
+            <div class="message-date">
+              <span>Esta conversación</span>
+            </div>
+
+            @if (offers().length) {
+              <div class="offers-list">
+                @for (offer of offers(); track offer.id) {
+                  <article
+                    class="offer-card"
+                    [class.offer-own]="isOfferSender(offer)"
+                    [class.offer-accepted]="offer.status === 'ACCEPTED'"
+                    [class.offer-rejected]="offer.status === 'REJECTED'"
+                  >
+                    <div class="offer-card-header">
+                      <span class="offer-icon">
+                        <i
+                          class="bi"
+                          [class.bi-tag-fill]="offer.status !== 'ACCEPTED'"
+                          [class.bi-check-circle-fill]="offer.status === 'ACCEPTED'"
+                          aria-hidden="true"
+                        ></i>
+                      </span>
+
+                      <div>
+                        <strong>
+                          {{ offer.status === 'ACCEPTED' ? 'Precio acordado' : 'Oferta de precio' }}
+                        </strong>
+                        <span>
+                          {{ isOfferSender(offer) ? 'Has propuesto' : 'Te han propuesto' }}
+                        </span>
+                      </div>
+
+                      <span
+                        class="offer-status"
+                        [class.status-accepted]="offer.status === 'ACCEPTED'"
+                        [class.status-rejected]="offer.status === 'REJECTED'"
+                      >
+                        {{ getOfferStatusText(offer.status) }}
+                      </span>
+                    </div>
+
+                    <div class="offer-price">
+                      {{ offer.amount | number:'1.2-2' }} €
+                    </div>
+
+                    <div class="offer-original-price">
+                      Precio original: {{ offer.originalPrice | number:'1.2-2' }} €
+                    </div>
+
+                    @if (offer.status === 'ACCEPTED') {
+                      <div class="offer-success">
+                        <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                        Ambos habéis aceptado este precio.
+                      </div>
+                    } @else if (offer.status === 'PENDING' && isOfferReceiver(offer)) {
+                      <div class="offer-actions">
+                        <button
+                          type="button"
+                          class="offer-accept-button"
+                          (click)="aceptarOferta(offer)"
+                        >
+                          <i class="bi bi-check2" aria-hidden="true"></i>
+                          Aceptar
+                        </button>
+
+                        <button
+                          type="button"
+                          class="offer-counter-button"
+                          (click)="prepararContraoferta(offer)"
+                          [disabled]="isProductSold()"
+                        >
+                          <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                          Contraofertar
+                        </button>
+
+                        <button
+                          type="button"
+                          class="offer-reject-button"
+                          (click)="rechazarOferta(offer)"
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+                    } @else if (offer.status === 'PENDING') {
+                      <div class="offer-waiting">
+                        <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                        Esperando la respuesta de la otra persona.
+                      </div>
+                    }
+
+                    @if (counterOfferId() === offer.id) {
+                      <div class="counter-form">
+                        <label>
+                          Nueva oferta
+                          <div class="counter-input-wrapper">
+                            <input
+                              type="number"
+                              name="counterOfferAmount-{{ offer.id }}"
+                              [(ngModel)]="counterOfferAmount"
+                              min="0.01"
+                              [max]="offer.originalPrice"
+                              step="0.01"
+                              placeholder="0,00"
+                            />
+                            <span>€</span>
+                          </div>
+                        </label>
+
+                        <div class="counter-actions">
+                          <button
+                            type="button"
+                            class="offer-primary-button"
+                            (click)="enviarContraoferta()"
+                            [disabled]="counterOfferAmount === null || counterOfferAmount <= 0"
+                          >
+                            Enviar contraoferta
+                          </button>
+                          <button
+                            type="button"
+                            class="offer-secondary-button"
+                            (click)="cancelarContraoferta()"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </article>
+                }
+              </div>
             }
 
+            @for (message of messages(); track $index) {
+              <div
+                class="message-row"
+                [class.sent]="message.sender.id === userId()"
+              >
+                <div class="message-bubble">
+                  {{ message.content }}
+                </div>
+              </div>
+            } @empty {
+              @if (!offers().length) {
+                <div class="message-empty">
+                  <span class="message-empty-icon">
+                    <i class="bi bi-chat-heart" aria-hidden="true"></i>
+                  </span>
+                  <strong>¡Hola! Empieza la conversación</strong>
+                  <span>
+                    Cuéntale a {{ getOtherUser(selectedConversation()).username }} qué te interesa.
+                  </span>
+                </div>
+              }
+            }
           </div>
 
-
-          <!-- ==========================================
-               COMPOSER
-          =========================================== -->
-
-          <form
-            class="composer"
-            (ngSubmit)="enviarMensaje()"
-          >
-
+          <form class="composer" (ngSubmit)="enviarMensaje()">
             <label class="composer-input">
-
               <input
                 [(ngModel)]="messageText"
                 name="message"
@@ -364,22 +346,14 @@
                 aria-label="Escribe un mensaje"
               />
 
-
               <button
                 type="button"
                 class="emoji-button"
                 aria-label="Añadir emoji"
               >
-
-                <i
-                  class="bi bi-emoji-smile"
-                  aria-hidden="true"
-                ></i>
-
+                <i class="bi bi-emoji-smile" aria-hidden="true"></i>
               </button>
-
             </label>
-
 
             <button
               class="send-button"
@@ -387,85 +361,41 @@
               [disabled]="!messageText.trim()"
               aria-label="Enviar mensaje"
             >
-
-              <i
-                class="bi bi-arrow-up"
-                aria-hidden="true"
-              ></i>
-
+              <i class="bi bi-arrow-up" aria-hidden="true"></i>
             </button>
-
           </form>
 
-
           <div class="chat-footnote">
-
-            <i
-              class="bi bi-shield-check"
-              aria-hidden="true"
-            ></i>
-
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
             Mantén tus conversaciones respetuosas y seguras.
-
           </div>
 
-
         } @else {
-
-          <!-- ==========================================
-               SIN CONVERSACIÓN SELECCIONADA
-          =========================================== -->
-
           <div class="chat-welcome">
-
             <span class="welcome-chat-icon">
-
-              <i
-                class="bi bi-chat-heart"
-                aria-hidden="true"
-              ></i>
-
+              <i class="bi bi-chat-heart" aria-hidden="true"></i>
             </span>
 
-            <span class="eyebrow">
-              CONEXIONES CON HISTORIA
-            </span>
+            <span class="eyebrow">CONEXIONES CON HISTORIA</span>
 
             <h2>
-
               Las buenas cosas
               <br />
-
-              <em>
-                empiezan hablando.
-              </em>
-
+              <em>empiezan hablando.</em>
             </h2>
 
             <p>
-              Elige una conversación para continuar
-              o descubre artículos que te interesen.
+              Elige una conversación para continuar o descubre artículos que te interesen.
             </p>
 
             <a href="/home">
-
               Explorar artículos
-
-              <i
-                class="bi bi-arrow-right"
-                aria-hidden="true"
-              ></i>
-
+              <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
-
           </div>
-
         }
 
       </section>
-
     </section>
-
   </main>
-
 </app-container>

@@ -6,6 +6,7 @@ import { Container } from '../../general/container/container';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../../services/auth-service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { sleep } from '../../../services/utilities-service';
 
 @Component({
   selector: 'app-login',
@@ -41,11 +42,13 @@ export class Login {
       email: this.form.value.email,
       password: this.form.value.password
     }).subscribe({
-      next: (response) => {
+      next: async (response) => {
         if (response?.token) {
           this.authService.setType(response.type);
           localStorage.setItem('token', response.token);
 
+          window.location.href = '/';
+          await sleep(1000);
           window.location.reload();
         } else {
           console.error('Invalid response from login API');

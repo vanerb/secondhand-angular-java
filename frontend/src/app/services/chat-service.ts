@@ -3,6 +3,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap, map } from 'rxjs';
 import { AuthService } from './auth-service';
 
+export interface PriceOffer {
+  id: number;
+  conversationId: number;
+  productId: number;
+  sender: any;
+  receiver: any;
+  amount: number;
+  originalPrice: number;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  createdAt: string;
+  respondedAt?: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -14,10 +27,6 @@ export class ChatService {
     private authService: AuthService,
   ) {}
 
-  // ==========================================
-  // HEADERS
-  // ==========================================
-
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
 
@@ -25,10 +34,6 @@ export class ChatService {
       Authorization: `Bearer ${token}`,
     });
   }
-
-  // ==========================================
-  // CONVERSACIONES
-  // ==========================================
 
   getConversations(userId: number): Observable<any[]> {
     return this.http.get<any[]>(
@@ -39,16 +44,11 @@ export class ChatService {
     );
   }
 
-  // ==========================================
-  // CREAR / OBTENER CONVERSACIÓN
-  // ==========================================
-
   getOrCreateConversation(
     user1Id: number,
     user2Id: number,
     productId: number,
   ): Observable<any> {
-
     return this.http.post<any>(
       `${this.url}/conversation`,
       null,
@@ -63,10 +63,6 @@ export class ChatService {
     );
   }
 
-  // ==========================================
-  // MENSAJES
-  // ==========================================
-
   getMessages(conversationId: number): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.url}/conversation/${conversationId}/messages`,
@@ -75,10 +71,6 @@ export class ChatService {
       },
     );
   }
-
-  // ==========================================
-  // ELIMINAR CONVERSACIÓN
-  // ==========================================
 
   deleteConversation(conversationId: number) {
     return this.http.delete(
@@ -89,22 +81,13 @@ export class ChatService {
     );
   }
 
-  // ==========================================
-  // TOGGLE CONVERSACIÓN
-  // ==========================================
-
   toggleConversation(
     user1Id: number,
     user2Id: number,
     productId: number,
   ): Observable<any> {
-
     return this.getConversations(user1Id).pipe(
-
       switchMap((conversations) => {
-
-        // Buscar conversación entre los dos usuarios
-        // Y además del producto concreto
         const conversation = conversations.find(
           (c) =>
             (
@@ -114,24 +97,14 @@ export class ChatService {
             c.productId === productId,
         );
 
-        // ==========================================
-        // SI EXISTE → ELIMINAR
-        // ==========================================
-
         if (conversation) {
-
           return this.deleteConversation(conversation.id).pipe(
             map(() => ({
               action: 'deleted',
               conversation: conversation,
             })),
           );
-
         }
-
-        // ==========================================
-        // SI NO EXISTE → CREAR
-        // ==========================================
 
         return this.getOrCreateConversation(
           user1Id,
@@ -144,6 +117,91 @@ export class ChatService {
           })),
         );
       }),
+    );
+  }
+
+  // ==========================================
+  // NEGOCIACIÓN DE PRECIO
+  // ==========================================
+
+  getOffers(
+    conversationId: number,
+    userId: number,
+  ): Observable<PriceOffer[]> {
+    return this.http.get<PriceOffer[]>(
+      `${this.url}/conversation/${conversationId}/offers`,
+      {
+        params: {
+          userId: userId,
+        },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  createOffer(
+    conversationId: number,
+    senderId: number,
+    amount: number,
+  ): Observable<PriceOffer> {
+    return this.http.post<PriceOffer>(
+      `${this.url}/conversation/${conversationId}/offers`,
+      {
+        senderId,
+        amount,
+      },
+      {
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  acceptOffer(
+    offerId: number,
+    userId: number,
+  ): Observable<PriceOffer> {
+    return this.http.post<PriceOffer>(
+      `${this.url}/offers/${offerId}/accept`,
+      null,
+      {
+        params: {
+          userId,
+        },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  rejectOffer(
+    offerId: number,
+    userId: number,
+  ): Observable<PriceOffer> {
+    return this.http.post<PriceOffer>(
+      `${this.url}/offers/${offerId}/reject`,
+      null,
+      {
+        params: {
+          userId,
+        },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  counterOffer(
+    offerId: number,
+    senderId: number,
+    amount: number,
+  ): Observable<PriceOffer> {
+    return this.http.post<PriceOffer>(
+      `${this.url}/offers/${offerId}/counter`,
+      {
+        senderId,
+        amount,
+      },
+      {
+        headers: this.getHeaders(),
+      },
     );
   }
 }

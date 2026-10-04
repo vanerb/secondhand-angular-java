@@ -15,6 +15,10 @@ public class ConversationDTO {
 
     private String productName;
 
+    private java.math.BigDecimal productPrice;
+
+    private String productAvailability;
+
     private LocalDateTime createdAt;
 
     public ConversationDTO() {
@@ -35,6 +39,8 @@ public class ConversationDTO {
         this.productId = conversation.getProduct().getId();
 
         this.productName = conversation.getProduct().getName();
+        this.productPrice = conversation.getProduct().getPrice();
+        this.productAvailability = conversation.getProduct().getAvailability().name();
 
         this.createdAt = conversation.getCreatedAt();
     }
@@ -57,6 +63,14 @@ public class ConversationDTO {
 
     public String getProductName() {
         return productName;
+    }
+
+    public java.math.BigDecimal getProductPrice() {
+        return productPrice;
+    }
+
+    public String getProductAvailability() {
+        return productAvailability;
     }
 
     public LocalDateTime getCreatedAt() {

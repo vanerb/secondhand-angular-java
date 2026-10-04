@@ -40,23 +40,6 @@ interface ProductFormModel {
   styleUrl: './create-product.css',
 })
 export class CreateProduct {
-
-  conditions = Object.values(Condition);
-
-  availabilities = Object.values(Availability);
-
-  categories = [
-    'ELECTRONICS',
-    'COMPUTERS',
-    'VIDEO_GAMES',
-    'MOBILE',
-    'CLOTHING',
-    'HOME',
-    'SPORTS',
-    'BOOKS',
-    'OTHER',
-  ];
-
   productModel = signal<ProductFormModel>({
     name: '',
     description: '',
