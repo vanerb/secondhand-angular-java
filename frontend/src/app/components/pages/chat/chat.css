@@ -17,3 +17,288 @@
 .chat-welcome { display: grid; flex: 1; align-content: center; justify-items: center; padding: 35px; text-align: center; }.chat-welcome .welcome-chat-icon { width: 70px; height: 70px; margin-bottom: 22px; border-radius: 22px; font-size: 1.65rem; }.chat-welcome h2 { margin: 14px 0 8px; color: #35483a; font-family: Georgia,serif; font-size: clamp(1.8rem,3vw,2.5rem); font-weight: 500; line-height: 1.1; letter-spacing: -.04em; }.chat-welcome h2 em { color: #829677; }.chat-welcome p { max-width: 350px; margin: 0; color: #879288; font-size: .79rem; line-height: 1.65; }.chat-welcome > a { display: inline-flex; align-items: center; gap: 8px; margin-top: 19px; border-radius: 8px; padding: 10px 13px; background: #344d3d; color: white; font-size: .72rem; font-weight: 650; text-decoration: none; }
 @media (max-width: 900px) { .product-chat-info { display: none; } }
 @media (max-width: 760px) { .chat-page { padding: 20px 12px 28px; }.chat-heading { align-items: center; margin: 0 4px 14px; }.chat-heading h1 { font-size: 1.9rem; }.chat-heading p { max-width: 265px; font-size: .72rem; }.inbox-count { display: none; }.chat-panel { position: relative; min-height: min(690px, calc(100dvh - 190px)); grid-template-columns: 1fr; border-radius: 13px; }.conversation-sidebar { border-right: 0; }.message-panel { display: none; }.chat-panel.conversation-open .conversation-sidebar { display: none; }.chat-panel.conversation-open .message-panel { display: flex; }.conversation-heading { padding-top: 17px; }.message-header { min-height: 63px; padding: 0 12px; }.back-to-inbox,.message-menu { display: inline-grid; width: 32px; height: 32px; place-items: center; }.back-to-inbox { margin: 0 1px 0 0; }.message-menu { margin-left: auto; }.message-person { min-width: 0; }.negotiate-button { margin-left: auto; padding: 8px; }.negotiate-button i { margin: 0; }.negotiate-button { font-size: 0; }.negotiate-button i { font-size: .85rem; }.offer-form { flex-wrap: wrap; padding: 11px 12px; }.offer-form-copy { flex: 1 1 100%; }.offer-actions { flex-direction: column; }.message-bubble { max-width: 84%; }.composer { padding-right: 12px; padding-left: 12px; }.chat-footnote { padding-bottom: calc(11px + env(safe-area-inset-bottom)); } }
+
+
+.payment-panel {
+  width: min(100%, 620px);
+  margin: 0 auto 18px;
+  border: 1px solid #dfe8db;
+  border-radius: 16px;
+  padding: 17px;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 5px 18px rgba(32,51,36,.055);
+}
+
+.payment-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.payment-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 11px;
+  background: #eaf1e7;
+  color: #5f7c59;
+  font-size: 1rem;
+}
+
+.payment-header > div:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+
+.payment-eyebrow {
+  color: #82917f;
+  font-size: .56rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.payment-header strong {
+  color: #3f5142;
+  font-size: .8rem;
+}
+
+.payment-header > div:nth-child(2) > span:last-child {
+  color: #89958a;
+  font-size: .63rem;
+}
+
+.payment-status {
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: #f0f3ed;
+  color: #718070;
+  font-size: .57rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.payment-status-paid {
+  background: #dcebd8;
+  color: #52704c;
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.payment-method-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 9px;
+  border: 1px solid #dfe7dc;
+  border-radius: 10px;
+  padding: 11px;
+  background: #fff;
+  color: #536352;
+  cursor: pointer;
+  text-align: left;
+}
+
+.payment-method-card i {
+  grid-row: 1 / span 2;
+  font-size: 1rem;
+}
+
+.payment-method-card strong {
+  font-size: .69rem;
+}
+
+.payment-method-card span {
+  color: #929c92;
+  font-size: .59rem;
+}
+
+.payment-method-card:hover,
+.payment-method-card.selected {
+  border-color: #9db399;
+  background: #f2f7f0;
+}
+
+.card-payment-form,
+.cash-payment-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 13px;
+  border-top: 1px solid #e7ece4;
+  padding-top: 13px;
+}
+
+.card-payment-form label {
+  display: grid;
+  gap: 5px;
+  color: #687468;
+  font-size: .62rem;
+  font-weight: 700;
+}
+
+.card-payment-form input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 38px;
+  border: 1px solid #dfe7dc;
+  border-radius: 8px;
+  outline: 0;
+  padding: 0 10px;
+  background: white;
+  color: #405044;
+  font: inherit;
+  font-size: .72rem;
+}
+
+.card-payment-form input:focus {
+  border-color: #a6b9a0;
+  box-shadow: 0 0 0 3px rgba(119,148,111,.09);
+}
+
+.card-payment-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.payment-demo-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #f4f7f2;
+  color: #728071;
+  font-size: .6rem;
+}
+
+.payment-primary-button,
+.payment-cancel-button {
+  border-radius: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-size: .65rem;
+  font-weight: 750;
+}
+
+.payment-primary-button {
+  border: 0;
+  background: #3c5844;
+  color: white;
+}
+
+.payment-primary-button:hover:not(:disabled) {
+  background: #2b4332;
+}
+
+.payment-primary-button:disabled,
+.payment-cancel-button:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.payment-pay-button {
+  margin-top: 2px;
+}
+
+.payment-cancel-button {
+  border: 1px solid #e1d5d2;
+  background: white;
+  color: #89655e;
+}
+
+.payment-cancel-button:hover:not(:disabled) {
+  background: #faf5f3;
+}
+
+.payment-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #edf0eb;
+  padding-top: 11px;
+}
+
+.payment-footer-actions > span {
+  color: #9aa39b;
+  font-size: .58rem;
+}
+
+.payment-complete-message,
+.cash-waiting-message,
+.payment-waiting-seller,
+.cash-payment-form > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  border-radius: 10px;
+  padding: 11px;
+  background: #f3f8f1;
+  color: #60755e;
+}
+
+.payment-complete-message > i,
+.cash-waiting-message > i,
+.payment-waiting-seller > i,
+.cash-payment-form > div > i {
+  flex: 0 0 auto;
+  font-size: 1rem;
+}
+
+.payment-complete-message > div,
+.cash-waiting-message > div,
+.payment-waiting-seller > div,
+.cash-payment-form > div {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+}
+
+.payment-complete-message strong,
+.cash-waiting-message strong,
+.payment-waiting-seller strong,
+.cash-payment-form strong {
+  color: #4f654d;
+  font-size: .68rem;
+}
+
+.payment-complete-message span,
+.cash-waiting-message span,
+.payment-waiting-seller span,
+.cash-payment-form span {
+  color: #7d897d;
+  font-size: .59rem;
+  line-height: 1.45;
+}
+
+.cash-waiting-message .payment-primary-button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-footer-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cash-waiting-message {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+}

@@ -9,6 +9,7 @@ import com.secondhand.backend.entity.Condition;
 import com.secondhand.backend.repository.ConversationRepository;
 import com.secondhand.backend.repository.FavoriteRepository;
 import com.secondhand.backend.repository.PriceOfferRepository;
+import com.secondhand.backend.repository.PaymentRepository;
 import com.secondhand.backend.repository.ProductRepository;
 import com.secondhand.backend.repository.UserRepository;
 import com.secondhand.backend.security.JwtService;
@@ -36,6 +37,7 @@ public class ProductService {
         private final JwtService jwtService;
         private final PriceOfferRepository priceOfferRepository;
         private final ConversationRepository conversationRepository;
+        private final PaymentRepository paymentRepository;
 
         public ProductService(
                         ProductRepository productRepository,
@@ -44,7 +46,8 @@ public class ProductService {
                         ImageService imageService,
                         JwtService jwtService,
                         PriceOfferRepository priceOfferRepository,
-                        ConversationRepository conversationRepository) {
+                        ConversationRepository conversationRepository,
+                        PaymentRepository paymentRepository) {
                 this.productRepository = productRepository;
                 this.userRepository = userRepository;
                 this.favoriteRepository = favoriteRepository;
@@ -52,6 +55,7 @@ public class ProductService {
                 this.jwtService = jwtService;
                 this.priceOfferRepository = priceOfferRepository;
                 this.conversationRepository = conversationRepository;
+                this.paymentRepository = paymentRepository;
         }
 
         // =========================================================
@@ -149,7 +153,9 @@ public class ProductService {
                                 .and(
                                                 ProductSpecification.hasUserId(userId))
                                 .and(
-                                                ProductSpecification.hasDescription(description));
+                                                ProductSpecification.hasDescription(description))
+                                .and(
+                                                ProductSpecification.isNotArchived());
 
                 User finalCurrentUser = currentUser;
 
@@ -205,6 +211,21 @@ public class ProductService {
                                                 "Product not found"));
 
                 checkOwnership(product, user);
+
+                if (product.isArchived()) {
+                        throw new IllegalStateException(
+                                        "El producto está archivado y ya no se puede modificar");
+                }
+
+                if (product.getAvailability() != Availability.AVAILABLE) {
+                        throw new IllegalStateException(
+                                        "El producto no se puede modificar mientras está reservado o vendido");
+                }
+
+                if (availability != Availability.AVAILABLE) {
+                        throw new IllegalArgumentException(
+                                        "La disponibilidad de reservado o vendido la gestiona el proceso de compra");
+                }
 
                 // =========================================================
                 // ACTUALIZAR DATOS DEL PRODUCTO
@@ -300,11 +321,19 @@ Long productId) {
 
     checkOwnership(product, user);
 
+    if (product.isArchived()) {
+        throw new IllegalStateException(
+                "Un producto archivado no se puede eliminar");
+    }
+
     // =========================================================
     // ELIMINAR DEPENDENCIAS DEL PRODUCTO
     // =========================================================
 
-    // Primero eliminamos las ofertas.
+    // Primero eliminamos los pagos.
+    paymentRepository.deleteByProductId(productId);
+
+    // Después eliminamos las ofertas.
     // Las ofertas tienen una FK hacia conversations y products.
     priceOfferRepository.deleteByProductId(productId);
 
@@ -434,7 +463,8 @@ Long productId) {
                                 product.getUser().getUsername(),
                                 imageUrls,
                                 favorite,
-                                product.getDescription());
+                                product.getDescription(),
+                                product.isArchived());
         }
 
         // =========================================================

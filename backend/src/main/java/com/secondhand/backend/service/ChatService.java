@@ -9,9 +9,14 @@ import com.secondhand.backend.repository.ConversationRepository;
 import com.secondhand.backend.repository.MessageRepository;
 import com.secondhand.backend.repository.ProductRepository;
 import com.secondhand.backend.repository.PriceOfferRepository;
+import com.secondhand.backend.repository.PaymentRepository;
+import com.secondhand.backend.entity.Payment;
+import com.secondhand.backend.entity.PaymentStatus;
+import com.secondhand.backend.entity.Availability;
 import com.secondhand.backend.repository.UserRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,19 +28,22 @@ public class ChatService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final PriceOfferRepository priceOfferRepository;
+    private final PaymentRepository paymentRepository;
 
     public ChatService(
             ConversationRepository conversationRepository,
             MessageRepository messageRepository,
             UserRepository userRepository,
             ProductRepository productRepository,
-            PriceOfferRepository priceOfferRepository) {
+            PriceOfferRepository priceOfferRepository,
+            PaymentRepository paymentRepository) {
 
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.priceOfferRepository = priceOfferRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     // Crear una conversación o devolverla si ya existe
@@ -61,14 +69,24 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException(
                         "Producto no encontrado"));
 
-        Conversation conversation = conversationRepository
+        Conversation existingConversation = conversationRepository
                 .findConversation(user1, user2, product)
-                .orElseGet(() -> conversationRepository.save(
-                        new Conversation(
-                                user1,
-                                user2,
-                                product
-                        )
+                .orElse(null);
+
+        if (existingConversation != null) {
+            return new ConversationDTO(existingConversation);
+        }
+
+        if (product.isArchived() || product.getAvailability() != Availability.AVAILABLE) {
+            throw new IllegalStateException(
+                    "No se puede iniciar una nueva conversación sobre un producto que no está disponible");
+        }
+
+        Conversation conversation = conversationRepository.save(
+                new Conversation(
+                        user1,
+                        user2,
+                        product
                 ));
 
         return new ConversationDTO(conversation);
@@ -104,6 +122,7 @@ public class ChatService {
     }
 
     // Eliminar conversación y sus mensajes
+    @Transactional
     public void deleteConversation(Long conversationId) {
 
         Conversation conversation = conversationRepository
@@ -112,6 +131,22 @@ public class ChatService {
                         "Conversación no encontrada"));
 
         messageRepository.deleteByConversation(conversation);
+
+        Payment payment = paymentRepository
+                .findFirstByConversationOrderByCreatedAtDesc(conversation)
+                .orElse(null);
+
+        if (payment != null && payment.getStatus() == PaymentStatus.PAID) {
+            throw new IllegalStateException(
+                    "No se puede eliminar una conversación de una venta completada");
+        }
+
+        if (payment != null) {
+            payment.getProduct().setAvailability(Availability.AVAILABLE);
+            payment.getProduct().setArchived(false);
+            paymentRepository.delete(payment);
+        }
+
         priceOfferRepository.deleteByConversation(conversation);
 
         conversationRepository.delete(conversation);

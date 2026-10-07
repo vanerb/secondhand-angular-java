@@ -126,10 +126,10 @@
               class="negotiate-button"
               type="button"
               (click)="toggleOfferForm()"
-              [disabled]="!!getPendingOffer() || isProductSold()"
+              [disabled]="!!getPendingOffer() || isProductSold() || isProductReserved()"
             >
               <i class="bi bi-tag" aria-hidden="true"></i>
-              {{ isProductSold() ? 'Producto vendido' : 'Negociar precio' }}
+              {{ isProductSold() ? 'Producto vendido' : (isProductReserved() ? 'Pago pendiente' : 'Negociar precio') }}
             </button>
 
             <button class="message-menu" aria-label="Más opciones">
@@ -232,7 +232,7 @@
                     @if (offer.status === 'ACCEPTED') {
                       <div class="offer-success">
                         <i class="bi bi-check2-circle" aria-hidden="true"></i>
-                        Ambos habéis aceptado este precio.
+                        Precio aceptado por ambos. Completa el pago para finalizar la venta.
                       </div>
                     } @else if (offer.status === 'PENDING' && isOfferReceiver(offer)) {
                       <div class="offer-actions">
@@ -310,6 +310,239 @@
                   </article>
                 }
               </div>
+            }
+
+
+            @if (payment(); as currentPayment) {
+              <section class="payment-panel">
+                <div class="payment-header">
+                  <div class="payment-icon">
+                    <i
+                      class="bi"
+                      [class.bi-credit-card-2-front]="currentPayment.status !== 'PAID'"
+                      [class.bi-check-circle-fill]="currentPayment.status === 'PAID'"
+                      aria-hidden="true"
+                    ></i>
+                  </div>
+
+                  <div>
+                    <span class="payment-eyebrow">COMPRA</span>
+                    <strong>
+                      {{ currentPayment.status === 'PAID'
+                        ? 'Pago completado'
+                        : 'Completa tu compra' }}
+                    </strong>
+                    <span>
+                      Precio acordado: {{ currentPayment.amount | number:'1.2-2' }} €
+                    </span>
+                  </div>
+
+                  @if (currentPayment.status === 'PAID') {
+                    <span class="payment-status payment-status-paid">
+                      Pagado
+                    </span>
+                  } @else if (currentPayment.status === 'CASH_AWAITING_CONFIRMATION') {
+                    <span class="payment-status">
+                      Esperando confirmación
+                    </span>
+                  } @else {
+                    <span class="payment-status">
+                      Pendiente
+                    </span>
+                  }
+                </div>
+
+                @if (currentPayment.status === 'PAID') {
+                  <div class="payment-complete-message">
+                    <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                    <div>
+                      <strong>Venta completada</strong>
+                      <span>
+                        El producto ha quedado vendido y archivado. Ya no se puede modificar.
+                      </span>
+                    </div>
+                  </div>
+                } @else if (currentPayment.status === 'CASH_AWAITING_CONFIRMATION') {
+                  <div class="cash-waiting-message">
+                    @if (isPaymentSeller()) {
+                      <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                      <div>
+                        <strong>Confirma el efectivo recibido</strong>
+                        <span>
+                          El comprador ha indicado que pagará en persona. Confirma cuando hayas recibido el dinero.
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        class="payment-primary-button"
+                        (click)="confirmarPagoEnEfectivo()"
+                        [disabled]="paymentProcessing()"
+                      >
+                        {{ paymentProcessing() ? 'Confirmando…' : 'He recibido el efectivo' }}
+                      </button>
+                    } @else {
+                      <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                      <div>
+                        <strong>Pago en efectivo pendiente</strong>
+                        <span>
+                          Cuando entregues el dinero al vendedor, este tendrá que confirmar que lo ha recibido.
+                        </span>
+                      </div>
+                    }
+                  </div>
+
+                  <button
+                    type="button"
+                    class="payment-cancel-button"
+                    (click)="cancelarPago()"
+                    [disabled]="paymentProcessing()"
+                  >
+                    Cancelar operación
+                  </button>
+                } @else if (currentPayment.status === 'PENDING') {
+                  @if (isPaymentBuyer()) {
+                  <div class="payment-methods">
+                    <button
+                      type="button"
+                      class="payment-method-card"
+                      [class.selected]="paymentMethod() === 'CARD'"
+                      (click)="selectPaymentMethod('CARD')"
+                    >
+                      <i class="bi bi-credit-card" aria-hidden="true"></i>
+                      <strong>Tarjeta</strong>
+                      <span>Pago online seguro</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="payment-method-card"
+                      [class.selected]="paymentMethod() === 'CASH'"
+                      (click)="selectPaymentMethod('CASH')"
+                    >
+                      <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                      <strong>En persona</strong>
+                      <span>Pago en efectivo</span>
+                    </button>
+                  </div>
+
+                  @if (paymentMethod() === 'CARD') {
+                    <div class="card-payment-form">
+                      <div class="payment-demo-note">
+                        <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                        Pasarela de prueba: los datos de tu tarjeta no se almacenan.
+                      </div>
+
+                      <label>
+                        Titular
+                        <input
+                          type="text"
+                          [(ngModel)]="cardHolder"
+                          name="cardHolder"
+                          autocomplete="cc-name"
+                          placeholder="Nombre y apellidos"
+                        />
+                      </label>
+
+                      <label>
+                        Número de tarjeta
+                        <input
+                          type="text"
+                          [(ngModel)]="cardNumber"
+                          name="cardNumber"
+                          inputmode="numeric"
+                          maxlength="19"
+                          autocomplete="cc-number"
+                          placeholder="1234 5678 9012 3456"
+                        />
+                      </label>
+
+                      <div class="card-payment-row">
+                        <label>
+                          Caducidad
+                          <input
+                            type="text"
+                            [(ngModel)]="cardExpiry"
+                            name="cardExpiry"
+                            maxlength="5"
+                            placeholder="MM/AA"
+                            autocomplete="cc-exp"
+                          />
+                        </label>
+
+                        <label>
+                          CVV
+                          <input
+                            type="password"
+                            [(ngModel)]="cardCvv"
+                            name="cardCvv"
+                            maxlength="4"
+                            inputmode="numeric"
+                            autocomplete="cc-csc"
+                            placeholder="123"
+                          />
+                        </label>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="payment-primary-button payment-pay-button"
+                        (click)="pay()"
+                        [disabled]="paymentProcessing()"
+                      >
+                        {{ paymentProcessing()
+                          ? 'Procesando…'
+                          : 'Pagar ' + (currentPayment.amount | number:'1.2-2') + ' €' }}
+                      </button>
+                    </div>
+                  } @else if (paymentMethod() === 'CASH') {
+                    <div class="cash-payment-form">
+                      <div>
+                        <i class="bi bi-people" aria-hidden="true"></i>
+                        <strong>Pago en persona</strong>
+                        <span>
+                          Quedaréis para realizar el pago en efectivo. La venta se completará cuando el vendedor confirme que ha recibido el dinero.
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="payment-primary-button"
+                        (click)="pay()"
+                        [disabled]="paymentProcessing()"
+                      >
+                        {{ paymentProcessing() ? 'Registrando…' : 'Confirmar pago en efectivo' }}
+                      </button>
+                    </div>
+                  }
+
+                  } @else {
+                    <div class="payment-waiting-seller">
+                      <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                      <div>
+                        <strong>Esperando el pago del comprador</strong>
+                        <span>
+                          El comprador debe seleccionar un método de pago y completar la operación.
+                        </span>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="payment-footer-actions">
+                    <span>
+                      Puedes cancelar la operación antes de completar el pago.
+                    </span>
+
+                    <button
+                      type="button"
+                      class="payment-cancel-button"
+                      (click)="cancelarPago()"
+                      [disabled]="paymentProcessing()"
+                    >
+                      Cancelar operación
+                    </button>
+                  </div>
+                }
+              </section>
             }
 
             @for (message of messages(); track $index) {

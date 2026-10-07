@@ -8,142 +8,157 @@ import java.util.List;
 
 public class ProductDTO {
 
-    private Long id;
 
-    private String name;
+private Long id;
 
-    private String category;
+private String name;
 
-    private BigDecimal price;
+private String category;
 
-    private Condition condition;
+private BigDecimal price;
 
-    private Availability availability;
+private Condition condition;
 
-    private Long userId;
+private Availability availability;
 
-    private String username;
+private Long userId;
 
-    private List<String> images;
+private String username;
 
-    private boolean favorite;
+private List<String> images;
 
-    private String description;
+private boolean favorite;
 
-    public ProductDTO() {
-    }
+private String description;
 
-    public ProductDTO(
-            Long id,
-            String name,
-            String category,
-            BigDecimal price,
-            Condition condition,
-            Availability availability,
-            Long userId,
-            String username,
-            List<String> images,
-            boolean favorite,
-            String description) {
-        this.id = id;
-        this.name = name;
-        this.category = category;
-        this.price = price;
-        this.condition = condition;
-        this.availability = availability;
-        this.userId = userId;
-        this.username = username;
-        this.images = images;
-        this.favorite = favorite;
-        this.description = description;
-    }
+private boolean archived;
 
-    public Long getId() {
-        return id;
-    }
+public ProductDTO() {
+}
 
-    public String getName() {
-        return name;
-    }
+public ProductDTO(
+        Long id,
+        String name,
+        String category,
+        BigDecimal price,
+        Condition condition,
+        Availability availability,
+        Long userId,
+        String username,
+        List<String> images,
+        boolean favorite,
+        String description,
+        boolean archived) {
 
-    public String getCategory() {
-        return category;
-    }
+    this.id = id;
+    this.name = name;
+    this.category = category;
+    this.price = price;
+    this.condition = condition;
+    this.availability = availability;
+    this.userId = userId;
+    this.username = username;
+    this.images = images;
+    this.favorite = favorite;
+    this.description = description;
+    this.archived = archived;
+}
 
-    public BigDecimal getPrice() {
-        return price;
-    }
+public Long getId() {
+    return id;
+}
 
-    public Condition getCondition() {
-        return condition;
-    }
+public String getName() {
+    return name;
+}
 
-    public Availability getAvailability() {
-        return availability;
-    }
+public String getCategory() {
+    return category;
+}
 
-    public Long getUserId() {
-        return userId;
-    }
+public BigDecimal getPrice() {
+    return price;
+}
 
-    public String getUsername() {
-        return username;
-    }
+public Condition getCondition() {
+    return condition;
+}
 
-    public List<String> getImages() {
-        return images;
-    }
+public Availability getAvailability() {
+    return availability;
+}
 
-    public boolean isFavorite() {
-        return favorite;
-    }
+public Long getUserId() {
+    return userId;
+}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+public String getUsername() {
+    return username;
+}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+public List<String> getImages() {
+    return images;
+}
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+public boolean isFavorite() {
+    return favorite;
+}
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+public String getDescription() {
+    return description;
+}
 
-    public void setCondition(Condition condition) {
-        this.condition = condition;
-    }
+public boolean isArchived() {
+    return archived;
+}
 
-    public void setAvailability(Availability availability) {
-        this.availability = availability;
-    }
+public void setId(Long id) {
+    this.id = id;
+}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+public void setName(String name) {
+    this.name = name;
+}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+public void setCategory(String category) {
+    this.category = category;
+}
 
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
+public void setPrice(BigDecimal price) {
+    this.price = price;
+}
 
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
+public void setCondition(Condition condition) {
+    this.condition = condition;
+}
 
-    public String getDescription() {
-        return description;
-    }
+public void setAvailability(Availability availability) {
+    this.availability = availability;
+}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+public void setUserId(Long userId) {
+    this.userId = userId;
+}
+
+public void setUsername(String username) {
+    this.username = username;
+}
+
+public void setImages(List<String> images) {
+    this.images = images;
+}
+
+public void setFavorite(boolean favorite) {
+    this.favorite = favorite;
+}
+
+public void setDescription(String description) {
+    this.description = description;
+}
+
+public void setArchived(boolean archived) {
+    this.archived = archived;
+}
+
 
 }

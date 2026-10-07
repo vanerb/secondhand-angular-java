@@ -18,14 +18,12 @@ public class ProductSpecification {
 
             return criteriaBuilder.like(
                     criteriaBuilder.lower(root.get("name")),
-                    "%" + name.toLowerCase() + "%"
-            );
+                    "%" + name.toLowerCase() + "%");
         };
     }
 
     public static Specification<Product> hasCategory(
-            String category
-    ) {
+            String category) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -35,14 +33,12 @@ public class ProductSpecification {
 
             return criteriaBuilder.equal(
                     root.get("category"),
-                    category
-            );
+                    category);
         };
     }
 
     public static Specification<Product> hasMinPrice(
-            Double minPrice
-    ) {
+            Double minPrice) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -52,14 +48,12 @@ public class ProductSpecification {
 
             return criteriaBuilder.greaterThanOrEqualTo(
                     root.get("price"),
-                    minPrice
-            );
+                    minPrice);
         };
     }
 
     public static Specification<Product> hasMaxPrice(
-            Double maxPrice
-    ) {
+            Double maxPrice) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -69,14 +63,12 @@ public class ProductSpecification {
 
             return criteriaBuilder.lessThanOrEqualTo(
                     root.get("price"),
-                    maxPrice
-            );
+                    maxPrice);
         };
     }
 
     public static Specification<Product> hasCondition(
-            Condition condition
-    ) {
+            Condition condition) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -86,14 +78,12 @@ public class ProductSpecification {
 
             return criteriaBuilder.equal(
                     root.get("condition"),
-                    condition
-            );
+                    condition);
         };
     }
 
     public static Specification<Product> hasAvailability(
-            Availability availability
-    ) {
+            Availability availability) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -103,14 +93,12 @@ public class ProductSpecification {
 
             return criteriaBuilder.equal(
                     root.get("availability"),
-                    availability
-            );
+                    availability);
         };
     }
 
     public static Specification<Product> hasUserId(
-            Long userId
-    ) {
+            Long userId) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -120,12 +108,11 @@ public class ProductSpecification {
 
             return criteriaBuilder.equal(
                     root.get("user").get("id"),
-                    userId
-            );
+                    userId);
         };
     }
 
-     public static Specification<Product> hasDescription(String description) {
+    public static Specification<Product> hasDescription(String description) {
 
         return (root, query, criteriaBuilder) -> {
 
@@ -135,8 +122,15 @@ public class ProductSpecification {
 
             return criteriaBuilder.like(
                     criteriaBuilder.lower(root.get("description")),
-                    "%" + description.toLowerCase() + "%"
-            );
+                    "%" + description.toLowerCase() + "%");
         };
+    }
+
+    public static Specification<Product> isNotArchived() {
+
+        return (root, query, criteriaBuilder) ->
+
+        criteriaBuilder.isFalse(root.get("archived"));
+
     }
 }

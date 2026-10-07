@@ -36,6 +36,9 @@ public class Product {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean archived = false;
+
     public Product() {
     }
 
@@ -114,6 +117,14 @@ public class Product {
 
     public String getDescription() {
         return description;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 
 }

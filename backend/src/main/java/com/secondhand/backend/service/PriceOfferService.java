@@ -25,14 +25,17 @@ public class PriceOfferService {
     private final PriceOfferRepository priceOfferRepository;
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final PaymentService paymentService;
 
     public PriceOfferService(
             PriceOfferRepository priceOfferRepository,
             ConversationRepository conversationRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PaymentService paymentService) {
         this.priceOfferRepository = priceOfferRepository;
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
+        this.paymentService = paymentService;
     }
 
     public List<PriceOfferDTO> getOffers(Long conversationId, Long userId) {
@@ -79,8 +82,9 @@ public class PriceOfferService {
         User receiver = getOtherParticipant(conversation, sender);
         Product product = conversation.getProduct();
 
-        if (product.getAvailability() == Availability.SOLD) {
-            throw new IllegalStateException("El producto ya está vendido y no admite nuevas ofertas");
+        if (product.getAvailability() != Availability.AVAILABLE || product.isArchived()) {
+            throw new IllegalStateException(
+                    "El producto no está disponible para nuevas ofertas");
         }
 
         if (amount.compareTo(product.getPrice()) > 0) {
@@ -114,15 +118,24 @@ public class PriceOfferService {
 
         Product product = offer.getProduct();
 
-        if (product.getAvailability() == Availability.SOLD) {
-            throw new IllegalStateException("El producto ya está vendido");
+        if (product.getAvailability() != Availability.AVAILABLE || product.isArchived()) {
+            throw new IllegalStateException(
+                    "El producto ya no está disponible para completar esta oferta");
         }
 
         offer.setStatus(PriceOfferStatus.ACCEPTED);
         offer.setRespondedAt(LocalDateTime.now());
-        product.setAvailability(Availability.SOLD);
 
-        return new PriceOfferDTO(priceOfferRepository.save(offer));
+        // El producto queda reservado mientras se completa el pago.
+        // Solo pasa a SOLD cuando el pago se confirma definitivamente.
+        product.setAvailability(Availability.RESERVED);
+
+        PriceOffer savedOffer = priceOfferRepository.save(offer);
+
+        // Al aceptar el precio se crea automáticamente la operación de pago.
+        paymentService.createFromAcceptedOffer(savedOffer);
+
+        return new PriceOfferDTO(savedOffer);
     }
 
     @Transactional

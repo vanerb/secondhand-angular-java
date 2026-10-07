@@ -11,9 +11,28 @@ export interface PriceOffer {
   receiver: any;
   amount: number;
   originalPrice: number;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
   createdAt: string;
   respondedAt?: string | null;
+}
+
+
+export interface Payment {
+  id: number;
+  conversationId: number;
+  productId: number;
+  offerId: number;
+  buyerId: number;
+  sellerId: number;
+  buyerUsername: string;
+  sellerUsername: string;
+  amount: number;
+  method: 'CARD' | 'CASH' | null;
+  status: 'PENDING' | 'CASH_AWAITING_CONFIRMATION' | 'PAID' | 'CANCELLED';
+  createdAt: string;
+  paidAt?: string | null;
+  cancelledAt?: string | null;
+  cardLast4?: string | null;
 }
 
 @Injectable({
@@ -204,4 +223,68 @@ export class ChatService {
       },
     );
   }
+  // ==========================================
+  // PAGOS
+  // ==========================================
+
+  getPayment(
+    conversationId: number,
+    userId: number,
+  ): Observable<Payment | null> {
+    return this.http.get<Payment | null>(
+      `http://localhost:8080/api/payments/conversation/${conversationId}`,
+      {
+        params: { userId },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  completePayment(
+    paymentId: number,
+    userId: number,
+    method: 'CARD' | 'CASH',
+    cardLast4?: string,
+  ): Observable<Payment> {
+    return this.http.post<Payment>(
+      `http://localhost:8080/api/payments/${paymentId}/pay`,
+      {
+        method,
+        cardLast4: cardLast4 ?? null,
+      },
+      {
+        params: { userId },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  confirmCashPayment(
+    paymentId: number,
+    userId: number,
+  ): Observable<Payment> {
+    return this.http.post<Payment>(
+      `http://localhost:8080/api/payments/${paymentId}/confirm-cash`,
+      null,
+      {
+        params: { userId },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
+  cancelPayment(
+    paymentId: number,
+    userId: number,
+  ): Observable<Payment> {
+    return this.http.post<Payment>(
+      `http://localhost:8080/api/payments/${paymentId}/cancel`,
+      null,
+      {
+        params: { userId },
+        headers: this.getHeaders(),
+      },
+    );
+  }
+
 }

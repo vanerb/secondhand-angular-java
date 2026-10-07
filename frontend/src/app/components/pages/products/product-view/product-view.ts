@@ -190,11 +190,15 @@ export class ProductView implements OnInit {
 
     switch (action.name) {
       case 'update':
-        this.updateProduct(action.item);
+        if (!action.item.archived) {
+          this.updateProduct(action.item);
+        }
         break;
 
       case 'delete':
-        this.removeProduct(action.item);
+        if (!action.item.archived) {
+          this.removeProduct(action.item);
+        }
         break;
 
       case 'update_favorite':
@@ -313,6 +317,11 @@ export class ProductView implements OnInit {
   // ==========================================
 
   updateProduct(product: any): void {
+    if (product?.archived) {
+      window.alert('Este producto está archivado y ya no se puede modificar.');
+      return;
+    }
+
     this.modalService
       .open(
         UpdateProduct,
@@ -349,6 +358,11 @@ export class ProductView implements OnInit {
   // ==========================================
 
   removeProduct(product: any): void {
+    if (product?.archived) {
+      window.alert('Este producto está archivado y ya no se puede eliminar.');
+      return;
+    }
+
     this.modalService
       .open(
         WarningModal,

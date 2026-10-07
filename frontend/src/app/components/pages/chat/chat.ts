@@ -6,7 +6,7 @@ import { ChatWebSocketService } from '../../../services/chat-web-socket-service'
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { getImage } from '../../../services/utilities-service';
-import { ChatService, PriceOffer } from '../../../services/chat-service';
+import { ChatService, Payment, PriceOffer } from '../../../services/chat-service';
 
 @Component({
   selector: 'app-chat',
@@ -23,6 +23,14 @@ export class Chat implements OnInit, OnDestroy {
   messages = signal<any[]>([]);
   conversations = signal<any[]>([]);
   offers = signal<PriceOffer[]>([]);
+  payment = signal<Payment | null>(null);
+  paymentMethod = signal<'CARD' | 'CASH' | null>(null);
+
+  cardNumber = '';
+  cardHolder = '';
+  cardExpiry = '';
+  cardCvv = '';
+  paymentProcessing = signal(false);
 
   messageText = '';
   conversationQuery = '';
@@ -36,6 +44,7 @@ export class Chat implements OnInit, OnDestroy {
   counterOfferAmount: number | null = null;
 
   private messageSubscription?: Subscription;
+  private paymentRefreshTimer?: ReturnType<typeof setInterval>;
 
   constructor(
     private chatWebSocketService: ChatWebSocketService,
@@ -126,6 +135,9 @@ export class Chat implements OnInit, OnDestroy {
     this.selectedConversation.set(conversation);
     this.messages.set([]);
     this.offers.set([]);
+    this.payment.set(null);
+    this.paymentMethod.set(null);
+    this.resetCardForm();
     this.closeOfferForm();
 
     this.chatService
@@ -140,12 +152,18 @@ export class Chat implements OnInit, OnDestroy {
       });
 
     this.loadOffers(conversation.id);
+    this.loadPayment(conversation.id);
+    this.startPaymentPolling();
   }
 
   closeConversation(): void {
+    this.stopPaymentPolling();
     this.selectedConversation.set(null);
     this.messages.set([]);
     this.offers.set([]);
+    this.payment.set(null);
+    this.paymentMethod.set(null);
+    this.resetCardForm();
     this.closeOfferForm();
   }
 
@@ -277,16 +295,18 @@ export class Chat implements OnInit, OnDestroy {
           if (conversation) {
             this.selectedConversation.set({
               ...conversation,
-              productAvailability: 'SOLD',
+              productAvailability: 'RESERVED',
             });
 
             this.conversations.update((conversations) =>
               conversations.map((item) =>
                 item.productId === conversation.productId
-                  ? { ...item, productAvailability: 'SOLD' }
+                  ? { ...item, productAvailability: 'RESERVED' }
                   : item,
               ),
             );
+
+            this.loadPayment(conversation.id);
           }
 
           this.closeOfferForm();
@@ -394,7 +414,13 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   isProductSold(): boolean {
-    return this.selectedConversation()?.productAvailability === 'SOLD' || this.hasAcceptedOffer();
+    return this.selectedConversation()?.productAvailability === 'SOLD';
+  }
+
+  isProductReserved(): boolean {
+    return this.selectedConversation()?.productAvailability === 'RESERVED'
+      || this.payment()?.status === 'PENDING'
+      || this.payment()?.status === 'CASH_AWAITING_CONFIRMATION';
   }
 
   getPendingOffer(): PriceOffer | undefined {
@@ -414,6 +440,281 @@ export class Chat implements OnInit, OnDestroy {
     }
   }
 
+
+  // ==========================================
+  // PAGO
+  // ==========================================
+
+
+  startPaymentPolling(): void {
+    this.stopPaymentPolling();
+
+    this.paymentRefreshTimer = setInterval(() => {
+      const conversation = this.selectedConversation();
+
+      if (!conversation) {
+        this.stopPaymentPolling();
+        return;
+      }
+
+      const currentPayment = this.payment();
+
+      if (currentPayment?.status === 'PAID') {
+        this.stopPaymentPolling();
+        return;
+      }
+
+      this.loadPayment(conversation.id);
+    }, 4000);
+  }
+
+  stopPaymentPolling(): void {
+    if (this.paymentRefreshTimer) {
+      clearInterval(this.paymentRefreshTimer);
+      this.paymentRefreshTimer = undefined;
+    }
+  }
+
+  loadPayment(conversationId: number): void {
+    const currentUserId = this.userId();
+
+    if (currentUserId === null) {
+      return;
+    }
+
+    this.chatService.getPayment(conversationId, currentUserId).subscribe({
+      next: (payment) => {
+        this.payment.set(
+          payment?.status === 'CANCELLED' ? null : payment,
+        );
+
+        if (!payment || payment.status === 'CANCELLED') {
+          this.paymentMethod.set(null);
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando el pago:', error);
+        this.payment.set(null);
+      },
+    });
+  }
+
+  selectPaymentMethod(method: 'CARD' | 'CASH'): void {
+    const payment = this.payment();
+
+    if (!payment || payment.status !== 'PENDING') {
+      return;
+    }
+
+    this.paymentMethod.set(method);
+  }
+
+  isPaymentBuyer(): boolean {
+    return this.payment()?.buyerId === this.userId();
+  }
+
+  isPaymentSeller(): boolean {
+    return this.payment()?.sellerId === this.userId();
+  }
+
+  pay(): void {
+    const payment = this.payment();
+    const currentUserId = this.userId();
+    const method = this.paymentMethod();
+
+    if (
+      !payment ||
+      currentUserId === null ||
+      method === null ||
+      payment.status !== 'PENDING' ||
+      !this.isPaymentBuyer()
+    ) {
+      return;
+    }
+
+    if (method === 'CARD') {
+      const cardNumber = this.cardNumber.replace(/\s/g, '');
+
+      if (
+        !/^\d{16}$/.test(cardNumber) ||
+        !/^\d{2}\/\d{2}$/.test(this.cardExpiry) ||
+        !/^\d{3,4}$/.test(this.cardCvv) ||
+        this.cardHolder.trim().length < 2
+      ) {
+        window.alert('Revisa los datos de la tarjeta.');
+        return;
+      }
+
+      this.paymentProcessing.set(true);
+
+      this.chatService
+        .completePayment(
+          payment.id,
+          currentUserId,
+          'CARD',
+          cardNumber.slice(-4),
+        )
+        .subscribe({
+          next: (updatedPayment) => {
+            this.paymentProcessing.set(false);
+            this.payment.set(updatedPayment);
+            this.markConversationAsSold();
+            this.resetCardForm();
+          },
+          error: (error) => {
+            this.paymentProcessing.set(false);
+            window.alert(
+              this.getErrorMessage(error, 'No se pudo completar el pago.'),
+            );
+          },
+        });
+
+      return;
+    }
+
+    this.paymentProcessing.set(true);
+
+    this.chatService
+      .completePayment(payment.id, currentUserId, 'CASH')
+      .subscribe({
+        next: (updatedPayment) => {
+          this.paymentProcessing.set(false);
+          this.payment.set(updatedPayment);
+        },
+        error: (error) => {
+          this.paymentProcessing.set(false);
+          window.alert(
+            this.getErrorMessage(
+              error,
+              'No se pudo registrar el pago en efectivo.',
+            ),
+          );
+        },
+      });
+  }
+
+  confirmarPagoEnEfectivo(): void {
+    const payment = this.payment();
+    const currentUserId = this.userId();
+
+    if (
+      !payment ||
+      currentUserId === null ||
+      payment.status !== 'CASH_AWAITING_CONFIRMATION' ||
+      !this.isPaymentSeller()
+    ) {
+      return;
+    }
+
+    this.paymentProcessing.set(true);
+
+    this.chatService
+      .confirmCashPayment(payment.id, currentUserId)
+      .subscribe({
+        next: (updatedPayment) => {
+          this.paymentProcessing.set(false);
+          this.payment.set(updatedPayment);
+          this.markConversationAsSold();
+        },
+        error: (error) => {
+          this.paymentProcessing.set(false);
+          window.alert(
+            this.getErrorMessage(
+              error,
+              'No se pudo confirmar el pago en efectivo.',
+            ),
+          );
+        },
+      });
+  }
+
+  cancelarPago(): void {
+    const payment = this.payment();
+    const currentUserId = this.userId();
+
+    if (
+      !payment ||
+      currentUserId === null ||
+      payment.status === 'PAID'
+    ) {
+      return;
+    }
+
+    if (!window.confirm('¿Seguro que quieres cancelar la operación? El producto volverá a estar disponible.')) {
+      return;
+    }
+
+    this.paymentProcessing.set(true);
+
+    this.chatService
+      .cancelPayment(payment.id, currentUserId)
+      .subscribe({
+        next: () => {
+          this.paymentProcessing.set(false);
+
+          const conversation = this.selectedConversation();
+
+          if (conversation) {
+            this.selectedConversation.set({
+              ...conversation,
+              productAvailability: 'AVAILABLE',
+            });
+
+            this.conversations.update((conversations) =>
+              conversations.map((item) =>
+                item.productId === conversation.productId
+                  ? { ...item, productAvailability: 'AVAILABLE' }
+                  : item,
+              ),
+            );
+
+            this.loadOffers(conversation.id);
+            this.loadPayment(conversation.id);
+          }
+
+          this.payment.set(null);
+          this.paymentMethod.set(null);
+          this.resetCardForm();
+        },
+        error: (error) => {
+          this.paymentProcessing.set(false);
+          window.alert(
+            this.getErrorMessage(error, 'No se pudo cancelar la operación.'),
+          );
+        },
+      });
+  }
+
+  markConversationAsSold(): void {
+    const conversation = this.selectedConversation();
+
+    if (!conversation) {
+      return;
+    }
+
+    this.selectedConversation.set({
+      ...conversation,
+      productAvailability: 'SOLD',
+    });
+
+    this.conversations.update((conversations) =>
+      conversations.map((item) =>
+        item.productId === conversation.productId
+          ? { ...item, productAvailability: 'SOLD' }
+          : item,
+      ),
+    );
+
+    this.closeOfferForm();
+  }
+
+  resetCardForm(): void {
+    this.cardNumber = '';
+    this.cardHolder = '';
+    this.cardExpiry = '';
+    this.cardCvv = '';
+  }
+
   getErrorMessage(error: any, fallback: string): string {
     return error?.error?.message || error?.error || fallback;
   }
@@ -429,6 +730,7 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopPaymentPolling();
     this.messageSubscription?.unsubscribe();
     this.chatWebSocketService.disconnect();
   }
