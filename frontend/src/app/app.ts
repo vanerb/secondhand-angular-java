@@ -3,15 +3,18 @@ import { RouterOutlet } from '@angular/router';
 import { Header } from './components/menus/header/header';
 import { Modal } from './components/general/modal/modal';
 import { ModalService } from './services/modal-service';
+import { NgComponentOutlet } from '@angular/common';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Modal],
+  imports: [RouterOutlet, Header, Modal, NgComponentOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('frontend');
+  protected readonly demoBanner = environment.demoBanner;
   @ViewChild('modal') modal!: Modal;
 
   constructor(private modalService: ModalService) { }

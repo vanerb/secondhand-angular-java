@@ -86,7 +86,7 @@ export class ConfigProfile implements OnInit {
 
   getUserImage(image: string): string {
     if (!image) {
-      return 'assets/images/default-avatar.png';
+      return getImage(null);
     }
 
     if (image.startsWith('http')) {

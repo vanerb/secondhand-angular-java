@@ -25,7 +25,11 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/material-theme.scss", "src/styles.css", "node_modules/bootstrap-icons/font/bootstrap-icons.css"],
+            "styles": [
+              "src/material-theme.scss",
+              "src/styles.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css"
+            ],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
@@ -55,6 +59,31 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "demo": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1.5MB",
+                  "maximumError": "2MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "20kB",
+                  "maximumError": "24kB"
+                }
+              ],
+              "outputHashing": "all",
+              "server": false,
+              "outputMode": "static",
+              "ssr": false,
+              "prerender": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.demo.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -67,6 +96,9 @@
             },
             "development": {
               "buildTarget": "frontend:build:development"
+            },
+            "demo": {
+              "buildTarget": "frontend:build:demo"
             }
           },
           "defaultConfiguration": "development"

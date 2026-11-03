@@ -88,7 +88,7 @@ export class ShowProduct implements OnInit {
     const product = this.product();
 
     if (!product?.images?.length) {
-      return '/assets/images/product-placeholder.jpg';
+      return '';
     }
 
     return product.images[this.currentImageIndex()];

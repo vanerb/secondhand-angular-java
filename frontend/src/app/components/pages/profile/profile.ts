@@ -332,7 +332,7 @@ export class Profile implements OnInit {
     console.log('IMAGEN USUARIO:', user?.profileImage);
 
     if (!user?.profileImage) {
-      return 'assets/images/default-avatar.png';
+      return getImage(null);
     }
 
     if (user.profileImage.startsWith('http')) {

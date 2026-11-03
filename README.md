@@ -10,6 +10,31 @@ El proyecto se encuentra actualmente **en desarrollo**.
 
 ---
 
+## 🚀 Demo
+
+Prueba la aplicación sin instalar nada en **https://vanerb.github.io/SecondHand-Angular-Java/**
+
+La demo es el frontend Angular compilado en modo `demo`: un interceptor HTTP simula toda la API de Spring Boot en el navegador (mismas rutas, validaciones y mensajes de error) y el chat por WebSocket se sustituye por uno local. Los datos de muestra y tus cambios se guardan en el `localStorage` de tu navegador; el botón **Restablecer datos** del aviso inferior vuelve al estado inicial.
+
+Cuentas de prueba (contraseña `Demo1234` para todas):
+
+| Usuario | Correo                   | Qué tiene preparado                                                  |
+| ------- | ------------------------ | -------------------------------------------------------------------- |
+| Lucía   | `lucia@secondhand.demo`  | Una oferta pendiente de responder y una compra pendiente de pago     |
+| Marcos  | `marcos@secondhand.demo` | Una venta reservada esperando el pago de Lucía                       |
+| Ana     | `ana@secondhand.demo`    | Una compra ya pagada con tarjeta y una conversación abierta          |
+
+Limitaciones de la demo: no hay servidor, así que cada navegador tiene su propia copia de los datos y los mensajes no llegan a otros dispositivos (para ver la otra parte de una conversación, cierra sesión y entra con la otra cuenta). El pago con tarjeta es simulado y las imágenes que subas se reducen y se guardan en el navegador.
+
+Para compilarla en local:
+
+```bash
+cd frontend
+npx ng build --configuration demo --base-href "/SecondHand-Angular-Java/"
+```
+
+---
+
 ## ✨ Funcionalidades
 
 ### 🛍️ Gestión de productos

@@ -102,7 +102,7 @@ export class Register implements OnInit {
     this.authService.register(formData).subscribe({
       next: async (response) => {
         if (response && response.token) {
-          window.location.href = '/login';
+          window.location.href = new URL('login', document.baseURI).href;
           await sleep(1000);
           window.location.reload();
         } else {

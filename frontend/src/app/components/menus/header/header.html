@@ -276,7 +276,7 @@
             @if (user()?.profileImage) {
 
               <img
-                [src]="'http://localhost:8080' + user()?.profileImage"
+                [src]="getImage(user()?.profileImage)"
                 alt=""
               />
 

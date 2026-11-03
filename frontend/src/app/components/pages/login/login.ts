@@ -47,7 +47,7 @@ export class Login {
           this.authService.setType(response.type);
           localStorage.setItem('token', response.token);
 
-          window.location.href = '/';
+          window.location.href = document.baseURI;
           await sleep(1000);
           window.location.reload();
         } else {

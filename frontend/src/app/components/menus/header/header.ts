@@ -6,7 +6,7 @@ import { MatButton } from '@angular/material/button';
 import { AuthService } from '../../../services/auth-service';
 import { firstValueFrom } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { sleep } from '../../../services/utilities-service';
+import { getImage, sleep } from '../../../services/utilities-service';
 
 @Component({
   selector: 'app-header',
@@ -23,6 +23,7 @@ export class Header implements OnInit {
   drawerMode = signal<'side' | 'over'>('side');
 
   user = signal<any | null>(null);
+  readonly getImage = getImage;
 
   constructor(
     private readonly authService: AuthService,

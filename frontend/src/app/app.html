@@ -2,3 +2,6 @@
   <app-modal #modal></app-modal>
   <router-outlet></router-outlet>
 </app-header>
+@if (demoBanner) {
+  <ng-container *ngComponentOutlet="demoBanner" />
+}
