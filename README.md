@@ -30,7 +30,7 @@ Para compilarla en local:
 
 ```bash
 cd frontend
-npx ng build --configuration demo --base-href "/SecondHand-Angular-Java/"
+npx ng build --configuration demo --base-href "/secondhand-angular-java/"
 ```
 
 ---
@@ -219,7 +219,7 @@ Los productos pueden clasificarse en diferentes categorías:
 ## 📂 Estructura del proyecto
 
 ```text id="8p7d3x"
-SecondHand-Angular-Java/
+secondhand-angular-java/
 │
 ├── frontend/
 │   ├── src/
@@ -359,7 +359,7 @@ Antes de ejecutar el proyecto es necesario tener instalado:
 
 ```bash id="7x0s3m"
 git clone https://github.com/vanerb/secondhand-angular-java.git
-cd SecondHand-Angular-Java
+cd secondhand-angular-java
 ```
 
 ---
@@ -393,6 +393,24 @@ Crea previamente la base de datos en MySQL:
 ```sql id="q7w8sa"
 CREATE DATABASE secondhand_bd;
 ```
+
+Si vas a importar los datos de prueba, sáltate este paso: el SQL ya crea la base.
+
+### 🧪 Datos de prueba (opcional)
+
+[`database/secondhand_prueba.sql`](database/secondhand_prueba.sql) crea la base de datos, sus tablas y datos inventados. No borra nada: si las tablas ya existen, la importación se detiene con un error. Desde la raíz del repositorio:
+
+```bash
+mysql -u root -p --default-character-set=utf8mb4 -e "source database/secondhand_prueba.sql"
+```
+
+Cuentas: `lucia@secondhand.test`, `marcos@secondhand.test`, `ana@secondhand.test` y `pablo@secondhand.test`.
+
+La contraseña de todas es `Usuario123*`. Es pública, así que no uses estas cuentas fuera de un entorno local.
+
+### 🔑 Clave de las sesiones
+
+La API firma las sesiones con la variable de entorno `JWT_SECRET`. Sin ella usa una clave de desarrollo, válida solo en local: si despliegas el proyecto, define una propia y larga.
 
 Compila el proyecto:
 
