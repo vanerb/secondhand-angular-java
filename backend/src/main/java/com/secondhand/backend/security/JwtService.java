@@ -2,6 +2,7 @@ package com.secondhand.backend.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -11,11 +12,12 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET =
-            "change-this-development-secret-at-least-32-bytes";
+    private final SecretKey key;
 
-    private final SecretKey key =
-            Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    // En producción la clave se define con JWT_SECRET (mínimo 32 caracteres).
+    public JwtService(@Value("${JWT_SECRET:change-this-development-secret-at-least-32-bytes}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateToken(String email) {
 
