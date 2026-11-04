@@ -12,7 +12,7 @@ El proyecto se encuentra actualmente **en desarrollo**.
 
 ## 🚀 Demo
 
-Prueba la aplicación sin instalar nada en **https://vanerb.github.io/SecondHand-Angular-Java/**
+Prueba la aplicación sin instalar nada en **https://vanerb.github.io/secondhand-angular-java/**
 
 La demo es el frontend Angular compilado en modo `demo`: un interceptor HTTP simula toda la API de Spring Boot en el navegador (mismas rutas, validaciones y mensajes de error) y el chat por WebSocket se sustituye por uno local. Los datos de muestra y tus cambios se guardan en el `localStorage` de tu navegador; el botón **Restablecer datos** del aviso inferior vuelve al estado inicial.
 
@@ -358,7 +358,7 @@ Antes de ejecutar el proyecto es necesario tener instalado:
 # 📥 Clonar el repositorio
 
 ```bash id="7x0s3m"
-git clone https://github.com/vanerb/SecondHand-Angular-Java.git
+git clone https://github.com/vanerb/secondhand-angular-java.git
 cd SecondHand-Angular-Java
 ```
 
