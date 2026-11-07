@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
@@ -11,6 +12,6 @@ export class ImagesService {
   }
 
   async getImage(fromId: string, type: string) {
-    return await firstValueFrom(this.http.get<any>('http://localhost:8080/api/images/'+type+'/' + fromId))
+    return await firstValueFrom(this.http.get<any>(environment.apiUrl + '/api/images/'+type+'/' + fromId))
   }
 }

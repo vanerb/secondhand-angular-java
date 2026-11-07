@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap, map } from 'rxjs';
 import { AuthService } from './auth-service';
 
+import { environment } from '../../environments/environment';
 export interface PriceOffer {
   id: number;
   conversationId: number;
@@ -39,7 +40,7 @@ export interface Payment {
   providedIn: 'root',
 })
 export class ChatService {
-  private url = 'http://localhost:8080/api/chat';
+  private url = environment.apiUrl + '/api/chat';
 
   constructor(
     private http: HttpClient,
@@ -232,7 +233,7 @@ export class ChatService {
     userId: number,
   ): Observable<Payment | null> {
     return this.http.get<Payment | null>(
-      `http://localhost:8080/api/payments/conversation/${conversationId}`,
+      `${environment.apiUrl}/api/payments/conversation/${conversationId}`,
       {
         params: { userId },
         headers: this.getHeaders(),
@@ -247,7 +248,7 @@ export class ChatService {
     cardLast4?: string,
   ): Observable<Payment> {
     return this.http.post<Payment>(
-      `http://localhost:8080/api/payments/${paymentId}/pay`,
+      `${environment.apiUrl}/api/payments/${paymentId}/pay`,
       {
         method,
         cardLast4: cardLast4 ?? null,
@@ -264,7 +265,7 @@ export class ChatService {
     userId: number,
   ): Observable<Payment> {
     return this.http.post<Payment>(
-      `http://localhost:8080/api/payments/${paymentId}/confirm-cash`,
+      `${environment.apiUrl}/api/payments/${paymentId}/confirm-cash`,
       null,
       {
         params: { userId },
@@ -278,7 +279,7 @@ export class ChatService {
     userId: number,
   ): Observable<Payment> {
     return this.http.post<Payment>(
-      `http://localhost:8080/api/payments/${paymentId}/cancel`,
+      `${environment.apiUrl}/api/payments/${paymentId}/cancel`,
       null,
       {
         params: { userId },

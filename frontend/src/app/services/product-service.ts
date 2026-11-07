@@ -6,11 +6,12 @@ import { Product } from '../interfaces/product';
 import { ProductFilter } from '../interfaces/product-filter';
 import { AuthService } from './auth-service';
 
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:8080/api/products';
+  private apiUrl = environment.apiUrl + '/api/products';
 
   constructor(
     private http: HttpClient,

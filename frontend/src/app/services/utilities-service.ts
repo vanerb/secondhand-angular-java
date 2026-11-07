@@ -1,6 +1,6 @@
 import { environment } from '../../environments/environment';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = environment.apiUrl;
 
 // En la demo no existe la carpeta uploads del backend: se usa una imagen genérica en línea.
 const DEMO_NO_IMAGE =

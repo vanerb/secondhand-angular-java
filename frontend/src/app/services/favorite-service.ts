@@ -5,11 +5,12 @@ import { Observable } from 'rxjs';
 import { Product } from '../interfaces/product';
 import { AuthService } from './auth-service';
 
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class FavoriteService {
-  private apiUrl = 'http://localhost:8080/api/favorites';
+  private apiUrl = environment.apiUrl + '/api/favorites';
 
   constructor(
     private http: HttpClient,

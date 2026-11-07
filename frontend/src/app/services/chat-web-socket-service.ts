@@ -7,6 +7,7 @@ import {
 } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
 
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
@@ -23,7 +24,7 @@ export class ChatWebSocketService {
 
     this.client = new Client({
 
-      brokerURL: 'ws://localhost:8080/ws',
+      brokerURL: environment.wsUrl,
 
       reconnectDelay: 5000,
 

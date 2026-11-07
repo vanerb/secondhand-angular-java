@@ -1,12 +1,10 @@
-# 🚧 WIP — Work in Progress
-
 # 🛍️ SecondHand — Angular + Java Spring Boot
 
 **SecondHand** es una aplicación web de compraventa de productos de segunda mano, desarrollada con **Angular** en el frontend y **Java Spring Boot** en el backend.
 
 La aplicación permite a los usuarios publicar productos, consultar artículos de otros usuarios, realizar búsquedas y aplicar filtros, guardar productos como favoritos y comunicarse mediante un sistema de chat.
 
-El proyecto se encuentra actualmente **en desarrollo**.
+El flujo principal ya funciona de principio a fin (publicar, buscar, hablar, ofertar y pagar) y sigo añadiendo mejoras.
 
 ---
 
@@ -458,6 +456,8 @@ El frontend estará disponible normalmente en:
 http://localhost:4200
 ```
 
+Si el backend no está en `http://localhost:8080`, cambia `apiUrl` (y `wsUrl` para el chat) en [`frontend/src/environments/environment.ts`](frontend/src/environments/environment.ts).
+
 ---
 
 ## 🎯 Objetivo del proyecto
@@ -483,9 +483,7 @@ El proyecto permite poner en práctica diferentes conceptos de desarrollo Full S
 
 ## 📌 Estado del proyecto
 
-**🚧 WIP — Work in Progress**
-
-El proyecto se encuentra actualmente en desarrollo.
+El flujo principal está completo y el proyecto sigue creciendo.
 
 Se están implementando y mejorando progresivamente diferentes funcionalidades relacionadas con la gestión de productos, usuarios, favoritos y comunicación entre usuarios.
 
