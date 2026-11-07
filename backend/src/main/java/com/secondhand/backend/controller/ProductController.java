@@ -135,13 +135,16 @@ public class ProductController {
         @GetMapping("/{id}")
         public ResponseEntity<ProductDTO> getProductById(
 
-                        @RequestHeader("Authorization") String authorization,
+                        // Opcional: la ficha es pública; con sesión se marca si es favorito.
+                        @RequestHeader(value = "Authorization", required = false) String authorization,
 
                         @PathVariable Long id
 
         ) {
 
-                String token = authorization.substring(7);
+                String token = authorization != null && authorization.startsWith("Bearer ")
+                                ? authorization.substring(7)
+                                : null;
 
                 return ResponseEntity.ok(
                                 productService.getProductById(

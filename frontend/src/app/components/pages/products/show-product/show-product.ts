@@ -11,6 +11,7 @@ import { Container } from '../../../general/container/container';
 import { getImage } from '../../../../services/utilities-service';
 import { ChatService } from '../../../../services/chat-service';
 
+import { availabilityLabel, categoryLabel, conditionLabel } from '../../../../services/product-labels';
 @Component({
   selector: 'app-product-detail',
   standalone: true,
@@ -249,39 +250,16 @@ export class ShowProduct implements OnInit {
     this.router.navigate(['/home']);
   }
 
+  getCategoryLabel(category: string | undefined): string {
+    return categoryLabel(category);
+  }
+
   getConditionLabel(condition: string | undefined): string {
-    switch (condition) {
-      case 'NEW':
-        return 'Nuevo';
-
-      case 'LIKE_NEW':
-        return 'Como nuevo';
-
-      case 'GOOD':
-        return 'Buen estado';
-
-      case 'USED':
-        return 'Usado';
-
-      default:
-        return condition ?? 'Sin especificar';
-    }
+    return conditionLabel(condition);
   }
 
   getAvailabilityLabel(availability: string | undefined): string {
-    switch (availability) {
-      case 'AVAILABLE':
-        return 'Disponible';
-
-      case 'SOLD':
-        return 'Vendido';
-
-      case 'RESERVED':
-        return 'Reservado';
-
-      default:
-        return availability ?? 'Sin especificar';
-    }
+    return availabilityLabel(availability);
   }
 
   getNewImage(name: string): string {

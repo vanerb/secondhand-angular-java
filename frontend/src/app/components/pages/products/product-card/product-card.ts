@@ -1,6 +1,7 @@
 import { Component, EventEmitter, HostListener, input, Output } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { getImage } from '../../../../services/utilities-service';
+import { categoryLabel, conditionLabel } from '../../../../services/product-labels';
 
 @Component({
   selector: 'app-product-card',
@@ -10,6 +11,8 @@ import { getImage } from '../../../../services/utilities-service';
 })
 export class ProductCard {
   product = input.required<any>();
+  readonly categoryLabel = categoryLabel;
+  readonly conditionLabel = conditionLabel;
 
   index = input(0);
 

@@ -71,10 +71,11 @@ public class SecurityConfig {
                     "/api/auth/**"
                 ).permitAll()
 
-                // CATÁLOGO PÚBLICO
+                // CATÁLOGO PÚBLICO: listado y ficha de cada producto (solo lectura)
                 .requestMatchers(
                     HttpMethod.GET,
-                    "/api/products"
+                    "/api/products",
+                    "/api/products/{id:\\d+}"
                 ).permitAll()
 
                 // Imágenes públicas

@@ -91,7 +91,6 @@
     }
   </div>
 }
-```
 
   </div>
 
@@ -102,14 +101,13 @@
   <div class="product-info">
     <div class="product-meta">
       <span>
-        {{ product().category }}
+        {{ categoryLabel(product().category) }}
       </span>
 
-```
-  <span class="condition">
-    <i class="bi bi-stars" aria-hidden="true"></i>
-    {{ product().condition }}
-  </span>
+      <span class="condition">
+        <i class="bi bi-stars" aria-hidden="true"></i>
+        {{ conditionLabel(product().condition) }}
+      </span>
 </div>
 
 <h3>

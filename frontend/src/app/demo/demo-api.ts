@@ -364,7 +364,8 @@ export class DemoApi {
       return this.productDTO(product, user);
     });
 
-    this.on('GET', '/products/:id', (ctx) => this.productDTO(this.product(Number(ctx.params[0])), ctx.viewer));
+    // La ficha de un producto es pública, como en el backend.
+    this.on('GET', '/products/:id', (ctx) => this.productDTO(this.product(Number(ctx.params[0])), ctx.viewer), false);
 
     this.on('PUT', '/products/:id', async (ctx) => {
       const user = this.me(ctx);
