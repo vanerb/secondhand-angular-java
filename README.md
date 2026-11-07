@@ -1,507 +1,118 @@
-# 🛍️ SecondHand — Angular + Java Spring Boot
+# SecondHand
 
-**SecondHand** es una aplicación web de compraventa de productos de segunda mano, desarrollada con **Angular** en el frontend y **Java Spring Boot** en el backend.
+Compraventa de productos de segunda mano: publica artículos con fotos, encuentra lo que buscas con filtros, habla con quien vende por chat y cierra la compra con ofertas, reservas y pago.
 
-La aplicación permite a los usuarios publicar productos, consultar artículos de otros usuarios, realizar búsquedas y aplicar filtros, guardar productos como favoritos y comunicarse mediante un sistema de chat.
+**[Ver la demo](https://vanerb.github.io/secondhand-angular-java/)**: funciona en el navegador, sin instalar nada.
 
-El flujo principal ya funciona de principio a fin (publicar, buscar, hablar, ofertar y pagar) y sigo añadiendo mejoras.
+**Stack:** Angular 22 · Angular Material · Spring Boot 4.1 · Java 21 · Spring Security y JWT · WebSocket (STOMP) · MySQL
 
----
+## Qué puedes hacer
 
-## 🚀 Demo
+- **Productos:** publicar, editar y borrar artículos con varias fotos, categoría, precio, estado de conservación y disponibilidad.
+- **Búsqueda:** por nombre o descripción, con filtros de categoría, precio, estado y disponibilidad.
+- **Favoritos:** guardar productos para volver a ellos.
+- **Chat:** conversaciones en tiempo real entre comprador y vendedor, cada una ligada a un producto.
+- **Compra:** ofertas de precio que se aceptan o rechazan, reserva del producto y pago con tarjeta simulado o en efectivo.
+- **Cuenta:** registro, inicio de sesión y perfil con foto.
 
-Prueba la aplicación sin instalar nada en **https://vanerb.github.io/secondhand-angular-java/**
+Ver los productos es público; para comprar, vender o chatear hace falta iniciar sesión.
 
-La demo es el frontend Angular compilado en modo `demo`: un interceptor HTTP simula toda la API de Spring Boot en el navegador (mismas rutas, validaciones y mensajes de error) y el chat por WebSocket se sustituye por uno local. Los datos de muestra y tus cambios se guardan en el `localStorage` de tu navegador; el botón **Restablecer datos** del aviso inferior vuelve al estado inicial.
+| Categorías | Estados | Disponibilidad |
+| --- | --- | --- |
+| Electrónica, Informática, Videojuegos, Móviles, Ropa, Hogar, Deporte, Libros y Otros | Nuevo, Como nuevo, Buen estado, Usado y Muy usado | Disponible, Reservado y Vendido |
 
-Cuentas de prueba (contraseña `Demo1234` para todas):
+## Demo
 
-| Usuario | Correo                   | Qué tiene preparado                                                  |
-| ------- | ------------------------ | -------------------------------------------------------------------- |
-| Lucía   | `lucia@secondhand.demo`  | Una oferta pendiente de responder y una compra pendiente de pago     |
-| Marcos  | `marcos@secondhand.demo` | Una venta reservada esperando el pago de Lucía                       |
-| Ana     | `ana@secondhand.demo`    | Una compra ya pagada con tarjeta y una conversación abierta          |
+La demo es el frontend compilado en modo `demo`: un interceptor HTTP simula toda la API dentro del navegador, con las mismas rutas, validaciones y errores, y el chat por WebSocket se sustituye por uno local. Tus cambios se guardan en el `localStorage` de tu navegador y el botón **Restablecer datos** del aviso inferior vuelve al estado inicial.
 
-Limitaciones de la demo: no hay servidor, así que cada navegador tiene su propia copia de los datos y los mensajes no llegan a otros dispositivos (para ver la otra parte de una conversación, cierra sesión y entra con la otra cuenta). El pago con tarjeta es simulado y las imágenes que subas se reducen y se guardan en el navegador.
+| Correo | Qué tiene preparado |
+| --- | --- |
+| `lucia@secondhand.demo` | Una oferta por responder y una compra pendiente de pago |
+| `marcos@secondhand.demo` | Una venta reservada esperando el pago de Lucía |
+| `ana@secondhand.demo` | Una compra pagada con tarjeta y una conversación abierta |
 
-Para compilarla en local:
+La contraseña de todas es `Demo1234`. Como no hay servidor, los mensajes no llegan a otros dispositivos: para ver la otra parte de una conversación, cierra sesión y entra con la otra cuenta.
+
+## Cómo está construido
+
+```mermaid
+flowchart LR
+    A[Angular 22] -->|REST y JWT| B[API Spring Boot]
+    A <-->|WebSocket / STOMP| B
+    B --> C[(MySQL)]
+    B --> D[/Imágenes en uploads/]
+    A -.->|Build de demo| E[Interceptor con la API simulada]
+    E -.-> F[(localStorage)]
+```
+
+```text
+backend/     API de Spring Boot: controladores, servicios, entidades y seguridad
+frontend/    Web de Angular y build de demo
+database/    Base de datos de prueba para MySQL
+```
+
+## Decisiones técnicas
+
+- **El flujo de compra lo controla la API.** Oferta, reserva y pago cambian el estado del producto en el servidor, que comprueba en cada paso quién puede hacer qué.
+- **Chat en tiempo real.** Los mensajes viajan por WebSocket con STOMP; cada conversación queda ligada al producto del que se habla.
+- **Catálogo público, acciones protegidas.** Cualquiera puede ver el listado y la ficha de un producto; publicar, comprar, guardar favoritos o chatear exige un token JWT válido.
+- **Configuración en un solo sitio.** La URL de la API y la del WebSocket están en `frontend/src/environments/environment.ts`, y la clave de las sesiones sale de la variable `JWT_SECRET`.
+
+## Puesta en marcha
+
+Necesitas Node.js 24 o superior, Java 21 (el proyecto trae Maven Wrapper, así que no hace falta instalar Maven) y MySQL 8.
+
+**API**, en `http://localhost:8080`:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+En Windows, usa `.\mvnw.cmd spring-boot:run`. Hibernate crea las tablas al arrancar, pero la base `secondhand_bd` tiene que existir (o importar los datos de prueba, que la crean).
+
+**Web**, en `http://localhost:4200`, desde otra terminal:
 
 ```bash
 cd frontend
-npx ng build --configuration demo --base-href "/secondhand-angular-java/"
+npm install
+npm start
 ```
 
----
+Para abrir la demo en local, sin backend: `npx ng serve --configuration demo`.
 
-## ✨ Funcionalidades
+### Configuración
 
-### 🛍️ Gestión de productos
+| Variable | Por defecto | Uso |
+| --- | --- | --- |
+| `SPRING_DATASOURCE_URL` | `jdbc:mysql://localhost:3306/secondhand_bd` | Conexión con MySQL. |
+| `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | `root`, vacío | Credenciales de MySQL. |
+| `JWT_SECRET` | Clave de desarrollo | Firma de las sesiones. Si despliegas el proyecto, define una propia y larga. |
+| `SERVER_PORT` | `8080` | Puerto de la API. |
 
-Los usuarios pueden publicar productos para ponerlos a disposición de otros usuarios.
+Si cambias el puerto o la dirección de la API, cambia también `apiUrl` y `wsUrl` en [`frontend/src/environments/environment.ts`](frontend/src/environments/environment.ts).
 
-Cada producto puede contener información como:
+### Datos de prueba
 
-* Nombre
-* Categoría
-* Precio
-* Estado
-* Disponibilidad
-* Descripción
-* Imágenes
-
-Los productos pueden editarse o eliminarse posteriormente.
-
----
-
-### 📸 Imágenes de productos
-
-Los productos pueden tener varias imágenes para mostrar su estado y características.
-
-La aplicación permite gestionar las imágenes asociadas a cada producto, incluyendo una imagen principal o de portada.
-
----
-
-### 🔎 Búsqueda y filtros
-
-La aplicación incorpora diferentes opciones para localizar productos rápidamente.
-
-Se pueden utilizar filtros como:
-
-* Nombre
-* Categoría
-* Precio mínimo
-* Precio máximo
-* Estado
-* Disponibilidad
-* Descripción
-
-Esto permite encontrar productos concretos dentro de la colección de artículos publicados.
-
----
-
-### ❤️ Favoritos
-
-Los usuarios pueden guardar productos como favoritos para acceder a ellos posteriormente.
-
-Los productos marcados como favoritos se gestionan de forma independiente para cada usuario.
-
----
-
-### 💬 Chat entre usuarios
-
-La aplicación incorpora un sistema de comunicación entre usuarios para facilitar el contacto entre compradores y vendedores.
-
-El sistema utiliza **WebSocket**, permitiendo la comunicación en tiempo real.
-
-Esto permite:
-
-* Crear conversaciones.
-* Consultar conversaciones existentes.
-* Enviar mensajes.
-* Recibir mensajes en tiempo real.
-* Contactar con el vendedor de un producto.
-
----
-
-### 👤 Usuarios
-
-Cada usuario dispone de un perfil con información propia.
-
-Entre los datos gestionados se encuentran:
-
-* Nombre
-* Apellidos
-* Nombre de usuario
-* Correo electrónico
-* Imagen de perfil
-
-También se permite gestionar una imagen de perfil y una imagen de portada.
-
----
-
-### 🔐 Autenticación
-
-El proyecto incorpora autenticación mediante **JWT (JSON Web Token)**.
-
-Los usuarios pueden:
-
-* Registrarse.
-* Iniciar sesión.
-* Mantener su sesión autenticada.
-* Acceder a funcionalidades protegidas.
-
-El backend utiliza Spring Security para proteger los diferentes recursos de la aplicación.
-
----
-
-### 📦 Estados de los productos
-
-Los productos pueden encontrarse en diferentes estados de conservación:
-
-| Estado         | Descripción                         |
-| -------------- | ----------------------------------- |
-| **Nuevo**      | Producto sin utilizar               |
-| **Como nuevo** | Producto prácticamente nuevo        |
-| **Bueno**      | Producto en buen estado             |
-| **Usado**      | Producto con signos normales de uso |
-| **Muy usado**  | Producto con un uso considerable    |
-
-También se puede indicar la disponibilidad del producto:
-
-| Disponibilidad | Descripción                    |
-| -------------- | ------------------------------ |
-| **Disponible** | El producto está disponible    |
-| **Reservado**  | El producto está reservado     |
-| **Vendido**    | El producto ya ha sido vendido |
-
----
-
-## 🗂️ Categorías
-
-Los productos pueden clasificarse en diferentes categorías:
-
-* 💻 Electrónica
-* 🖥️ Informática
-* 🎮 Videojuegos
-* 📱 Móviles
-* 👕 Ropa
-* 🏠 Hogar
-* ⚽ Deporte
-* 📚 Libros
-* 📦 Otros
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-### Frontend
-
-* **Angular**
-* **TypeScript**
-* **HTML5**
-* **CSS**
-* **Tailwind CSS**
-* **Angular Material**
-* **Bootstrap Icons**
-* **RxJS**
-
-### Backend
-
-* **Java**
-* **Spring Boot**
-* **Spring Security**
-* **Spring Data JPA**
-* **Hibernate**
-* **Maven**
-* **REST API**
-* **WebSocket**
-
-### Base de datos
-
-* **MySQL**
-
-### Autenticación
-
-* **JWT (JSON Web Token)**
-
-### Herramientas
-
-* **Git**
-* **GitHub**
-* **Postman**
-* **npm**
-* **Maven**
-
----
-
-## 📂 Estructura del proyecto
-
-```text id="8p7d3x"
-secondhand-angular-java/
-│
-├── frontend/
-│   ├── src/
-│   ├── angular.json
-│   ├── package.json
-│   └── ...
-│
-├── backend/
-│   ├── src/
-│   │   └── main/
-│   │       ├── java/
-│   │       └── resources/
-│   ├── pom.xml
-│   └── ...
-│
-└── README.md
-```
-
----
-
-## 🏗️ Arquitectura
-
-SecondHand utiliza una arquitectura cliente-servidor dividida en frontend y backend:
-
-```text
-                       ┌───────────────────┐
-                       │      Usuario      │
-                       └─────────┬─────────┘
-                                 │
-                                 ▼
-                       ┌───────────────────┐
-                       │      Angular     │
-                       │     Frontend     │
-                       └─────────┬─────────┘
-                                 │
-                            HTTP / REST
-                                 │
-                                 ▼
-                       ┌───────────────────┐
-                       │   Spring Boot    │
-                       │     Backend      │
-                       └──────┬─────┬──────┘
-                              │     │
-                 ┌────────────┘     └─────────────┐
-                 ▼                                ▼
-          ┌─────────────┐                  ┌─────────────┐
-          │    MySQL    │                  │  WebSocket  │
-          │  Database   │                  │    Chat     │
-          └─────────────┘                  └─────────────┘
-```
-
----
-
-## 🔄 Funcionamiento general
-
-El funcionamiento principal de la aplicación puede resumirse de la siguiente forma:
-
-```text
-                    Usuario
-                       │
-                       ▼
-                ┌─────────────┐
-                │   Angular   │
-                │  Frontend   │
-                └──────┬──────┘
-                       │
-                  REST / JWT
-                       │
-                       ▼
-                ┌─────────────┐
-                │ Spring Boot │
-                │   Backend   │
-                └──────┬──────┘
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-         ┌──────────┐      ┌──────────┐
-         │  MySQL   │      │WebSocket │
-         │ Database │      │   Chat   │
-         └──────────┘      └──────────┘
-```
-
----
-
-## 💬 Comunicación en tiempo real
-
-El sistema de chat utiliza **WebSocket** para establecer una comunicación persistente entre cliente y servidor.
-
-Esto permite que los mensajes puedan enviarse y recibirse sin necesidad de realizar una petición HTTP independiente para cada actualización.
-
-El sistema está preparado para trabajar con conversaciones asociadas a los usuarios de la plataforma.
-
----
-
-## 🗄️ Base de datos
-
-La aplicación utiliza **MySQL** como sistema de gestión de base de datos.
-
-Entre las principales entidades del proyecto se encuentran:
-
-* Usuarios
-* Productos
-* Imágenes
-* Favoritos
-* Conversaciones
-* Mensajes
-
-Las relaciones entre estas entidades permiten gestionar la publicación de productos, los favoritos y la comunicación entre compradores y vendedores.
-
----
-
-## 🔐 Seguridad
-
-El backend utiliza **Spring Security** junto con **JWT** para gestionar la autenticación y autorización.
-
-Las peticiones a los recursos protegidos requieren un token válido.
-
-Los recursos públicos, como determinados recursos de imágenes, pueden ser accesibles sin autenticación según la configuración del proyecto.
-
----
-
-## 🛠️ Requisitos previos
-
-Antes de ejecutar el proyecto es necesario tener instalado:
-
-* **Node.js**
-* **npm**
-* **Angular CLI**
-* **Java**
-* **Maven**
-* **MySQL**
-* **Git**
-
----
-
-# 📥 Clonar el repositorio
-
-```bash id="7x0s3m"
-git clone https://github.com/vanerb/secondhand-angular-java.git
-cd secondhand-angular-java
-```
-
----
-
-# 🖥️ Instalación y ejecución
-
-## 1️⃣ Backend — Java Spring Boot
-
-Accede al directorio del backend:
-
-```bash id="q9a2vn"
-cd backend
-```
-
-Configura la conexión con MySQL en:
-
-```text id="b6k9vr"
-src/main/resources/application.properties
-```
-
-Configura los parámetros correspondientes a tu entorno:
-
-```properties id="6k3m8j"
-spring.datasource.url=jdbc:mysql://localhost:3306/TU_BASE_DE_DATOS
-spring.datasource.username=TU_USUARIO
-spring.datasource.password=TU_CONTRASEÑA
-```
-
-Crea previamente la base de datos en MySQL:
-
-```sql id="q7w8sa"
-CREATE DATABASE secondhand_bd;
-```
-
-Si vas a importar los datos de prueba, sáltate este paso: el SQL ya crea la base.
-
-### 🧪 Datos de prueba (opcional)
-
-[`database/secondhand_prueba.sql`](database/secondhand_prueba.sql) crea la base de datos, sus tablas y datos inventados. No borra nada: si las tablas ya existen, la importación se detiene con un error. Desde la raíz del repositorio:
+[`database/secondhand_prueba.sql`](database/secondhand_prueba.sql) crea la base `secondhand_bd` con usuarios, productos, favoritos, conversaciones, ofertas y un pago inventados. No borra nada: si las tablas ya existen, la importación se detiene con un error.
 
 ```bash
 mysql -u root -p --default-character-set=utf8mb4 -e "source database/secondhand_prueba.sql"
 ```
 
-Cuentas: `lucia@secondhand.test`, `marcos@secondhand.test`, `ana@secondhand.test` y `pablo@secondhand.test`.
+Cuentas: `lucia@secondhand.test`, `marcos@secondhand.test`, `ana@secondhand.test` y `pablo@secondhand.test`. La contraseña de todas es `Usuario123*`. Es pública, así que no uses estas cuentas fuera de un entorno local.
 
-La contraseña de todas es `Usuario123*`. Es pública, así que no uses estas cuentas fuera de un entorno local.
+## Tests
 
-### 🔑 Clave de las sesiones
+Todavía no tiene tests propios: solo las pruebas de creación que Angular genera para cada componente.
 
-La API firma las sesiones con la variable de entorno `JWT_SECRET`. Sin ella usa una clave de desarrollo, válida solo en local: si despliegas el proyecto, define una propia y larga.
+## Limitaciones conocidas
 
-Compila el proyecto:
+- La API no tiene tests automáticos.
+- El pago con tarjeta es simulado: no se conecta con ninguna pasarela.
+- Las imágenes se guardan en el disco del servidor, así que un despliegue real necesitaría almacenamiento persistente.
+- Ideas pendientes: notificaciones, valoraciones entre usuarios y localización de productos.
 
-```bash id="w0j0gc"
-mvn clean install
-```
+## Autoría
 
-Ejecuta Spring Boot:
-
-```bash id="r6p2jf"
-mvn spring-boot:run
-```
-
-El backend estará disponible por defecto en:
-
-```text id="c2w5h8"
-http://localhost:8080
-```
-
----
-
-## 2️⃣ Frontend — Angular
-
-Abre otra terminal y accede al frontend:
-
-```bash id="1cz9n5"
-cd frontend
-```
-
-Instala las dependencias:
-
-```bash id="3j7b0q"
-npm install
-```
-
-Ejecuta Angular:
-
-```bash id="x5w1zn"
-ng serve
-```
-
-El frontend estará disponible normalmente en:
-
-```text id="0y2n4r"
-http://localhost:4200
-```
-
-Si el backend no está en `http://localhost:8080`, cambia `apiUrl` (y `wsUrl` para el chat) en [`frontend/src/environments/environment.ts`](frontend/src/environments/environment.ts).
-
----
-
-## 🎯 Objetivo del proyecto
-
-El objetivo de **SecondHand** es desarrollar una plataforma web de compraventa de productos de segunda mano que permita a los usuarios **publicar, descubrir y gestionar productos**, así como comunicarse entre ellos.
-
-El proyecto permite poner en práctica diferentes conceptos de desarrollo Full Stack:
-
-* Desarrollo de aplicaciones SPA con Angular.
-* Creación de APIs REST con Spring Boot.
-* Persistencia de datos mediante JPA/Hibernate.
-* Gestión de bases de datos MySQL.
-* Autenticación y autorización mediante JWT.
-* Gestión de usuarios.
-* Operaciones CRUD.
-* Subida y gestión de imágenes.
-* Búsqueda y filtrado de productos.
-* Sistema de favoritos.
-* Comunicación en tiempo real mediante WebSocket.
-* Arquitectura cliente-servidor.
-
----
-
-## 📌 Estado del proyecto
-
-El flujo principal está completo y el proyecto sigue creciendo.
-
-Se están implementando y mejorando progresivamente diferentes funcionalidades relacionadas con la gestión de productos, usuarios, favoritos y comunicación entre usuarios.
-
-### 🔮 Posibles mejoras futuras
-
-* 🔔 Sistema de notificaciones.
-* 💬 Mejoras en el sistema de chat.
-* 🔎 Nuevas opciones de búsqueda y filtrado.
-* ⭐ Valoraciones entre usuarios.
-* 📍 Localización de productos.
-* 📊 Estadísticas de publicaciones.
-* 🔔 Notificaciones sobre favoritos y mensajes.
-* 📱 Mejoras de diseño responsive.
-
----
-
-## 👩‍💻 Autora
-
-**Vanesa Ribera Bautista**
-
-Proyecto desarrollado utilizando **Angular + Java Spring Boot + MySQL + JWT + WebSocket**.
+Proyecto de portfolio de **Vanesa Ribera Bautista** ([vanerb](https://github.com/vanerb)).
