@@ -21,6 +21,20 @@ Ver los productos es público; para comprar, vender o chatear hace falta iniciar
 | --- | --- | --- |
 | Electrónica, Informática, Videojuegos, Móviles, Ropa, Hogar, Deporte, Libros y Otros | Nuevo, Como nuevo, Buen estado, Usado y Muy usado | Disponible, Reservado y Vendido |
 
+### Capturas
+
+| Inicio | Catálogo |
+| --- | --- |
+| ![Portada de SecondHand](docs/screenshots/inicio.webp) | ![Catálogo de productos con categorías, estado y disponibilidad](docs/screenshots/catalogo.webp) |
+
+**Ficha de un producto**
+
+![Ficha de un producto con fotos, precio, estado y botón para contactar con quien vende](docs/screenshots/producto.webp)
+
+<p align="center">
+  <img src="docs/screenshots/movil.webp" alt="Portada de SecondHand en un móvil" width="280">
+</p>
+
 ## Demo
 
 La demo es el frontend compilado en modo `demo`: un interceptor HTTP simula toda la API dentro del navegador, con las mismas rutas, validaciones y errores, y el chat por WebSocket se sustituye por uno local. Tus cambios se guardan en el `localStorage` de tu navegador y el botón **Restablecer datos** del aviso inferior vuelve al estado inicial.
